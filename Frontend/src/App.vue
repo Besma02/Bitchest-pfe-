@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-bitchest-white"><HomeView /></div>
+  <div class="bg-bitchest-white"><Home /></div>
 </template>
 
 <script setup>
-import HomeView from "./views/HomeView.vue";
+import Home from "./views/Home.vue";
 </script>

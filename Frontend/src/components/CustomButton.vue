@@ -16,10 +16,8 @@ export default {
   computed: {
     buttonClass() {
       return {
-        "bg-bitchest-secondary text-bitchest-white px-4 py-2 rounded hover:bg-bitchest-alert":
+        "bg-bitchest-success font-bitchest font-bold text-bitchest-black px-4 py-2 w-122 h-42 rounded-2xl hover:bg-bitchest-secondary":
           this.variant === "primary",
-        "bg-bitchest-primary text-bitchest-white px-4 py-2 rounded hover:bg-bitchest-secondary":
-          this.variant === "secondary",
       };
     },
   },
