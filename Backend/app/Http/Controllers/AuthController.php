@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;   
 use App\Models\RegistrationRequest;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller 
 {
@@ -27,7 +27,7 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Registration request submitted.'], 201);
     }
-    
+
     public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message'=>'User logout']);
