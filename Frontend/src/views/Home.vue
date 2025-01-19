@@ -4,6 +4,7 @@
       <NavBar />
     </header>
     <main>
+      <HomeSection/>
       <Trade />
     </main>
   </div>
@@ -19,6 +20,7 @@ import ServicesSection from "@/components/sections/ServicesSection.vue";
 export default {
   components: {
     NavBar,
+    HomeSection,
     Trade,
   },
 };
