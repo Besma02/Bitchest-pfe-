@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('platform_finances', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('type')->default('client');  // Champ pour l’héritage
-            $table->decimal('balance', 18, 3)->nullable();
-            $table->rememberToken();
+            $table->decimal('total_income', 18, 3)->default(0);  // Total des revenus de la plateforme
             $table->timestamps();
         });
     }
@@ -28,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('platform_finances');
     }
 };
