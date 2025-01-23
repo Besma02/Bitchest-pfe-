@@ -8,8 +8,8 @@ class Client extends User
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->type = 'client';
-            $model->balance = 500;
+            $model->role = 'client';
+            $model->balance = 0;
         });
     }
 

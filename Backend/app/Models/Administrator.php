@@ -8,7 +8,7 @@ class Administrator extends User
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->type = 'administrator';
+            $model->role = 'administrator';
         });
     }
 }

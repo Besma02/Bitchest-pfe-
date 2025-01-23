@@ -25,9 +25,9 @@
         <a
           href="#home"
           :class="[
-            'hover:text-bitchest-secondary',
+            'hover:text-bitchest-success',
             {
-              'text-bitchest-secondary border-b-2 border-bitchest-secondary':
+              'text-bitchest-success border-b-2 border-bitchest-success':
                 activeSection === 'home',
             },
           ]"

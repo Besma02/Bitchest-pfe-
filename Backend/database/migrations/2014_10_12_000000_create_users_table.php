@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('type')->default('client');  // Champ pour l’héritage
+            $table->string('role')->default('client');  // Champ pour l’héritage
             $table->decimal('balance', 18, 3)->nullable();
             $table->rememberToken();
             $table->timestamps();
