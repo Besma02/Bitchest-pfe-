@@ -15,9 +15,10 @@ class ClientFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => Hash::make('password'),  // Assurez-vous de sécuriser le mot de passe
-            'balance' => 500,
-            'type' => 'client',
+            'password' => Hash::make('password'),
+            'balance' => $this->faker->randomFloat(2, 0),
+            'profile_photo' => $this->faker->imageUrl(),
+            'role' => 'client',
         ];
     }
 }

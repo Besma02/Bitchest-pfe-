@@ -1,13 +1,15 @@
 <template>
-  <header>
-    <NavBar />
-  </header>
-  <main>
-    <HomeSection />
-    <AboutSection />
-    <TradeSection />
-    <ServicesSection />
-  </main>
+  <div>
+    <header>
+      <NavBar />
+    </header>
+    <main>
+      <HomeSection />
+      <AboutSection />
+      <TradeSection />
+      <ServicesSection />
+    </main>
+  </div>
 </template>
 
 <script setup>

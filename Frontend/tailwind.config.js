@@ -10,7 +10,7 @@ export default {
         "bitchest-white": "#FFFFFF",
         "bitchest-black": "#434445",
         "bitchest-alert": "#FF5964",
-        "bitchest-success": "#01FF19",
+        "bitchest-success": "#08D41D",
       },
       fontFamily: {
         bitchest: ["Celias", "sans-serif"],
