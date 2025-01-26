@@ -16,7 +16,7 @@
         automatically with daily, weekly, or monthly trades.
       </p>
       <custom-button
-        class="text-bitchest-white font-bold text-base sm:text-lg md:text-xl lg:text-3xl border-0 rounded-lg lg:rounded-[20px] bg-bitchest-success px-4 py-2 sm:w-[150px] md:w-[165px] lg:w-[185px] mx-auto lg:mx-0 shadow-md"
+        class="text-bitchest-white font-bold text-base sm:text-lg md:text-xl lg:text-3xl border-0 rounded-lg lg:rounded-[20px] bg-bitchest-success px-4 py-2 sm:w-[150px] md:w-[165px] lg:w-[185px] mx-auto lg:mx-0 shadow-md flex justify-center sm:justify-center md:justify-center"
       >
         <span style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)">See More</span>
       </custom-button>
@@ -84,9 +84,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {};
-</script>
-
-<style></style>
