@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registration_requests', function (Blueprint $table) {
+        Schema::create('platform_finances', function (Blueprint $table) {
             $table->id();
-            $table->string('email')->unique();
-            $table->boolean('is_approved')->default(false);
+            $table->decimal('total_income', 18, 3)->default(0);  // Total des revenus de la plateforme
             $table->timestamps();
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registration_requests');
+        Schema::dropIfExists('platform_finances');
     }
 };

@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registration_requests', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->unique();
-            $table->boolean('is_approved')->default(false);
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('photo')->nullable();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registration_requests');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('photo');
+        });
     }
 };
