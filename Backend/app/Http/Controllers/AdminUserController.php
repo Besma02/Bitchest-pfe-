@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendPasswordMail;
+
 
 
 class AdminUserController extends Controller
@@ -19,44 +22,55 @@ class AdminUserController extends Controller
 
         return response()->json($users);
     }
-
     public function store(Request $request)
-    {
-        // Valider les données
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation de la photo (facultatif)
-        ]);
+{
+    // Valider les données
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation de la photo (facultatif)
+    ]);
 
-        // Générer un mot de passe aléatoire
-        $password = Str::random(10);
+    // Générer un mot de passe aléatoire
+    $password = Str::random(10);
 
-        // Créer un utilisateur
-        $userData = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => 'client', // Rôle par défaut : client
-            'password' => Hash::make($password),
-        ];
+    // Créer un utilisateur
+    $userData = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => 'client', // Rôle par défaut : client
+        'password' => Hash::make($password),
+    ];
 
-        // Gérer le téléchargement de la photo (si présente)
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('photos', 'public');  // Stockage dans le dossier 'photos'
-            $userData['photo'] = $path;  // Ajouter le chemin de la photo
-        }
-
-        // Créer l'utilisateur avec les données
-        $user = User::create($userData);
-
-        return response()->json([
-            'message' => 'User created successufly',
-            'user' => $user,
-            'generated_password' => $password,
-            'photo' => $user->photo ? asset('storage/' . $user->photo) : null,  // Retourner l'URL de la photo si elle existe
-        ]);
+    // Gérer le téléchargement de la photo (si présente)
+    if ($request->hasFile('photo')) {
+        $path = $request->file('photo')->store('photos', 'public');  // Stockage dans le dossier 'photos'
+        $userData['photo'] = $path;  // Ajouter le chemin de la photo
     }
 
+    // Créer l'utilisateur avec les données
+    $user = User::create($userData);
+
+    // Envoi d'e-mail avec le mot de passe généré
+    try {
+        Mail::to($user->email)->send(new SendPasswordMail($user->name, $password));
+        Log::debug('Email sent successfully to' . $user->email);
+    } catch (\Exception $e) {
+        Log::error('Error sending email', ['error' => $e->getMessage()]);
+        return response()->json([
+            'message' => 'User created,but an error occurred while sending the email.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+
+    // Retourner la réponse avec succès
+    return response()->json([
+        'message' => 'User created successfully.An email has been sent.',
+        'user' => $user,
+        'generated_password' => $password,
+        'photo' => $user->photo ? asset('storage/' . $user->photo) : null, // Retourner l'URL de la photo si elle existe
+    ]);
+}
     public function show($id)
     {
         // Trouver l'utilisateur par son ID
@@ -104,7 +118,7 @@ class AdminUserController extends Controller
 
         // Retourner la réponse avec un code HTTP 200
         return response()->json([
-            'message' => 'Utilisateur mis à jour avec succès.',
+            'message' => 'User updated successfully.',
             'user' => $user,
             'generated_password' => isset($password) ? $password : null, // Retourner le mot de passe généré si applicable
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
@@ -113,26 +127,23 @@ class AdminUserController extends Controller
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         // Cas où l'utilisateur n'a pas été trouvé
         return response()->json([
-            'message' => 'Utilisateur introuvable.',
+            'message' => 'User not found.',
             'error' => $e->getMessage(),
         ], 404);
     } catch (\Illuminate\Validation\ValidationException $e) {
         // Gestion des erreurs de validation
         return response()->json([
-            'message' => 'Validation des données échouée.',
+            'message' => 'Data validation failed.',
             'error' => $e->errors(),
         ], 422);
     } catch (\Exception $e) {
         // Cas où une autre erreur survient
         return response()->json([
-            'message' => 'Une erreur s\'est produite lors de la mise à jour.',
+            'message' => 'An error occurred while updating.',
             'error' => $e->getMessage(),
         ], 500);
     }
 }
-
-
-
 
     public function destroy($id)
     {
