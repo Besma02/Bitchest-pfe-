@@ -14,7 +14,15 @@ class UserController extends Controller
     {
         return User::all();
     }
-
+    /** getProfile */
+    public function getProfile(Request $request)
+{
+    $user = $request->user(); // Cela récupère l'utilisateur authentifié
+    return response()->json([
+        'name' => $user->name,
+        'role' => $user->role,
+    ]);
+}
     /**
      * Store a newly created resource in storage.
      */

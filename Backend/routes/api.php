@@ -39,3 +39,6 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
    
     Route::delete('admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });
+// Dans routes/api.php
+Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
+
