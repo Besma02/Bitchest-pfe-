@@ -73,9 +73,7 @@
         <CustomButton variant="primary" @click="handleSigninClick">
           Sign in
         </CustomButton>
-        <router-link class="text-bitchest-success font-bold border border-bitshest-success  rounded-[20px] px-4 py-2 hover:text-black  transition duration-300 ease-in-out" to="/logout" @click="logout">
-          Logout
-        </router-link>
+      
       </div>
     </div>
   </nav>
@@ -117,10 +115,7 @@ export default {
         }
       });
     },
-    logout() {
-      localStorage.clear();
-      this.$router.push({ name: 'signIn' });
-    },
+   
   },
 };
 </script>
