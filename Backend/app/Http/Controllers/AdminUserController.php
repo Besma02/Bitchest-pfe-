@@ -50,7 +50,7 @@ class AdminUserController extends Controller
 
     // Créer l'utilisateur avec les données
     $user = User::create($userData);
-
+  
     // Envoi d'e-mail avec le mot de passe généré
     try {
         Mail::to($user->email)->send(new SendPasswordMail($user->name, $password));
@@ -82,35 +82,37 @@ class AdminUserController extends Controller
     public function update(Request $request, $id)
 {
     try {
-        // Trouver l'utilisateur par son ID
-        $user = User::findOrFail($id);
-
-        // Valider les données de mise à jour, y compris la photo
+        // Validation des données
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'role' => 'required|in:admin,client',  // Validation pour le rôle
+            'photo' => 'nullable|string',  // Le champ photo peut être une chaîne Base64
         ]);
 
-        // Préparer les données de mise à jour
-        $userData = $request->only(['name', 'email']);
+        // Trouver l'utilisateur par son ID
+        $user = User::findOrFail($id);
 
-        // Générer un mot de passe aléatoire s'il n'est pas fourni dans la requête
-        if (!$request->has('password')) {
-            $password = Str::random(10); // Générer un mot de passe aléatoire
-            $userData['password'] = Hash::make($password); // Hacher le mot de passe
-        }
+        // Préparer les données de mise à jour (nom, email, rôle)
+        $userData = $request->only(['name', 'email', 'role']); // Inclure le rôle
 
         // Vérifier si la photo est présente et la gérer
-        if ($request->hasFile('photo')) {
-            // Supprimer l'ancienne photo si elle existe
-            if ($user->photo && Storage::exists($user->photo)) {
-                Storage::delete($user->photo);
-            }
+        if ($request->has('photo') && $request->input('photo') !== null) {
+            $photoData = $request->input('photo');
+            // Si la photo est en base64, extraire l'image et la sauvegarder
+            if ($photoData) {
+                // Vérifier que l'image est bien en base64
+                if (!preg_match('/^data:image\/\w+;base64,/', $photoData)) {
+                    return response()->json([
+                        'message' => 'Invalid image data.',
+                    ], 422);
+                }
 
-            // Télécharger la nouvelle photo
-            $path = $request->file('photo')->store('photos', 'public');
-            $userData['photo'] = $path;  // Ajouter le chemin de la photo
+                $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $photoData));
+                $imageName = 'photo_' . time() . '.jpg';
+                $path = Storage::disk('public')->put($imageName, $imageData);
+                $userData['photo'] = $path;  // Ajouter le chemin de la photo
+            }
         }
 
         // Mettre à jour l'utilisateur avec les nouvelles données
@@ -120,10 +122,9 @@ class AdminUserController extends Controller
         return response()->json([
             'message' => 'User updated successfully.',
             'user' => $user,
-            'generated_password' => isset($password) ? $password : null, // Retourner le mot de passe généré si applicable
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ], 200);
-        
+
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         // Cas où l'utilisateur n'a pas été trouvé
         return response()->json([
@@ -144,6 +145,9 @@ class AdminUserController extends Controller
         ], 500);
     }
 }
+
+
+
 
     public function destroy($id)
     {
