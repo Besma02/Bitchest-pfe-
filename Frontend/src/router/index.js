@@ -5,6 +5,7 @@ import Login from '../views/Login.vue';
 
 import AdminUserList from '../components/admin/AdminUserList.vue';
 import AddUserForm from '../components/admin/AddUserForm.vue';
+import EditUser from '../components/admin/EditUser.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,7 @@ const router = createRouter({
           component: AdminUserList, // Composant à afficher
         },
         { path: '/admin/users/add', component: AddUserForm },
+        { path: '/admin/users/edit/:id',name: 'EditUser', component: EditUser },
       ],
     },
     

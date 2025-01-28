@@ -14,7 +14,7 @@
             <li
               v-for="item in menuItems"
               :key="item.label"
-              class="py-3 px-6 mr-9 hover:bg-bitchest-white cursor-pointer"
+              class="py-2 px-6 mr-9 hover:bg-bitchest-white cursor-pointer"
               @click="navigateTo(item.route)"
             >
               {{ item.label }}
@@ -30,7 +30,7 @@
             <li
               v-for="item in userActions"
               :key="item.label"
-              class="py-3 px-6 mr-9 hover:bg-bitchest-white cursor-pointer "
+              class="py-2 px-6 mr-9 hover:bg-bitchest-white cursor-pointer "
               @click="navigateTo(item.route)"
             >
               {{ item.label }}
