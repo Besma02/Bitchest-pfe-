@@ -7,11 +7,22 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        //
+        return User::all();
     }
-
+    /** getProfile */
+    public function getProfile(Request $request)
+{
+    $user = $request->user(); // Cela récupère l'utilisateur authentifié
+    return response()->json([
+        'name' => $user->name,
+        'role' => $user->role,
+    ]);
+}
     /**
      * Store a newly created resource in storage.
      */
@@ -23,9 +34,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        return User::findOrFail($id);
     }
 
     /**
@@ -39,8 +50,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully.']);
     }
 }

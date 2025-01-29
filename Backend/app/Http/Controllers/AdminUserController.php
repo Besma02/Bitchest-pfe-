@@ -78,16 +78,22 @@ class AdminUserController extends Controller
 
         return response()->json($user);
     }
-
     public function update(Request $request, $id)
 {
     try {
+        // Vérification si les champs nécessaires sont présents
+        if (!$request->has('name') || !$request->has('email') || !$request->has('role')) {
+            return response()->json([
+                'message' => 'Name, email, and role are required.',
+            ], 422);
+        }
+
         // Validation des données
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'role' => 'required|in:admin,client',  // Validation pour le rôle
-            'photo' => 'nullable|string',  // Le champ photo peut être une chaîne Base64
+            'role' => 'required|in:admin,client',  
+            'photo' => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp|max:2048',
         ]);
 
         // Trouver l'utilisateur par son ID
@@ -97,22 +103,12 @@ class AdminUserController extends Controller
         $userData = $request->only(['name', 'email', 'role']); // Inclure le rôle
 
         // Vérifier si la photo est présente et la gérer
-        if ($request->has('photo') && $request->input('photo') !== null) {
-            $photoData = $request->input('photo');
-            // Si la photo est en base64, extraire l'image et la sauvegarder
-            if ($photoData) {
-                // Vérifier que l'image est bien en base64
-                if (!preg_match('/^data:image\/\w+;base64,/', $photoData)) {
-                    return response()->json([
-                        'message' => 'Invalid image data.',
-                    ], 422);
-                }
-
-                $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $photoData));
-                $imageName = 'photo_' . time() . '.jpg';
-                $path = Storage::disk('public')->put($imageName, $imageData);
-                $userData['photo'] = $path;  // Ajouter le chemin de la photo
-            }
+        if ($request->hasFile('photo')) {
+            // Si un fichier photo est envoyé
+            $photo = $request->file('photo');
+            // Vérification de l'extension du fichier
+            $path = $photo->storeAs('photos', 'photo_' . time() . '.' . $photo->getClientOriginalExtension(), 'public');
+            $userData['photo'] = $path;  // Ajouter le chemin de la photo
         }
 
         // Mettre à jour l'utilisateur avec les nouvelles données
@@ -145,6 +141,8 @@ class AdminUserController extends Controller
         ], 500);
     }
 }
+
+
 
 
 

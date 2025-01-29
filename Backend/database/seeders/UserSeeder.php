@@ -14,7 +14,8 @@ class UserSeeder extends Seeder
        
         // Créer plusieurs clients
         User::factory()->count(10)->create([
-            'role' => 'client', 
+            'role' => 'client',
+            
         ]);
     }
 }

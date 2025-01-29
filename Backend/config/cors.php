@@ -1,11 +1,13 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'registration-request', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE'],
+    'allowed_methods' => ['*'],
 
     'allowed_origins' => ['*'],
+
+    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
