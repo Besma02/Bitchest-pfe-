@@ -30,13 +30,6 @@
         <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email[0] }}</p>
       </div>
 
-      <!-- Champ Photo -->
-      <div class="mb-4">
-        <label for="photo" class="block text-sm font-semibold text-gray-700">Photo</label>
-        <input id="photo" type="file" @change="handlePhoto" class="w-full" />
-        <p v-if="errors.photo" class="text-red-500 text-sm mt-1">{{ errors.photo[0] }}</p>
-      </div>
-
       <!-- Champ Role -->
       <div class="mb-4">
         <label for="role" class="block text-sm font-semibold text-gray-700">Role</label>
@@ -53,6 +46,13 @@
         <p v-if="errors.role" class="text-red-500 text-sm mt-1">{{ errors.role[0] }}</p>
       </div>
 
+      <!-- Champ Photo -->
+      <div class="mb-4">
+        <label for="photo" class="block text-sm font-semibold text-gray-700">Photo</label>
+        <input id="photo" type="file" @change="handlePhoto" class="w-full" />
+        <p v-if="errors.photo" class="text-red-500 text-sm mt-1">{{ errors.photo[0] }}</p>
+      </div>
+
       <!-- Bouton -->
       <button
         type="submit"
@@ -65,62 +65,53 @@
 </template>
 
 <script>
+import { useToast } from "vue-toastification";
+
 export default {
   name: "EditUser",
+  setup() {
+    const toast = useToast(); // ✅ Initialisation de Vue Toastification
+    return { toast };
+  },
   data() {
     return {
       user: {
         name: "",
         email: "",
-        role: "", // Rôle admin ou client
+        role: "",
       },
       photo: null,
-      errors: {}, // Pour stocker les erreurs de validation
+      errors: {},
     };
   },
-  created() {
-    const userId = this.$route.params.id;
-    this.fetchUser(userId);
+  async created() {
+    try {
+      const userId = this.$route.params.id;
+      this.user = await this.$store.dispatch("users/fetchUser", userId);
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'utilisateur :", error);
+    }
   },
   methods: {
-    async fetchUser(userId) {
-      try {
-        const response = await this.$store.dispatch("fetchUser", userId);
-        this.user = response.data; // Pré-remplir les champs avec les données de l'utilisateur
-      } catch (error) {
-        console.error("Erreur lors de la récupération de l'utilisateur :", error);
-      }
-    },
     handlePhoto(event) {
       this.photo = event.target.files[0];
     },
     async updateUser() {
-      const data = {
-        name: this.user.name,
-        email: this.user.email,
-        role: this.user.role,
-        photo: this.photo ? await this.convertPhotoToBase64() : null,
-      };
-
       try {
-        await this.$store.dispatch("updateUser", { id: this.$route.params.id, userData: data });
-        alert("User updated successfully!");
+        await this.$store.dispatch("users/updateUser", {
+          id: this.$route.params.id,
+          userData: { ...this.user, photo: this.photo },
+        });
+
+        this.toast.success("User updated successfully! 🎉"); // ✅ Affichage du toast
         this.$router.push({ name: "manage-users" });
       } catch (error) {
         if (error.response && error.response.status === 422) {
-          this.errors = error.response.data.errors; // Stocker les erreurs
+          this.errors = error.response.data.errors;
         } else {
           console.error("Erreur lors de la mise à jour :", error);
         }
       }
-    },
-    async convertPhotoToBase64() {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(this.photo);
-      });
     },
   },
 };

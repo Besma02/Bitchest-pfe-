@@ -18,7 +18,6 @@
         @inputData="setInputData"
         placeholder="enter your email"
         class="mr-8 CustomInput"
-       
       />
       <CustomButton variant="primary" @click="submitEmail">
         Registration request
@@ -53,7 +52,7 @@
 <script>
 import CustomButton from "@/components/CustomButton.vue";
 import CustomInput from "@/components/CustomInput.vue";
-import axios from "axios";
+import registrationService from "@/services/registrationService.js";
 
 export default {
   name: "HomeSection",
@@ -63,7 +62,7 @@ export default {
   },
   data() {
     return {
-      email: "", // La variable email est liée via v-model à CustomInput
+      email: "",
       showModal: false,
       modalMessage: "",
       modalRedirect: false,
@@ -71,28 +70,23 @@ export default {
   },
   methods: {
     setInputData(value) {
-      this.email = value; // Met à jour la variable email
+      this.email = value;
     },
     async submitEmail() {
-      console.log(this.email); // Affiche l'email dans la console
+      if (!this.email || !this.validateEmail(this.email)) {
+        this.modalMessage = "Please enter a valid email.";
+        this.showModal = true;
+        return;
+      }
+
       try {
-        const response = await axios.post(
-          "http://localhost:8000/api/registration-request",
-          {
-            email: this.email,
-          }
+        const response = await registrationService.submitRegistrationRequest(
+          this.email
         );
-        this.modalMessage =
-          "Your request has been received. You will be notified soon.";
-        this.modalRedirect = false;
-      } catch (error) {
-        if (error.response.status === 409) {
-          this.modalMessage =
-            "You are already registered. Redirecting to Sign In.";
-          this.modalRedirect = true;
-        } else {
-          this.modalMessage = "An error occurred. Please try again later.";
-        }
+        this.modalMessage = response.message;
+        this.modalRedirect = response.status === "user_exists";
+      } catch {
+        this.modalMessage = "An error occurred. Please try again later.";
       }
       this.showModal = true;
     },
@@ -101,6 +95,10 @@ export default {
       if (this.modalRedirect) {
         window.location.href = "/login";
       }
+    },
+    validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
     },
   },
 };

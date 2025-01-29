@@ -39,8 +39,8 @@
             <button @click="editUser(user.id)" class="text-yellow-500 hover:text-yellow-600">
               <i class="fas fa-edit mr-2 text-bitchest-success"></i>
             </button>
-            <button @click="deleteUser(user.id)" class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash-alt mr-2"></i> 
+            <button @click="confirmDelete(user.id)" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-trash-alt mr-2"></i>
             </button>
           </td>
         </tr>
@@ -50,32 +50,61 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+import { useToast } from "vue-toastification";
+
 export default {
   name: "AdminUserList",
+  setup() {
+    const toast = useToast(); // ✅ Initialisation de Vue Toastification
+    return { toast };
+  },
   computed: {
+    ...mapGetters("users", ["allUsers"]), // 🔥 Utilisation du namespace "users"
     users() {
-      return this.$store.getters.allUsers;
+      return this.allUsers;
     },
   },
   created() {
     this.fetchUsers();
   },
   methods: {
-    fetchUsers() {
-      this.$store.dispatch("fetchUsers");
-    },
+    ...mapActions("users", ["fetchUsers", "deleteUser"]), // 🔥 Utilisation des actions du module "users"
+
     editUser(userId) {
       this.$router.push({ name: "EditUser", params: { id: userId } });
     },
-    deleteUser(userId) {
+
+    async confirmDelete(userId) {
       if (confirm("Are you sure you want to delete this user?")) {
-        this.$store.dispatch("deleteUser", userId);
+        await this.handleDeleteUser(userId);
       }
     },
+
+    async handleDeleteUser(userId) {
+  try {
+    await this.deleteUser(userId);
+    this.toast.error("User deleted successfully! 🗑️", {
+      timeout: 3000,
+      position: "top-right",
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      draggablePercent: 0.6,
+      showCloseButtonOnHover: true,
+      hideProgressBar: false,
+      closeButton: "button",
+      icon: "❌",
+      className: "bg-bitchest-alert text-white font-bold px-4 py-3 rounded shadow-md",
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression :", error);
+    this.toast.error("Failed to delete user. ❌", {
+      className: "bg-red-700 text-white font-bold px-4 py-3 rounded shadow-md",
+    });
+  }
+}
+
   },
 };
 </script>
-
-<style scoped>
-/* Styles personnalisés ici */
-</style>

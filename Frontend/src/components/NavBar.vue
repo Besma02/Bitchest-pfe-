@@ -25,9 +25,9 @@
         <a
           href="#home"
           :class="[
-            'hover:text-bitchest-secondary',
+            'hover:text-bitchest-success',
             {
-              'text-bitchest-secondary border-b-2 border-bitchest-secondary':
+              'text-bitchest-success border-b-2 border-bitchest-success':
                 activeSection === 'home',
             },
           ]"
@@ -37,9 +37,9 @@
         <a
           href="#about"
           :class="[
-            'hover:text-bitchest-secondary',
+            'hover:text-bitchest-success',
             {
-              'text-bitchest-secondary border-b-2 border-bitchest-secondary':
+              'text-bitchest-success border-b-2 border-bitchest-success':
                 activeSection === 'about',
             },
           ]"
@@ -49,9 +49,9 @@
         <a
           href="#trade"
           :class="[
-            'hover:text-bitchest-secondary',
+            'hover:text-bitchest-success',
             {
-              'text-bitchest-secondary border-b-2 border-bitchest-secondary':
+              'text-bitchest-success border-b-2 border-bitchest-success':
                 activeSection === 'trade',
             },
           ]"
@@ -61,9 +61,9 @@
         <a
           href="#services"
           :class="[
-            'hover:text-bitchest-secondary',
+            'hover:text-bitchest-success',
             {
-              'text-bitchest-secondary border-b-2 border-bitchest-secondary':
+              'text-bitchest-success border-b-2 border-bitchest-success':
                 activeSection === 'services',
             },
           ]"
@@ -71,7 +71,7 @@
           Services
         </a>
         <CustomButton variant="primary" @click="handleSigninClick">
-          Sign in
+          Login
         </CustomButton>
       
       </div>

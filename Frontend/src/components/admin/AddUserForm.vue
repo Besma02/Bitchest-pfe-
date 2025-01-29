@@ -3,7 +3,6 @@
     <h1 class="text-3xl font-semibold mb-8 text-center text-gray-800">Add User</h1>
 
     <form @submit.prevent="submitForm" class="space-y-6">
-      <!-- Champ Name -->
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
         <input
@@ -17,7 +16,6 @@
         <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
       </div>
 
-      <!-- Champ Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
         <input
@@ -31,7 +29,6 @@
         <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
       </div>
 
-      <!-- Champ Role -->
       <div>
         <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
         <select
@@ -44,7 +41,6 @@
         </select>
       </div>
 
-      <!-- Champ Photo -->
       <div>
         <label for="photo" class="block text-sm font-medium text-gray-700">Photo</label>
         <input
@@ -56,11 +52,10 @@
         <p v-if="errors.photo" class="text-red-500 text-sm mt-1">{{ errors.photo }}</p>
       </div>
 
-      <!-- Bouton Ajouter -->
       <div class="text-center">
         <button
           type="submit"
-          class="w-full bg-bitchest-success text-balck text-[1rem] font-bold px-4 py-2 rounded-lg shadow hover:bg-gray-200 text-black focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          class="w-full bg-bitchest-success text-black text-[1rem] font-bold px-4 py-2 rounded-lg shadow hover:bg-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           Add User
         </button>
@@ -70,41 +65,46 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+import { useToast } from "vue-toastification"; // 🔥 Import du toast
+
 export default {
+  setup() {
+    const toast = useToast(); // 🔥 Utilisation du toast
+    return { toast };
+  },
   data() {
     return {
-      name: '', // Nom de l'utilisateur
-      email: '', // Email de l'utilisateur
-      role: 'client', // Rôle par défaut (Client)
-      photo: null, // Photo de l'utilisateur
-      errors: {}, // Stocker les erreurs de validation
+      name: "",
+      email: "",
+      role: "client",
+      photo: null,
+      errors: {},
     };
   },
   methods: {
+    ...mapActions("users", ["addUser"]),
     handlePhotoUpload(event) {
-      this.photo = event.target.files[0]; // Récupérer le fichier photo
+      this.photo = event.target.files[0];
     },
     async submitForm() {
       const formData = new FormData();
-      formData.append('name', this.name);
-      formData.append('email', this.email);
-      formData.append('role', this.role);
+      formData.append("name", this.name);
+      formData.append("email", this.email);
+      formData.append("role", this.role);
       if (this.photo) {
-        formData.append('photo', this.photo);
+        formData.append("photo", this.photo);
       }
 
       try {
-        // Appeler l'action Vuex pour ajouter l'utilisateur
-        await this.$store.dispatch('addUser', formData);
-
-        // Rediriger après succès
-        this.$router.push({ name: 'manage-users' });
+        await this.addUser(formData);
+        this.toast.success("User added successfully! 🎉"); // 🔥 Affichage du toast
+        this.$router.push({ name: "manage-users" });
       } catch (error) {
-        // Gestion des erreurs de validation
         if (error.response && error.response.status === 422) {
-          this.errors = error.response.data.errors; // Stocker les erreurs
+          this.errors = error.response.data.errors;
         } else {
-          console.error('Error adding user :', error);
+          console.error("Error adding user:", error);
         }
       }
     },

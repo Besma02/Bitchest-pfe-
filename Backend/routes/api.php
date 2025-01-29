@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+use App\Http\Controllers\RegistrationRequestController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
