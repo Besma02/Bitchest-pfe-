@@ -1,7 +1,9 @@
 
 
 <template>
- <div class="bg-bitchest-white"><Home /></div>
+ <router-view/>
+    
+ 
 </template>
 
 <script setup>

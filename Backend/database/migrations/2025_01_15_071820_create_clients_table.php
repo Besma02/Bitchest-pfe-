@@ -4,29 +4,25 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateClientsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); 
-            $table->float('balance')->default(0); 
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->integer('idRegistrationRequest');
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('image')->nullable();
+            $table->float('balance', 8, 2)->default(0.00); 
             $table->timestamps();
-
-            
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('clients');
     }
-};
+}

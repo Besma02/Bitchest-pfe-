@@ -6,6 +6,7 @@
       <HomeSection />
       <AboutSection />
       <TradeSection />
+    
       <ServicesSection />
     </main>
   </template>
@@ -16,6 +17,7 @@
   import AboutSection from "@/components/sections/AboutSection.vue";
   import TradeSection from "@/components/sections/TradeSection.vue";
   import ServicesSection from "@/components/sections/ServicesSection.vue";
+
   </script>
   <style>
   header {

@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// use App\Http\Controllers\RegistrationRequestController;
+
+// Route::post('/registration-request', [RegistrationRequestController::class, 'store']);
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome'); // Or replace 'welcome' with your actual view name
+});
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->noContent();
 });

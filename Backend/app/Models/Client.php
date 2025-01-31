@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Client extends Model
+class Client extends User
 {
-    use HasFactory;
-
-    protected $fillable = ['user_id', 'balance'];
-
-    
-    public function user()
+    protected static function boot()
     {
-        return $this->belongsTo(User::class);
+        parent::boot();
+        static::creating(function ($model) {
+            $model->role = 'client';
+            $model->balance = 0;
+        });
     }
+
+    // Indiquer que le modèle utilise la table `users`
+    protected $table = 'users';
 }

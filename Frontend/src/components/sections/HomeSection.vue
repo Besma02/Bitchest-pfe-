@@ -75,7 +75,7 @@
         console.log(this.email); // Affiche l'email dans la console
         try {
           const response = await axios.post(
-            "http://localhost:8000/registration-request",
+            "http://localhost:8000/api/registration-request",
             {
               email: this.email,
             }

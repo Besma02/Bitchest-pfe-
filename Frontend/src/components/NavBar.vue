@@ -103,8 +103,9 @@
         this.isMenuOpen = !this.isMenuOpen;
       },
       handleSigninClick() {
-        console.log("Signin button clicked");
-      },
+  this.$router.push({ name: "login" }); 
+},
+   
       observeSections(entries) {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
