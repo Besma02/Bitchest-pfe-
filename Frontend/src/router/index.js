@@ -1,27 +1,44 @@
-import { createRouter, createWebHistory } from "vue-router";
-import Home from "../views/Home.vue";
-import Login from "../views/Login.vue";
-import Dashboard from "../components/Dashboard.vue";
-import store from "../store"; // Import Vuex store
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from '../views/Home.vue'
+import Dashboard from '../views/Dashboard.vue';
+import Login from '../views/Login.vue';
+
+import AdminUserList from '../components/admin/AdminUserList.vue';
+import AddUserForm from '../components/admin/AddUserForm.vue';
+import EditUser from '../components/admin/EditUser.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: "/", name: "home", component: Home },
-    { path: "/login", name: "login", component: Login },
-    { path: "/dashboard", name: "dashboard", component: Dashboard, meta: { requiresAuth: true } }, // 🚀 Protected
+    {
+      path: '/',
+      name: 'home',
+      component: Home
+      ,
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component:Login
+      
+    },
+    
+    {
+      path: "/dashboard",
+      name: "dashboard",
+      component: Dashboard,
+      children: [
+        {
+          path: '/manage-users',// Sous-route pour la gestion des utilisateurs
+          name: 'manage-users',
+          component: AdminUserList, // Composant à afficher
+        },
+        { path: '/admin/users/add', component: AddUserForm },
+        { path: '/admin/users/edit/:id',name: 'EditUser', component: EditUser },
+      ],
+    },
+    
   ],
-});
-
-// 🚀 Secure Routes: Check Authentication Before Navigating
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token"); // ✅ Check localStorage for authentication
-
-  if (to.meta.requiresAuth && !token) {
-    next("/login"); // Redirect to login if not authenticated
-  } else {
-    next();
-  }
 });
 
 export default router;

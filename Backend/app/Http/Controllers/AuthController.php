@@ -2,53 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\AuthService;
+use App\Models\RegistrationRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
+class AuthController extends Controller 
 {
-    protected $authService;
-
-    /**
-     * Create a new AuthController instance.
-     *
-     * @param \App\Http\Services\AuthService $authService
-     */
-    public function __construct(AuthService $authService)
+    public function register(Request $request)
     {
-        $this->authService = $authService;
-    }
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:8',
+        ]);
 
-    /**
-     * Handle user login and return a token.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'role' => 'pending',
+        ]);
+
+        RegistrationRequest::create(['user_id' => $user->id]);
+
+        return response()->json(['message' => 'Registration request submitted.'], 201);
+    }
     public function login(Request $request)
     {
-        // Validate the incoming request
+        // Validation des données d'entrée
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
-        // Call the authentication logic in AuthService
-        $user = $this->authService->authenticate($request->email, $request->password);
+        // Recherche de l'utilisateur par son email
+        $user = User::where('email', $request->email)->first();
 
-        // If authentication fails (user is null), return an error message
-        if (!$user) {
-            return response()->json(['message' => 'Please check your email and password'], 401);
+        // Vérification du mot de passe
+        if ($user && Hash::check($request->password, $user->password)) {
+            // Génère un token pour l'utilisateur
+            $token = $user->createToken('BitChest')->plainTextToken;
+
+            // Retourne les informations de l'utilisateur et le token
+            return response()->json([
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,  // Vous pouvez ajouter d'autres champs si nécessaire
+                ],
+                'token' => $token
+            ]);
         }
 
-        // Generate a Sanctum token for the authenticated user
-        $token = $user->createToken('authToken')->plainTextToken;
+        // Si l'authentification échoue
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    
+    public function logout(Request $request)
+    {
+        
+        $user = Auth::user();
+        // Supprime le token actuel de l'utilisateur
+        $user->tokens->each(function ($token) {
+            $token->delete();
+        });
 
-        // Return a success message with the token and user details
-        return response()->json([
-            'message' => 'Login successful.',
-            'token' => $token,
-            'user' => $user,
-        ]);
+        return response()->json(['message' => 'User successfully logged out']);
     }
 }

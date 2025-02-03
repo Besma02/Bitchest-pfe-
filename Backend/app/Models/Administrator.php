@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
-class Administrator extends User
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Administrator extends Model
 {
     protected static function boot()
     {

@@ -58,7 +58,7 @@ export default {
     return { toast };
   },
   methods: {
-    ...mapActions("auth", ["login"]),
+    ...mapActions("auth", ["login"]), // ✅ Correct usage of mapActions
     async handleLogin() {
       try {
         const response = await this.login({ email: this.email, password: this.password });

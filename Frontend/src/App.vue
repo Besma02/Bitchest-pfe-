@@ -1,11 +1,16 @@
-
-
 <template>
- <router-view/>
-    
- 
+  <router-view/>
+  
 </template>
 
-<script setup>
-import Home from "./views/Home.vue";
+<script>
+export default {
+ name:'App'
+}
 </script>
+
+<style>
+body {
+    font-family: 'Celias', sans-serif;
+}
+</style>

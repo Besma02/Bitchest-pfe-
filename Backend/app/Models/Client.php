@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
-class Client extends User
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Client extends Model
 {
     protected static function boot()
     {
         parent::boot();
         static::creating(function ($model) {
             $model->role = 'client';
-            $model->balance = 0;
+            $model->balance = 500;
         });
     }
 
