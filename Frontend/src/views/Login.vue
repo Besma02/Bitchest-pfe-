@@ -1,84 +1,90 @@
 <template>
+
   <div>
-  <NavBar/>
-  <div class="max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md mt-[150px]">
-    <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Login</h1>
-    <form @submit.prevent="handleLogin">
-      <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-          type="email"
-          id="email"
-          v-model="email"
-          class="border rounded-lg px-4 py-2 w-full focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Entrez votre email"
-        />
-      </div>
-      <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-          class="border rounded-lg px-4 py-2 w-full focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Entrez votre mot de passe"
-        />
-      </div>
-      <button
-        type="submit"
-        class="bg-bitchest-success text-black px-4 py-2 font-bold text-[1rem] rounded-lg w-full hover:bg-gray-200 focus:outline-none focus:ring-2  focus:ring-opacity-50"
-      >
-        Login
-      </button>
-    </form>
-    <p v-if="error" class="text-red-500 mt-4 text-center">{{ error }}</p>
+    <NavBar />
+  
+
+  <div class="flex items-center justify-center min-h-screen bg-gray-100">
+   
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+      <h2 class="text-2xl font-bold text-center mb-4 text-gray-700">Login</h2>
+      
+      <form @submit.prevent="handleLogin" class="space-y-4">
+        <!-- Email Input -->
+        <div>
+          <label class="block text-gray-600 text-sm mb-1">Email</label>
+          <input 
+            v-model="email" 
+            type="email" 
+            placeholder="Enter your email" 
+            autocomplete="email" 
+            required 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <!-- Password Input -->
+        <div>
+          <label class="block text-gray-600 text-sm mb-1">Password</label>
+          <input 
+            v-model="password" 
+            type="password" 
+            placeholder="Enter your password" 
+            autocomplete="current-password" 
+            required 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <!-- Login Button -->
+        <button 
+          type="submit" 
+          class="w-full  bg-bitchest-success text-[1rem] text-black font-bold px-6 py-2 mb-5 rounded-md hover:bg-gray-200 "
+        >
+          Login
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 </template>
 
 <script>
-import NavBar from '../components/NavBar.vue';
-import axios from 'axios';
+import { mapActions } from "vuex";
+import { useToast } from "vue-toastification"; // ✅ Import Vue Toastification
+import NavBar from "../components/NavBar.vue";
 
 export default {
   components:{
-    NavBar
+   NavBar
   },
   data() {
     return {
-      email: '',
-      password: '',
-      error: null,
+      email: "",
+      password: "",
     };
   },
+  setup() {
+    const toast = useToast(); // ✅ Initialize toast
+    return { toast };
+  },
   methods: {
+    ...mapActions("auth", ["login"]),
     async handleLogin() {
       try {
-        this.error = null; // Réinitialiser les erreurs
-        const response = await axios.post('http://localhost:8000/api/login', {
-          email: this.email,
-          password: this.password,
-        });
+        const response = await this.login({ email: this.email, password: this.password });
 
-        // Sauvegarde du token dans le localStorage
-        localStorage.setItem('token', response.data.token);
-
-        // Redirection ou affichage d'un message de succès
-        alert('Successful Connection ');
-        this.$router.push('/dashboard'); // Rediriger vers une autre page
-      } catch (err) {
-        // Gestion des erreurs
-        if (err.response && err.response.status === 401) {
-          this.error = 'Incorrect email or password.';
+        // ✅ Check if login was successful
+        if (response && response.token) {
+          this.toast.success("✅ Login successful! ");
+          setTimeout(() => this.$router.push("/dashboard"), 100);
         } else {
-          this.error = 'An error has occurred. Please try again.';
+          throw new Error("Invalid login credentials"); // ❌ Invalid response
         }
+      } catch (error) {
+        this.toast.error("❌ Login failed. Please check your credentials.");
       }
     },
   },
 };
 </script>
-
-<style scoped>
-/* Optionnel : Personnalisation des styles de base pour le conteneur */
-</style>

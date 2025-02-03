@@ -1,53 +1,109 @@
 <template>
-  <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-semibold mb-8 text-center">User Management</h1>
-    <router-link
-      to="/admin/users/add"
-      class="flex items-center bg-bitchest-success text-[1rem] text-black font-bold px-6 py-2 mb-5 rounded-md hover:bg-gray-200 float-right"
-    >
-      Add User
-    </router-link>
-    <div v-if="users.length === 0" class="text-center text-gray-500">
+  <div class="container mx-auto p-4 sm:p-6 mr-4 sm:mr-6"> 
+    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
+      User Management
+    </h1>
+
+    <div class="flex justify-center sm:justify-end mb-4">
+      <router-link
+        to="/admin/users/add"
+        class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md"
+      >
+         Add User
+      </router-link>
+    </div>
+
+    <div v-if="users.length === 0" class="text-center text-gray-500 text-sm sm:text-base">
       <p>No users found.</p>
     </div>
 
-    <table v-else class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-      <thead>
-        <tr class="text-left text-sm font-semibold text-gray-700 bg-gray-100">
-          <th class="px-6 py-3">Photo</th>
-          <th class="px-6 py-3">Name</th>
-          <th class="px-6 py-3">Email</th>
-          <th class="px-6 py-3">Role</th>
-          <th class="px-6 py-3">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in users" :key="user.id" class="border-b border-gray-200">
-          <td class="px-6 py-4 text-sm text-gray-700">
-            <img
-              v-if="user.photo"
-              :src="user.photo"
-              alt="User Photo"
-              class="h-12 w-12 rounded-full object-cover"
-            />
-            <span v-else class="text-gray-500">No Photo</span>
-          </td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ user.name }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ user.email }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700">{{ user.role }}</td>
-          <td class="px-6 py-4 text-sm text-gray-700 flex space-x-4">
-            <button @click="editUser(user.id)" class="text-yellow-500 hover:text-yellow-600">
-              <i class="fas fa-edit mr-2 text-bitchest-success"></i>
-            </button>
-            <button @click="confirmDelete(user.id)" class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash-alt mr-2"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- SECTION : Affichage sous forme de cartes pour petits écrans -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 ">
+      <div
+        v-for="user in users"
+        :key="user.id"
+        class="bg-white border border-gray-200 rounded-lg shadow-md p-4 " 
+      >
+        <div class="flex items-center mb-4">
+          <img
+            v-if="user.photo"
+            :src="user.photo"
+            alt="User Photo"
+            class="h-12 w-12 rounded-full object-cover mr-4"
+          />
+          <span v-else class="text-gray-500 mr-4">No Photo</span>
+          <h2 class="text-lg font-semibold text-gray-800">{{ user.name }}</h2>
+        </div>
+        <p class="text-gray-700 text-sm"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="text-gray-700 text-sm"><strong>Role:</strong> {{ user.role }}</p>
+        <div class="flex justify-between mt-4">
+          <button
+            @click="editUser(user.id)"
+            class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+          >
+            <i class="fas fa-edit mr-1 text-bitchest-success"></i> Edit
+          </button>
+          <button
+            @click="confirmDelete(user.id)"
+            class="text-red-500 hover:text-red-700 transition duration-150"
+          >
+            <i class="fas fa-trash-alt mr-1"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION : Tableau classique pour lg+ -->
+    <div class="overflow-hidden hidden lg:block">
+      <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+        <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
+          <tr>
+            <th class="px-4 py-2">Photo</th>
+            <th class="px-4 py-2">Name</th>
+            <th class="px-4 py-2">Email</th>
+            <th class="px-4 py-2">Role</th>
+            <th class="px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="user in users"
+            :key="user.id"
+            class="border-b border-gray-200"
+          >
+            <td class="px-4 py-2 text-sm text-gray-700 text-center">
+              <img
+                v-if="user.photo"
+                :src="user.photo"
+                alt="User Photo"
+                class="h-12 w-12 rounded-full object-cover mx-auto"
+              />
+              <span v-else class="text-gray-500">No Photo</span>
+            </td>
+            <td class="px-4 py-2 text-sm text-gray-700 text-center">{{ user.name }}</td>
+            <td class="px-4 py-2 text-sm text-gray-700 text-center">{{ user.email }}</td>
+            <td class="px-4 py-2 text-sm text-gray-700 text-center">{{ user.role }}</td>
+            <td class="px-4 py-2 text-sm text-gray-700 text-center">
+              <button
+                @click="editUser(user.id)"
+                class="text-yellow-500 hover:text-yellow-600 transition duration-150 mr-2"
+              >
+                <i class="fas fa-edit text-bitchest-success"></i>
+              </button>
+              <button
+                @click="confirmDelete(user.id)"
+                class="text-red-500 hover:text-red-700 transition duration-150"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
+
 
 <script>
 import { mapActions, mapGetters } from "vuex";
@@ -108,3 +164,6 @@ export default {
   },
 };
 </script>
+<style>
+
+</style>

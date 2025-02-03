@@ -1,5 +1,5 @@
 <template>
-  <nav class="text-bitchest-black p-4 bg-bitchest-white">
+  <nav class="text-bitchest-black p-4 bg-bitchest-white border-b-1 border-[#F0EDED] shadow-sm ">
     <div
       class="container mx-auto flex flex-col md:flex-row justify-between items-center"
     >
@@ -56,7 +56,7 @@
             },
           ]"
         >
-          Trade
+         Trade
         </a>
         <a
           href="#services"
@@ -70,7 +70,7 @@
         >
           Services
         </a>
-        <CustomButton variant="primary" @click="handleSigninClick">
+        <CustomButton class="hover:bg-gray-200" @click="handleSigninClick">
           Login
         </CustomButton>
       
@@ -106,7 +106,7 @@ export default {
 
     },
     handleSigninClick() {
-      console.log("Signin button clicked");
+     this.$router.push({name:"login"})
     },
     observeSections(entries) {
       entries.forEach((entry) => {

@@ -1,5 +1,9 @@
 <template>
-  <div class="flex flex-col lg:flex-row bg-lightGray p-4 sm:p-5 md:p-6 lg:p-5">
+   <section
+    id="trade"
+    class="text-black flex items-center justify-center bg-lightGray p-6"
+  >
+  <div class="flex flex-col lg:flex-row  p-4 sm:p-5 md:p-6 lg:p-5">
     <!-- Section de texte -->
     <div
       class="trader w-full lg:w-[413px] lg:h-[326px] lg:ml-[7rem] lg:mr-[7.625rem] mb-8 lg:mb-0"
@@ -16,11 +20,13 @@
         automatically with daily, weekly, or monthly trades.
       </p>
       <custom-button 
-        class="text-bitchest-white font-bold text-base sm:text-lg md:text-xl lg:text-3xl border-0 rounded-lg lg:rounded-[20px] bg-bitchest-success px-4 py-2 sm:w-[150px] md:w-[165px] lg:w-[185px] mx-auto lg:mx-0 shadow-md flex justify-center sm:justify-center md:justify-center"
-        @click="goToLogin"
-      >
-        <span style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)">See More</span>
-      </custom-button>
+  class="text-bitchest-white font-bold text-base sm:text-lg md:text-xl lg:text-3xl border-0 rounded-lg lg:rounded-[20px] bg-bitchest-success px-4 py-2 sm:w-[150px] md:w-[165px] lg:w-[185px] mx-auto lg:mx-0 shadow-md flex justify-center sm:justify-center md:justify-center
+  hover:bg-gray-200 hover:text-bitchest-black transition-colors duration-300"
+  @click="goToLogin"
+>
+  <span style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)">See More</span>
+</custom-button>
+
     </div>
 
     <!-- Section des cartes -->
@@ -84,6 +90,7 @@
       </div>
     </div>
   </div>
+</section>
 </template>
 <script>
 export default {
