@@ -23,9 +23,18 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
 });
-Route::post('/registration-request', [RegistrationRequestController::class, 'store']);
-Route::post('login', [AuthController::class, 'login']);
-Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::middleware('api')->group(function () {
+    // CSRF Cookie Route for Sanctum Authentication
+    Route::get('/sanctum/csrf-cookie', function (Request $request) {
+        return response()->noContent();
+    });
+
+    // Authentication Routes
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/registration-request', [RegistrationRequestController::class, 'store']);
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+});
 
 
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
