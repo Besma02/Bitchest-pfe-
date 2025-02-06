@@ -1,11 +1,13 @@
 import { createStore } from "vuex";
-import auth from "./auth"; // ✅ Import auth module
-
+import users from "./modules/users";
+import auth from "./auth";
+import registrationRequests from "./modules/registrationRequests";
 
 const store = createStore({
   modules: {
-    auth, // ✅ Register the auth module
-   
+    users,
+    auth,
+    registrationRequests,
   },
 });
 

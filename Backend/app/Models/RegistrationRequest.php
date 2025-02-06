@@ -6,6 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegistrationRequest extends Model
 {
-    protected $fillable = ['email', 'is_approved'];
-   
+    protected $fillable = ['email'];
 }

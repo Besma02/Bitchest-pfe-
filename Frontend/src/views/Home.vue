@@ -4,28 +4,30 @@
       <NavBar />
     </header>
     <main>
+      
       <HomeSection/>
-      <AboutSection /> 
-      <Trade />
-      <ServicesSection />
+      <AboutSection/>
+      <TradeSection />
+      <ServicesSection/>
     </main>
   </div>
 </template>
 
 <script>
-import Trade from "../components/sections/Trade.vue";
+//import Trade from "../components/sections/TradeSection.vue";
 import NavBar from "@/components/NavBar.vue";
 import HomeSection from "@/components/sections/HomeSection.vue";
-import AboutSection from "@/components/sections/AboutSection.vue";
+import AboutSection from "../components/sections/AboutSection.vue";
 import ServicesSection from "../components/sections/ServicesSection.vue";
+import TradeSection from "../components/sections/TradeSection.vue";
 
 export default {
   components: {
     NavBar,
     HomeSection,
     AboutSection,
-    ServicesSection,
-    Trade,
+    TradeSection,
+    ServicesSection
   },
 };
 </script>
