@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -22,6 +23,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
+    Route::get('/profile', [ProfileController::class, 'getProfile']);
+    Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
+    Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 });
 
 Route::middleware('api')->group(function () {
@@ -38,17 +42,21 @@ Route::middleware('api')->group(function () {
 
 
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
-   
+
     Route::get('admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
-    
+
     Route::post('admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
-    
+
     Route::get('admin/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
-    
+
     Route::put('admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
-   
+
     Route::delete('admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+
+    Route::get('admin/registration-requests', [RegistrationRequestController::class, 'index']);
+    Route::post('admin/registration-requests/{id}/approve', [RegistrationRequestController::class, 'approve']);
+    Route::post('admin/registration-requests/{id}/reject', [RegistrationRequestController::class, 'reject']);
 });
 // Dans routes/api.php
 Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
-

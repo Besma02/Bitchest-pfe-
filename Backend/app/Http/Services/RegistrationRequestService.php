@@ -4,6 +4,10 @@ namespace App\Http\Services;
 
 use App\Models\RegistrationRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Mail\UserApprovedMail;
 
 class RegistrationRequestService
 {
@@ -35,5 +39,43 @@ class RegistrationRequestService
     public function createRequest(string $email)
     {
         RegistrationRequest::create(['email' => $email]);
+    }
+
+    public function getAllRequests()
+    {
+        return RegistrationRequest::all();
+    }
+
+    public function approveRequest($requestId)
+    {
+        $registrationRequest = RegistrationRequest::findOrFail($requestId);
+
+        // Générer un mot de passe aléatoire
+        $password = Str::random(10);
+
+        // Créer l'utilisateur avec l'email fourni
+        $user = User::create([
+            'email' => $registrationRequest->email,
+            'password' => Hash::make($password),
+            'role' => 'user', // Définir un rôle par défaut
+        ]);
+
+        // Envoyer un e-mail avec le mot de passe
+        Mail::to($user->email)->send(new UserApprovedMail($user->email, $password));
+
+        // Marquer la demande comme approuvée
+        $registrationRequest->is_approved = true;
+        $registrationRequest->save();
+
+        return $user;
+    }
+
+    public function rejectRequest($requestId)
+    {
+        $registrationRequest = RegistrationRequest::findOrFail($requestId);
+        $registrationRequest->is_approved = false;
+        $registrationRequest->save();
+
+        return $registrationRequest;
     }
 }
