@@ -6,7 +6,14 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
-{
+
+    {
+        public function register()
+        {
+            $this->app->singleton(AuthService::class, function ($app) {
+                return new AuthService();
+            });
+        }
     /**
      * The model to policy mappings for the application.
      *
@@ -26,3 +33,4 @@ class AuthServiceProvider extends ServiceProvider
         //
     }
 }
+
