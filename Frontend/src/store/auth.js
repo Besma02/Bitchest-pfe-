@@ -25,7 +25,6 @@ export default {
     // 🔹 Connexion utilisateur
     async login({ commit }, { email, password }) {
       try {
-        await axios.get("http://localhost:8000/sanctum/csrf-cookie"); // Laravel CSRF
         const response = await axios.post("http://localhost:8000/api/login", {
           email,
           password,
