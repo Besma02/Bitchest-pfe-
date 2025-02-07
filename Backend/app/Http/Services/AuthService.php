@@ -32,4 +32,5 @@ class AuthService
         // Return the user object if authentication is successful
         return $user;
     }
+
 }

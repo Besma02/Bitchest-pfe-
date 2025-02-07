@@ -1,14 +1,14 @@
 import { createStore } from "vuex";
 import users from "./modules/users";
 import auth from "./auth";
-
+import registrationRequests from "./modules/registrationRequests";
 
 const store = createStore({
   modules: {
     users,
-    auth
- 
+    auth,
+    registrationRequests,
   },
 });
 
-export default store; 
+export default store;

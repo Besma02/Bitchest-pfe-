@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default('client');  // Champ pour l’héritage
             $table->decimal('balance', 18, 3)->nullable();
+            $table->string('email_verified_at')->nullable()->default(null);
             $table->rememberToken();
             $table->timestamps();
         });
