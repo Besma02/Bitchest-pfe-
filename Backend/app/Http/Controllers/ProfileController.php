@@ -20,8 +20,13 @@ class ProfileController extends Controller
      */
     public function getProfile(Request $request)
     {
-        $user = $request->user();
-        return response()->json($this->profileService->getProfile($user));
+        $user = $request->user(); // Cela récupère l'utilisateur authentifié
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'photo' => $user->photo
+        ]);
     }
 
     /**

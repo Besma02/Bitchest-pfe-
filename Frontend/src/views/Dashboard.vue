@@ -272,12 +272,9 @@ export default {
           return;
         }
 
-        const response = await axios.get(
-          "http://localhost:8000/api/user-profile",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.get("http://localhost:8000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         this.user = {
           name: response.data.name,

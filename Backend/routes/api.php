@@ -29,10 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('api')->group(function () {
-    // CSRF Cookie Route for Sanctum Authentication
-    Route::get('/sanctum/csrf-cookie', function (Request $request) {
-        return response()->noContent();
-    });
 
     // Authentication Routes
     Route::post('/login', [AuthController::class, 'login']);
@@ -58,5 +54,3 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::post('admin/registration-requests/{id}/approve', [RegistrationRequestController::class, 'approve']);
     Route::post('admin/registration-requests/{id}/reject', [RegistrationRequestController::class, 'reject']);
 });
-// Dans routes/api.php
-Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
