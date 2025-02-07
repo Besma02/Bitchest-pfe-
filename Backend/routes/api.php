@@ -60,3 +60,9 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 });
 // Dans routes/api.php
 Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
+
+
+use App\Http\Controllers\CryptoCotationController;
+//récupérer les dernières cotations
+Route::get('/crypto-cotations', [CryptoCotationController::class, 'index']);
+
