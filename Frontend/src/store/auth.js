@@ -25,9 +25,6 @@ export default {
     // 🔹 Connexion utilisateur
     async login({ commit }, { email, password }) {
       try {
-        await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
-          withCredentials: true,
-        }); // Laravel CSRF
         const response = await axios.post("http://localhost:8000/api/login", {
           email,
           password,
@@ -52,9 +49,13 @@ export default {
     async fetchProfile({ commit }) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8000/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "http://localhost:8000/api/profile",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+          { withCredentials: true }
+        );
 
         commit("SET_USER", { user: response.data, token });
         return response.data;
@@ -79,7 +80,8 @@ export default {
               Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data", // Indiquer que c'est une requête avec fichier
             },
-          }
+          },
+          { withCredentials: true }
         );
 
         console.log("Profile update successful:", response.data);
