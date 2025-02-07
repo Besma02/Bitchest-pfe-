@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('registration_requests', function (Blueprint $table) {
             $table->id();
             $table->string('email')->unique();
-            $table->boolean('is_approved')->default(false);
+            $table->boolean('is_approved')->nullable()->default(null);
             $table->timestamps();
         });
     }

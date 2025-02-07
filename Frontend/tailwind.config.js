@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'], 
+  content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -10,13 +10,13 @@ module.exports = {
         "bitchest-black": "#434445",
         "bitchest-alert": "#FF5964",
         "bitchest-success": "#01FF19",
-         lightGray: '#F8F8F8',
-         
+        "sidebar-bg": "F9F9F9",
+        lightGray: "#F8F8F8",
       },
       boxShadow: {
-        'text-shadow': '0 4px 6px rgba(0, 0, 0, 0.1)',
+        "text-shadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
       },
-      
+
       fontFamily: {
         bitchest: ["Celias", "sans-serif"],
       },
@@ -28,7 +28,6 @@ module.exports = {
         xl: "1280px",
         "2xl": "1536px",
       },
-     
     },
   },
   variants: {

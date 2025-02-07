@@ -12,7 +12,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+         // Fix for MySQL < 5.7.7 and MariaDB < 10.2.2
+         Schema::defaultStringLength(191); //Update defaultStringLeng
     }
 
     /**

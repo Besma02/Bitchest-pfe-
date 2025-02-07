@@ -81,7 +81,7 @@ class AdminUserController extends Controller
     public function update(Request $request, $id)
 {
     try {
-        // Vérification si les champs nécessaires sont présents
+         // Vérification si les champs nécessaires sont présents
         if (!$request->has('name') || !$request->has('email') || !$request->has('role')) {
             return response()->json([
                 'message' => 'Name, email, and role are required.',
@@ -109,7 +109,7 @@ class AdminUserController extends Controller
             // Vérification de l'extension du fichier
             $path = $photo->storeAs('photos', 'photo_' . time() . '.' . $photo->getClientOriginalExtension(), 'public');
             $userData['photo'] = $path;  // Ajouter le chemin de la photo
-        }
+            
 
         // Mettre à jour l'utilisateur avec les nouvelles données
         $user->update($userData);
@@ -121,7 +121,9 @@ class AdminUserController extends Controller
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ], 200);
 
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+    } 
+}
+    catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         // Cas où l'utilisateur n'a pas été trouvé
         return response()->json([
             'message' => 'User not found.',
