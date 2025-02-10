@@ -8,6 +8,9 @@ import AddUserForm from "../components/admin/AddUserForm.vue";
 import EditUser from "../components/admin/EditUser.vue";
 import RegistrationRequestsList from "@/components/admin/RegistrationRequestsList.vue";
 import ProfileManager from "@/components/sections/ProfileManager.vue";
+import CryptoList from "@/components/admin/cryptos/CryptoList.vue";
+
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +51,19 @@ const router = createRouter({
           path: "/profile",
           name: "EditProfile",
           component: ProfileManager,
+        },
+        {
+          path: "/manage-crypto", // Sous-route pour la gestion des cryptos
+          name: "manage-crypto",
+          component: CryptoList, // Composant à afficher
+          props: { isClient: false } 
+        },
+
+        {
+          path: "/trading-market", 
+          name: "TradeMarket",
+          component:CryptoList ,
+          props: { isClient: true }  
         },
       ],
     },
