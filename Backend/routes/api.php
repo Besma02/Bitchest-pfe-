@@ -66,3 +66,5 @@ use App\Http\Controllers\CryptoCotationController;
 //récupérer les dernières cotations
 Route::get('/crypto-cotations', [CryptoCotationController::class, 'index']);
 
+
+
