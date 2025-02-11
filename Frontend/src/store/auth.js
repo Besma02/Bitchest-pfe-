@@ -96,9 +96,8 @@ export default {
         const response = await axios.post(
           "http://localhost:8000/api/profile/change-password",
           {
-            old_password: passwordData.current_password, // Vérifie que c'est bien "old_password"
+            old_password: passwordData.current_password,
             new_password: passwordData.new_password,
-            new_password_confirmation: passwordData.new_password_confirmation, // Correcte
           },
           {
             headers: {

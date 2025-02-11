@@ -89,6 +89,7 @@ export default {
         this.modalMessage = "An error occurred. Please try again later.";
       }
       this.showModal = true;
+      this.setInputData = "";
     },
     handleModalClose() {
       this.showModal = false;

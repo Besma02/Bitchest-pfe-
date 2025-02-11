@@ -1,7 +1,9 @@
 <template>
   <div class="container mx-auto p-6">
     <h1 class="text-3xl font-semibold mb-8 text-center">Manage Profile</h1>
-    <form @submit.prevent="updateProfile">
+
+    <!-- SECTION: Update Profile -->
+    <form @submit.prevent="updateProfile" v-if="user">
       <!-- Champ Name -->
       <div class="mb-4">
         <label for="name" class="block text-sm font-semibold text-gray-700"
@@ -30,6 +32,7 @@
           id="email"
           type="email"
           class="w-full px-4 py-2 border rounded-lg"
+          readonly
         />
       </div>
 
@@ -53,10 +56,11 @@
       </button>
     </form>
 
-    <!-- SECTION: Changer le mot de passe -->
+    <!-- SECTION: Change Password -->
     <div class="mt-10 border-t pt-6">
       <h2 class="text-xl font-semibold mb-4">Change Password</h2>
       <form @submit.prevent="changePassword">
+        <!-- Current Password -->
         <div class="mb-4">
           <label
             for="current_password"
@@ -67,16 +71,16 @@
           <input
             v-model="passwordData.current_password"
             type="password"
-            id="confirm_password"
+            id="current_password"
             class="w-full px-4 py-2 border rounded-lg"
             required
           />
-
           <p v-if="errors.current_password" class="text-red-500 text-sm mt-1">
             {{ errors.current_password[0] }}
           </p>
         </div>
 
+        <!-- New Password -->
         <div class="mb-4">
           <label
             for="new_password"
@@ -90,12 +94,34 @@
             id="new_password"
             class="w-full px-4 py-2 border rounded-lg"
             required
+            @input="checkPasswordRequirements"
           />
           <p v-if="errors.new_password" class="text-red-500 text-sm mt-1">
             {{ errors.new_password[0] }}
           </p>
+          <div v-if="passwordData.new_password.length > 0">
+            <!-- Liste des exigences de complexité -->
+            <div class="mt-2 text-sm">
+              <p :class="{ 'text-green-500': hasMinLength }">
+                - At least 8 characters
+              </p>
+              <p :class="{ 'text-green-500': hasUppercase }">
+                - At least one uppercase letter
+              </p>
+              <p :class="{ 'text-green-500': hasLowercase }">
+                - At least one lowercase letter
+              </p>
+              <p :class="{ 'text-green-500': hasNumber }">
+                - At least one number
+              </p>
+              <p :class="{ 'text-green-500': hasSpecialChar }">
+                - At least one special character (@$!%*?&)
+              </p>
+            </div>
+          </div>
         </div>
 
+        <!-- Confirm New Password -->
         <div class="mb-4">
           <label
             for="confirm_password"
@@ -112,6 +138,7 @@
           />
         </div>
 
+        <!-- Bouton Change Password -->
         <button
           type="submit"
           class="bg-red-600 text-white font-bold px-6 py-2 rounded-md hover:bg-red-700"
@@ -145,14 +172,23 @@ export default {
         confirm_password: "",
       },
       errors: {},
+      hasMinLength: false,
+      hasUppercase: false,
+      hasLowercase: false,
+      hasNumber: false,
+      hasSpecialChar: false,
     };
   },
   async created() {
     try {
-      this.user = await this.$store.dispatch("auth/fetchProfile");
-      console.log(this.user);
+      const user = await this.$store.dispatch("auth/fetchProfile");
+      this.user = { ...this.user, ...user }; // Fusionner les données chargées avec l'objet user initial
     } catch (error) {
       console.error("Error fetching profile:", error);
+      this.toast.error("Failed to fetch profile data. ❌", {
+        className:
+          "bg-red-700 text-white font-bold px-4 py-3 rounded shadow-md",
+      });
     }
   },
   methods: {
@@ -160,7 +196,7 @@ export default {
       this.user.photo = event.target.files[0];
     },
     async updateProfile() {
-      this.errors = {}; // Réinitialiser les erreurs
+      this.errors = {};
 
       try {
         const formData = new FormData();
@@ -175,7 +211,7 @@ export default {
 
         this.toast.success("Profile updated successfully! 🎉");
 
-        // **Forcer le rafraîchissement des données utilisateur**
+        // Rafraîchir les données utilisateur
         await this.$store.dispatch("auth/fetchProfile");
       } catch (error) {
         if (error.response && error.response.status === 422) {
@@ -185,11 +221,18 @@ export default {
         }
       }
     },
+    checkPasswordRequirements() {
+      const password = this.passwordData.new_password;
+
+      this.hasMinLength = password.length >= 8;
+      this.hasUppercase = /[A-Z]/.test(password);
+      this.hasLowercase = /[a-z]/.test(password);
+      this.hasNumber = /\d/.test(password);
+      this.hasSpecialChar = /[@$!%*?&]/.test(password);
+    },
     async changePassword() {
-      this.errors = {}; // Réinitialiser les erreurs
-      console.log(this.passwordData.current_password);
-      console.log(this.passwordData.new_password);
-      console.log(this.passwordData.confirm_password);
+      this.errors = {};
+
       // Vérification avant d'envoyer la requête
       if (
         !this.passwordData.current_password ||
@@ -207,13 +250,10 @@ export default {
         return;
       }
 
-      console.log("Sending password change request:", this.passwordData);
-
       try {
         await this.$store.dispatch("auth/changePassword", {
           current_password: this.passwordData.current_password,
           new_password: this.passwordData.new_password,
-          new_password_confirmation: this.passwordData.confirm_password, // Correcte
         });
 
         this.toast.success("Password changed successfully! 🔒");
@@ -225,9 +265,10 @@ export default {
           confirm_password: "",
         };
       } catch (error) {
-        console.error("Erreur lors du changement de mot de passe:", error);
+        console.error("Error changing password:", error);
         if (error.response && error.response.status === 422) {
-          this.errors = error.response.data.errors; // Capturer les erreurs du backend
+          this.errors = error.response.data.errors;
+          console.log(this.errors);
           this.toast.error(
             error.response.data.message || "Validation failed ❌"
           );

@@ -9,8 +9,11 @@
   <div v-else class="flex flex-col md:flex-row min-h-screen bg-gray-100">
     <!-- Sidebar gauche -->
     <aside
-      class="w-64 bg-sidebar-bg text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out"
-      :class="{ '-translate-x-full': isSmallScreen && !isSidebarOpen }"
+      class="w-64 text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out z-40 bg-gray-100"
+      :class="{
+        '-translate-x-full': isSmallScreen && !isSidebarOpen,
+        'bg-sidebar-bg': isSmallScreen,
+      }"
     >
       <div>
         <div class="p-6 flex justify-between items-center">
@@ -70,15 +73,16 @@
     </aside>
 
     <!-- Contenu principal -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col h-screen">
       <!-- Barre de navigation supérieure -->
       <header class="bg-white shadow p-4 flex justify-end items-center gap-10">
         <button
-          class="md:hidden bg-gray-200 text-white px-3 py-2 rounded"
+          class="md:hidden bg-gray-200 text-bitchest-black px-3 py-2 rounded text-2xl"
           @click="toggleSidebar"
         >
-          ☰
+          {{ isSidebarOpen ? "✖" : "☰" }}
         </button>
+
         <h1 class="text-xl font-bold text-gray-700">Dashboard</h1>
 
         <button class="ml-4 relative" @click="toggleNotifications">
@@ -100,7 +104,7 @@
         />
       </header>
 
-      <main class="flex-1 p-6 bg-white overflow-x-auto">
+      <main class="flex-1 p-6 bg-white w-full overflow-auto">
         <router-view />
       </main>
     </div>
@@ -109,18 +113,11 @@
     <aside
       v-if="!isLoading"
       :class="[
-        'w-64 bg-sidebar-bg p-6 fixed right-0 top-0 h-full transform transition-transform duration-300',
-        isUserSidebarOpen ? 'translate-x-0' : 'translate-x-full',
+        'w-64 bg-sidebar-bg p-6 fixed right-0 top-0 h-screen transform transition-transform duration-300',
+        'translate-x-full',
         'md:relative md:translate-x-0',
       ]"
     >
-      <button
-        class="md:hidden text-gray-600 text-2xl absolute top-4 left-4"
-        @click="toggleUserSidebar"
-      >
-        ✖
-      </button>
-
       <div class="text-center">
         <img
           :src="user.photo ? user.photo : '/images/unknown.png'"
@@ -308,6 +305,7 @@ export default {
     toggleSidebar() {
       this.isSidebarOpen = !this.isSidebarOpen;
     },
+
     checkScreenSize() {
       this.isSmallScreen = window.innerWidth <= 768;
     },
