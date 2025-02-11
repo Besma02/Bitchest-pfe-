@@ -3,26 +3,20 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
+use App\http\Services\CryptocurrencyService;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
+    public function register()
     {
-         // Fix for MySQL < 5.7.7 and MariaDB < 10.2.2
-         Schema::defaultStringLength(191); //Update defaultStringLeng
+        // Bind CryptocurrencyService to the container
+        $this->app->singleton(CryptocurrencyService::class, function ($app) {
+            return new CryptocurrencyService();
+        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function boot()
     {
-        // Fix for MySQL < 5.7.7 and MariaDB < 10.2.2
-        Schema::defaultStringLength(191); //Update defaultStringLength
-
+        //
     }
 }

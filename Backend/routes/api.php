@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\CryptocurrencyController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
+
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
    
     Route::get('admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
@@ -39,6 +41,9 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::put('admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
    
     Route::delete('admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    
+    Route::post('admin/cryptocurrencies', [CryptocurrencyController::class, 'store'])->name('admin.cryptocurrency.store');
+    Route::put('admin/cryptocurrencies/{id}', [CryptocurrencyController::class, 'update'])->name('admin.cryptocurrency.update');
 });
 // Dans routes/api.php
 Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
