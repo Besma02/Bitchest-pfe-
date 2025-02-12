@@ -1,10 +1,10 @@
 <template>
   <section
     id="services"
-    class="min-h-screen text-black flex items-center justify-center bg-gray-100"
+    class="p-6 text-black flex items-center justify-center "
   >
     <div class="text-center py-12 w-full">
-      <h2 class="text-4xl lg:text-7xl font-bitchest font-bold mt-28 mb-12">
+      <h2 class="text-2xl sm:text-3xl md:text-[2.5rem] mb-6 lg:text-[3rem] font-bold mt-4 mb-6 lg:mt-7 lg:mb-7">
         Our Services
       </h2>
 
@@ -14,25 +14,25 @@
       >
         
         <div
-          class="flex flex-col items-center bg-white shadow-lg rounded-lg p-6 w-full sm:w-96"
+          class="flex flex-col items-center bg-white sm:w-96"
         >
           <img
-            src="../../assets/homeImage.png"
+            src="../../assets/unlock 1.png"
             alt="Safe & Secure Logo"
             class="w-24 h-24 mb-4"
           />
           <h3 class="text-xl mb-4 font-bold">Safe & Secure</h3>
-          <p class="text-base text-center">
+          <p class="text-base text-center ">
             Be sure in your account security and your funds safe.
           </p>
         </div>
 
         
         <div
-          class="flex flex-col items-center bg-white shadow-lg rounded-lg p-6 w-full sm:w-96"
+          class="flex flex-col items-center bg-white sm:w-96"
         >
           <img
-            src="../../assets/homeImage.png"
+            src="../../assets/wallet.png"
             alt="Wallet Logo"
             class="w-24 h-24 mb-4"
           />
@@ -45,10 +45,10 @@
 
         
         <div
-          class="flex flex-col items-center bg-white shadow-lg rounded-lg p-6 w-full sm:w-96"
+          class="flex flex-col items-center bg-white sm:w-96"
         >
           <img
-            src="../../assets/homeImage.png"
+            src="../../assets/exchange.png"
             alt="Instant Exchange Logo"
             class="w-24 h-24 mb-4"
           />

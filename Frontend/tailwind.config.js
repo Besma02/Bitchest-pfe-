@@ -1,7 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-
   theme: {
     extend: {
       colors: {
@@ -11,7 +10,13 @@ export default {
         "bitchest-black": "#434445",
         "bitchest-alert": "#FF5964",
         "bitchest-success": "#01FF19",
+        "sidebar-bg": "F9F9F9",
+        lightGray: "#F8F8F8",
       },
+      boxShadow: {
+        "text-shadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
+      },
+
       fontFamily: {
         bitchest: ["Celias", "sans-serif"],
       },
@@ -24,6 +29,9 @@ export default {
         "2xl": "1536px",
       },
     },
+  },
+  variants: {
+    extend: {},
   },
   plugins: [],
 };

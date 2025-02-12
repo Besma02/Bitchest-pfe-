@@ -22,7 +22,7 @@ class AdminSeeder extends Seeder
                 'name' => 'Admin', // Nom de l'administrateur
                 'email' => 'admin@example.com', // Adresse email de l'administrateur
                 'password' => Hash::make('password'), // Mot de passe (à modifier)
-                'role' => 'Admin', // Rôle administrateur
+                'role' => 'admin', // Rôle administrateur
             ]);
 
             $this->command->info('Admin account created successfully!');

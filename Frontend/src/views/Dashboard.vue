@@ -1,39 +1,71 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50  ">
+  <!-- Loader : s'affiche tant que les données ne sont pas chargées -->
+  <div
+    v-if="isLoading"
+    class="fixed inset-0 flex items-center justify-center bg-white z-50"
+  >
+    <Loader />
+  </div>
+  <div v-else class="flex flex-col md:flex-row min-h-screen bg-gray-100">
     <!-- Sidebar gauche -->
-    <aside class="w-64 bg-gray-200 text-bitchest-black text-[1rem] pl-9  font-bold flex flex-col justify-between">
-      <!-- Logo et Menu -->
-      <div >
-        <div class="mt-7">
-          <img src="@/assets/bitchest_logo.png" alt="Logo" class="h-12 " />
+    <aside
+      class="w-64 text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out z-40 bg-gray-100"
+      :class="{
+        '-translate-x-full': isSmallScreen && !isSidebarOpen,
+        'bg-sidebar-bg': isSmallScreen,
+      }"
+    >
+      <div>
+        <div class="p-6 flex justify-between items-center">
+          <img
+            src="@/assets/bitchest_logo.png"
+            alt="Logo"
+            class="h-12 mx-auto"
+          />
+          <button
+            v-if="isSmallScreen"
+            @click="toggleSidebar"
+            class="text-bitchest-black text-2xl"
+          >
+            ✖
+          </button>
         </div>
-
-        <nav class="mt-6">
-          <!-- Tous les liens du menu sont affichés dès le début -->
+        <nav>
           <ul>
             <li
               v-for="item in menuItems"
               :key="item.label"
-              class="py-2 px-6 mr-9 hover:bg-bitchest-white cursor-pointer"
+              class="py-3 px-6 hover:bg-gray-200 cursor-pointer flex items-center"
+              :class="{ 'bg-gray-200': isActive(item.route) }"
               @click="navigateTo(item.route)"
             >
+              <img
+                :src="item.icon"
+                alt="icon"
+                class="w-5 h-5 mr-2"
+                v-if="item.icon"
+              />
               {{ item.label }}
             </li>
           </ul>
         </nav>
-
         <hr class="border-t border-gray-200 my-4 mx-6" />
-
-        <!-- Actions utilisateur affichées tout de suite -->
         <nav>
           <ul>
             <li
-              v-for="item in userActions"
-              :key="item.label"
-              class="py-2 px-6 mr-9 hover:bg-bitchest-white cursor-pointer "
-              @click="navigateTo(item.route)"
+              class="py-3 px-6 hover:bg-gray-200 cursor-pointer flex items-center"
+              :class="{ 'bg-gray-200': isActive('/profile') }"
+              @click="navigateTo('/profile')"
             >
-              {{ item.label }}
+              <img :src="profileIcon" alt="icon" class="w-5 h-5 mr-2" />
+              Profile
+            </li>
+            <li
+              class="py-3 px-6 hover:bg-bitchest-alert cursor-pointer flex items-center"
+              @click="logout"
+            >
+              <img :src="logoutIcon" alt="icon" class="w-7 h-7 mr-2" />
+              Logout
             </li>
           </ul>
         </nav>
@@ -41,31 +73,69 @@
     </aside>
 
     <!-- Contenu principal -->
-    <main class="flex-1 p-6">
-      <router-view />
-    </main>
+    <div class="flex-1 flex flex-col h-screen">
+      <!-- Barre de navigation supérieure -->
+      <header class="bg-white shadow p-4 flex justify-end items-center gap-10">
+        <button
+          class="md:hidden bg-gray-200 text-bitchest-black px-3 py-2 rounded text-2xl"
+          @click="toggleSidebar"
+        >
+          {{ isSidebarOpen ? "✖" : "☰" }}
+        </button>
 
-    <!-- Sidebar droite -->
-    <aside class="w-72 bg-gray-200 shadow-lg p-6">
-      <div class="flex items-center justify-between">
-        <!-- Profil utilisateur affiché dès le début -->
-        <div class="flex items-center space-x-4">
-          <img src="https://via.placeholder.com/40" alt="User Profile" class="rounded-full w-12 h-12" />
-          <div>
-            <h4 class="text-gray-700 font-bold">{{ user.name }}</h4>
-            <p class="text-sm text-gray-500">{{ user.role }}</p>
-          </div>
-        </div>
+        <h1 class="text-xl font-bold text-gray-700">Dashboard</h1>
 
-        <!-- Notifications -->
-        <button class="bg-bitchest-secondary text-white p-2 rounded-full focus:outline-none">🔔</button>
+        <button class="ml-4 relative" @click="toggleNotifications">
+          <span
+            class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1"
+            >5</span
+          >
+          <img
+            src="@/assets/icons/notification.svg"
+            alt="Notifications"
+            class="w-6 h-6"
+          />
+        </button>
+        <img
+          v-if="isSmallScreen"
+          :src="user.photo ? user.photo : '/images/unknown.png'"
+          alt="User Profile"
+          class="w-8 h-8 rounded-full ml-4"
+        />
+      </header>
+
+      <main class="flex-1 p-6 bg-white w-full overflow-auto">
+        <router-view />
+      </main>
+    </div>
+
+    <!-- Sidebar droite (User Sidebar) -->
+    <aside
+      v-if="!isLoading"
+      :class="[
+        'w-64 bg-sidebar-bg p-6 fixed right-0 top-0 h-screen transform transition-transform duration-300',
+        'translate-x-full',
+        'md:relative md:translate-x-0',
+      ]"
+    >
+      <div class="text-center">
+        <img
+          :src="user.photo ? user.photo : '/images/unknown.png'"
+          alt="User Profile"
+          class="w-16 h-16 rounded-full mx-auto"
+        />
+        <h2 class="text-lg font-semibold mt-2">{{ user.name }}</h2>
+        <p class="text-sm text-gray-500">{{ user.role }}</p>
       </div>
 
-      <!-- Zone de statistiques -->
       <div class="mt-6">
         <h4 class="font-bold text-gray-700 mb-4">Statistiques</h4>
         <div class="space-y-4">
-          <div v-for="stat in statistics" :key="stat.label" class="flex justify-between items-center">
+          <div
+            v-for="stat in statistics"
+            :key="stat.label"
+            class="flex justify-between items-center"
+          >
             <p>{{ stat.label }}</p>
             <span class="font-bold">{{ stat.value }}</span>
           </div>
@@ -77,32 +147,118 @@
 
 <script>
 import axios from "axios";
+import MyStats from "@/components/sections/MyStats.vue";
+import RegistrationRequestsList from "@/components/admin/RegistrationRequestsList.vue";
+import ProfileManager from "@/components/sections/ProfileManager.vue";
+import AdminUserList from "@/components/admin/AdminUserList.vue";
+import Loader from "@/components/utils/Loader.vue";
+
+import dashboardIcon from "@/assets/icons/dashboard.png";
+import registrationIcon from "@/assets/icons/alerts.png";
+import transactionsIcon from "@/assets/icons/transactions.png";
+import usersIcon from "@/assets/icons/user.png";
+import cryptoIcon from "@/assets/icons/crypto.png";
+import walletIcon from "@/assets/icons/wallet.png";
+import tradingIcon from "@/assets/icons/trading.png";
+import logoutIcon from "@/assets/icons/logout.png";
+import profileIcon from "@/assets/icons/settings.png";
 
 export default {
   name: "Dashboard",
+  components: {
+    MyStats,
+    RegistrationRequestsList,
+    ProfileManager,
+    AdminUserList,
+    Loader,
+  },
   data() {
     return {
+      isLoading: true, // Afficher Loader au début
+      isSidebarOpen: false,
+      isSmallScreen: window.innerWidth <= 768,
       user: {
-        name: "Chargement...", // Valeur par défaut immédiatement visible
-        role: "client", // Valeur par défaut immédiatement visible
+        name: "Chargement...",
+        role: "client",
+        photo: null,
       },
-      menuItems: [
-        { label: "Dashboard", route: "/dashboard" }, // Menu générique par défaut
-        { label: "Transactions", route: "/transactions" }, // Menu générique par défaut
-      ],
-      userActions: [
-        { label: "Profile", route: "/profile" },
-        { label: "Logout", route: "/logout" },
-      ],
-      statistics: [
-        { label: "Total Transactions", value: "125" },
-        { label: "Portfolio Value", value: "$12,345" },
-        { label: "Notifications", value: "5" },
-      ],
+      currentView: "MyStats",
+      menuItems: [],
+      profileIcon,
+      logoutIcon, // Utilisation des icônes importées
     };
   },
-  mounted() {
-    this.fetchUserProfile(); // Appel pour récupérer le profil utilisateur immédiatement après le montage
+  computed: {
+    filteredMenuItems() {
+      return this.user.role === "admin"
+        ? [
+            {
+              label: "Dashboard",
+              route: "/dashboard",
+              component: "MyStats",
+              icon: dashboardIcon,
+            },
+            {
+              label: "Registration Requests",
+              route: "/registration-requests",
+              component: "RegistrationRequestsList",
+              icon: registrationIcon,
+            },
+            {
+              label: "Transactions",
+              route: "/transactions",
+              component: "TransactionsList",
+              icon: transactionsIcon,
+            },
+            {
+              label: "Manage Users",
+              route: "/manage-users",
+              component: "AdminUserList",
+              icon: usersIcon,
+            },
+            {
+              label: "Manage Crypto",
+              route: "/manage-crypto",
+              component: "CryptoManagement",
+              icon: cryptoIcon,
+            },
+          ]
+        : [
+            {
+              label: "Dashboard",
+              route: "/dashboard",
+              component: "MyStats",
+              icon: dashboardIcon,
+            },
+            {
+              label: "Transactions",
+              route: "/transactions",
+              component: "TransactionsList",
+              icon: transactionsIcon,
+            },
+            {
+              label: "Wallet",
+              route: "/wallet",
+              component: "WalletView",
+              icon: walletIcon,
+            },
+            {
+              label: "Trading & Market",
+              route: "/trading-market",
+              component: "TradingMarket",
+              icon: tradingIcon,
+            },
+          ];
+    },
+  },
+  async created() {
+    await this.fetchUserProfile();
+    this.isLoading = false; // Désactiver le Loader après chargement
+    this.menuItems = this.filteredMenuItems;
+    window.addEventListener("resize", this.checkScreenSize);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.checkScreenSize);
   },
   methods: {
     async fetchUserProfile() {
@@ -113,87 +269,50 @@ export default {
           return;
         }
 
-        const response = await axios.get("http://localhost:8000/api/user-profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await axios.get("http://localhost:8000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Mise à jour des données utilisateur sans délai visible
-        this.user.name = response.data.name;
-        this.user.role = response.data.role;
+        this.user = {
+          name: response.data.name,
+          role: response.data.role,
+          photo: response.data.photo
+            ? `http://localhost:8000/storage/${response.data.photo}`
+            : null,
+        };
 
-        // Mise à jour dynamique du menu en fonction du rôle de l'utilisateur
-        this.setMenuItems();
+        this.menuItems = this.filteredMenuItems; // Mettre à jour le menu
+
+        this.$forceUpdate(); // Forcer la mise à jour du DOM pour afficher les nouvelles infos utilisateur
       } catch (error) {
-        console.error("Erreur lors de la récupération du profil utilisateur:", error);
-      }
-    },
-
-    setMenuItems() {
-      // Mise à jour du menu en fonction du rôle utilisateur
-      if (this.user.role === "admin") {
-        this.menuItems = [
-          { label: "Dashboard", route: "/dashboard" },
-          { label: "Manage Users", route: "/manage-users" },
-          { label: "Manage Crypto", route: "/manage-crypto" },
-          { label: "Transactions", route: "/transactions" },
-        ];
-      } else if (this.user.role === "client") {
-        this.menuItems = [
-          { label: "Dashboard", route: "/dashboard" },
-          { label: "Wallet", route: "/wallet" },
-          { label: "Trading & Market", route: "/trading-market" },
-          { label: "Transactions", route: "/transactions" },
-        ];
-      }
-    },
-
-    async navigateTo(route) {
-      if (route === "/logout") {
-        await this.logout();
-      } else {
-        this.$router.push(route);
-      }
-    },
-
-    async logout() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("Token manquant");
-          return;
-        }
-
-        await axios.post(
-          "http://localhost:8000/api/logout",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        console.error(
+          "Erreur lors de la récupération du profil utilisateur:",
+          error
         );
-
-        localStorage.removeItem("token");
-        this.$router.push({ name: "login" });
-      } catch (error) {
-        console.error("Échec de la déconnexion:", error);
+      } finally {
+        this.isLoading = false; // Désactiver le Loader après chargement
       }
+    },
+
+    navigateTo(route) {
+      this.$router.push(route);
+      this.menuItems = this.filteredMenuItems; // Mettre à jour le menu après navigation
+    },
+
+    isActive(route) {
+      return this.$route.path === route;
+    },
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen;
+    },
+
+    checkScreenSize() {
+      this.isSmallScreen = window.innerWidth <= 768;
+    },
+    async logout() {
+      localStorage.removeItem("token");
+      this.$router.push({ name: "login" });
     },
   },
 };
 </script>
-
-<style>
-/* Ajout de styles responsives pour le dashboard */
-@media screen and (max-width: 768px) {
-  aside {
-    display: none; /* Cache les sidebars pour les petits écrans */
-  }
-
-  main {
-    padding: 1rem; /* Réduction des marges */
-  }
-}
-</style>

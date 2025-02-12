@@ -4,6 +4,11 @@ namespace App\Http\Services;
 
 use App\Models\RegistrationRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Mail\UserApprovedMail;
+use App\Mail\UserRejectedMail;
 
 class RegistrationRequestService
 {
@@ -35,5 +40,52 @@ class RegistrationRequestService
     public function createRequest(string $email)
     {
         RegistrationRequest::create(['email' => $email]);
+    }
+
+    public function getAllRequests()
+    {
+        return RegistrationRequest::all();
+    }
+
+    public function approveRequest($requestId)
+    {
+        $registrationRequest = RegistrationRequest::findOrFail($requestId);
+
+        // Générer un mot de passe aléatoire
+        $password = Str::random(10);
+
+        // Créer l'utilisateur avec l'email fourni
+        $user = User::create([
+            'email' => $registrationRequest->email,
+            'password' => Hash::make($password),
+            'role' => 'client', // Définir un rôle par défaut
+        ]);
+
+        // Lien d'accès à l'application
+        $loginUrl = url('http://localhost:5173/login');
+
+        // Envoyer un e-mail avec le mot de passe et le lien d'accès
+        Mail::to($user->email)->send(new UserApprovedMail($user->email, $password, $loginUrl));
+
+        // Marquer la demande comme approuvée
+        $registrationRequest->is_approved = true;
+        $registrationRequest->user_id = $user->id;
+        $registrationRequest->save();
+
+        return $user;
+    }
+
+    public function rejectRequest($requestId, $rejectionMessage = 'Your registration request has been rejected.')
+    {
+        $registrationRequest = RegistrationRequest::findOrFail($requestId);
+
+        // Marquer la demande comme rejetée
+        $registrationRequest->is_rejected = true;
+        $registrationRequest->save();
+
+        // Envoyer un e-mail de rejet
+        Mail::to($registrationRequest->email)->send(new UserRejectedMail($registrationRequest->email, $rejectionMessage));
+
+        return $registrationRequest;
     }
 }

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('cryptocurrencies', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('logo');
-            $table->decimal('current_price', 15, 2);
+            $table->string('email')->unique();
+            $table->boolean('is_approved')->default(false);
+            $table->boolean('is_rejected')->default(false);
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
        });
     }

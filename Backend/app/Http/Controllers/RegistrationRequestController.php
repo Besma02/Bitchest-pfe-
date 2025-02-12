@@ -21,4 +21,20 @@ class RegistrationRequestController extends Controller
         }
         return response()->json($result, 200);
     }
+    public function index()
+    {
+        return response()->json($this->service->getAllRequests());
+    }
+
+    public function approve($id)
+    {
+        $user = $this->service->approveRequest($id);
+        return response()->json(['message' => 'Request approved and user created', 'user' => $user]);
+    }
+
+    public function reject($id)
+    {
+        $this->service->rejectRequest($id);
+        return response()->json(['message' => 'Request rejected']);
+    }
 }

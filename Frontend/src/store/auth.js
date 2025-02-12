@@ -19,7 +19,7 @@ export default {
     async login({ commit }, { email, password }) {
       try {
         await axios.get("/sanctum/csrf-cookie"); // Ensure CSRF token is set
-        const response = await axios.post("/api/login", { email, password });
+        const response = await axios.post("http://localhost:8000/api/login", { email, password });
 
         if (response.data && response.data.token && response.data.user) {
           commit("SET_USER", { user: response.data.user, token: response.data.token });

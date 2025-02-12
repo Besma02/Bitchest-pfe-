@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('platform_finances', function (Blueprint $table) {
+        Schema::create('crypto_cotations', function (Blueprint $table) {
             $table->id();
-            $table->decimal('total_income', 18, 3)->default(0);  // Total des revenus de la plateforme
+            $table->string('name');
+            $table->date('date');
+            $table->decimal('currentPrice', 10, 2);
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('platform_finances');
+        Schema::dropIfExists('crypto_cotations');
     }
 };
