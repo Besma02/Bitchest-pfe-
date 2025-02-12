@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registration_requests', function (Blueprint $table) {
+        Schema::create('cryptocurrencies', function (Blueprint $table) {
             $table->id();
-            $table->string('email')->unique();
-            $table->boolean('is_approved')->default(false);
-            $table->boolean('is_rejected')->default(false);
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('name')->unique();
+            $table->string('logo');
+            $table->decimal('current_price', 15, 2);
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registration_requests');
+        Schema::dropIfExists('cryptocurrencies');
     }
 };

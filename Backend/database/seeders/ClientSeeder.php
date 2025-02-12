@@ -3,12 +3,32 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Client;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
-class ClientSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     public function run()
     {
-        Client::factory()->count(10)->create();
+        User::insert([
+            [
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+                'balance' => 10000.000,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Client User',
+                'email' => 'client@example.com',
+                'password' => Hash::make('password123'),
+                'role' => 'client',
+                'balance' => 500.000,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }
