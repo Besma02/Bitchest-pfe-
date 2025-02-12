@@ -13,7 +13,7 @@ class UserFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password'),
             'role' => $this->faker->randomElement(['client', 'admin']),
-            'balance' => $this->faker->randomFloat(3, 0, 10000),
+            'balance' => $this->faker->randomFloat(3, 0, 10000), // or 2 if you prefer
             'remember_token' => null,
         ];
     }

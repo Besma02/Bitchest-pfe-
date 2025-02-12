@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cryptocurrencies', function (Blueprint $table) {
+        Schema::create('crypto_cotations', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('logo');
-            $table->decimal('current_price', 15, 2);
+            $table->string('name');
+            $table->date('date');
+            $table->decimal('currentPrice', 10, 2);
+            $table->string('image')->nullable();
             $table->timestamps();
-       });
+        });
     }
 
     /**
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cryptocurrencies');
+        Schema::dropIfExists('crypto_cotations');
     }
 };

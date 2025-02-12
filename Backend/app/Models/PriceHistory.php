@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class PriceHistory extends Model
 {
     use HasFactory;
+    protected $casts = [
+    'date' => 'datetime',
+];
 
     protected $fillable = ['cryptocurrency_id', 'value', 'date'];
 
