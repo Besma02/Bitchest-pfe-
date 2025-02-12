@@ -93,12 +93,16 @@
           <img
             src="@/assets/icons/notification.svg"
             alt="Notifications"
-            class="w-6 h-6"
+            class="w-9 h-8"
           />
         </button>
         <img
           v-if="isSmallScreen"
-          :src="user.photo ? user.photo : '/images/unknown.png'"
+          :src="
+            user.photo
+              ? `http://localhost:8000/storage/${user.photo}`
+              : '/images/unknown.png'
+          "
           alt="User Profile"
           class="w-8 h-8 rounded-full ml-4"
         />
@@ -120,7 +124,11 @@
     >
       <div class="text-center">
         <img
-          :src="user.photo ? user.photo : '/images/unknown.png'"
+          :src="
+            user.photo
+              ? `http://localhost:8000/storage/${user.photo}`
+              : '/images/unknown.png'
+          "
           alt="User Profile"
           class="w-16 h-16 rounded-full mx-auto"
         />
@@ -147,6 +155,7 @@
 
 <script>
 import axios from "axios";
+import { mapActions, mapState } from "vuex";
 import MyStats from "@/components/sections/MyStats.vue";
 import RegistrationRequestsList from "@/components/admin/RegistrationRequestsList.vue";
 import ProfileManager from "@/components/sections/ProfileManager.vue";
@@ -177,11 +186,7 @@ export default {
       isLoading: true, // Afficher Loader au début
       isSidebarOpen: false,
       isSmallScreen: window.innerWidth <= 768,
-      user: {
-        name: "Chargement...",
-        role: "client",
-        photo: null,
-      },
+
       currentView: "MyStats",
       menuItems: [],
       profileIcon,
@@ -189,7 +194,12 @@ export default {
     };
   },
   computed: {
+    ...mapState("auth", {
+      user: (state) => state.user,
+    }),
+
     filteredMenuItems() {
+      console.log(this.user);
       return this.user.role === "admin"
         ? [
             {
@@ -252,48 +262,19 @@ export default {
     },
   },
   async created() {
-    await this.fetchUserProfile();
-    this.isLoading = false; // Désactiver le Loader après chargement
+    console.log("Before fetchProfile");
+    await this.fetchProfile();
+    console.log("After fetchProfile", this.user.photo);
+    this.isLoading = false;
     this.menuItems = this.filteredMenuItems;
+    console.log("Menu items:", this.menuItems);
     window.addEventListener("resize", this.checkScreenSize);
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
   methods: {
-    async fetchUserProfile() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          this.$router.push({ name: "login" });
-          return;
-        }
-
-        const response = await axios.get("http://localhost:8000/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        this.user = {
-          name: response.data.name,
-          role: response.data.role,
-          photo: response.data.photo
-            ? `http://localhost:8000/storage/${response.data.photo}`
-            : null,
-        };
-
-        this.menuItems = this.filteredMenuItems; // Mettre à jour le menu
-
-        this.$forceUpdate(); // Forcer la mise à jour du DOM pour afficher les nouvelles infos utilisateur
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération du profil utilisateur:",
-          error
-        );
-      } finally {
-        this.isLoading = false; // Désactiver le Loader après chargement
-      }
-    },
-
+    ...mapActions("auth", ["fetchProfile"]),
     navigateTo(route) {
       this.$router.push(route);
       this.menuItems = this.filteredMenuItems; // Mettre à jour le menu après navigation
