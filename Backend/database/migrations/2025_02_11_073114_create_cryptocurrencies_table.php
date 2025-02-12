@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('logo');
             $table->decimal('current_price', 15, 2);
             $table->timestamps();
-        });
+       });
     }
 
     /**
