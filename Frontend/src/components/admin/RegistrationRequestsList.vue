@@ -61,19 +61,36 @@
             <p><strong>Date:</strong> {{ formatDate(request.created_at) }}</p>
           </div>
           <div class="mt-2">
-            <button
-              @click="handleApprove(request.id)"
-              class="text-green-500 hover:text-green-700 px-2 py-1 rounded"
+            <!-- Si la demande est approuvée -->
+            <span
+              v-if="request.is_approved"
+              class="text-green-600 font-semibold"
             >
-              <i class="fas fa-check-circle"></i>
-            </button>
-            <button
-              @click="openModal(request.id)"
-              class="text-red-500 hover:text-red-700 transition duration-150"
-              aria-label="Delete request"
+              Approved
+            </span>
+
+            <!-- Si la demande est rejetée -->
+            <span
+              v-else-if="request.is_rejected"
+              class="text-red-600 font-semibold"
             >
-              <i class="fas fa-trash-alt"></i>
-            </button>
+              Rejected
+            </span>
+            <div v-else>
+              <button
+                @click="handleApprove(request.id)"
+                class="text-green-500 hover:text-green-700 px-2 py-1 rounded"
+              >
+                <i class="fas fa-check-circle"></i>
+              </button>
+              <button
+                @click="openModal(request.id)"
+                class="text-red-500 hover:text-red-700 transition duration-150"
+                aria-label="Delete request"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
