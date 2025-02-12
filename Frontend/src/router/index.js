@@ -42,39 +42,12 @@ const router = createRouter({
           name: "manage-users",
           component: AdminUserList, // Composant à afficher
         },
-<<<<<<< HEAD
         { path: '/admin/users/add', component: AddUserForm },
         { path: '/admin/users/edit/:id',name: 'EditUser', component: EditUser },
 
         
 
 
-=======
-        { path: "/admin/users/add", component: AddUserForm },
-        {
-          path: "/admin/users/edit/:id",
-          name: "EditUser",
-          component: EditUser,
-        },
-        {
-          path: "/profile",
-          name: "EditProfile",
-          component: ProfileManager,
-        },
-        {
-          path: "/manage-crypto", // Sous-route pour la gestion des cryptos
-          name: "manage-crypto",
-          component: CryptoList, // Composant à afficher
-          props: { isClient: false } 
-        },
-
-        {
-          path: "/trading-market", 
-          name: "TradeMarket",
-          component:CryptoList ,
-          props: { isClient: true }  
-        },
->>>>>>> bc8b66ebfbcf30c4d5128882abe73845ea7a2025
       ],
     },
   ],
