@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CryptoCotation;
+use App\Models\Cryptocurrency;
+use App\Models\PriceHistory;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class GenerateCryptoCotations extends Command
 {
     protected $signature = 'crypto:generate-cotations';
-    protected $description = 'Génère les cotations actuelles pour les cryptos';
+    protected $description = 'Génère les cotations actuelles pour les cryptos et leur historique sur 30 jours';
 
     private $cryptos = [
         'Bitcoin' => 'cryptos/bitcoin.png',
@@ -28,26 +29,39 @@ class GenerateCryptoCotations extends Command
     public function handle()
     {
         foreach ($this->cryptos as $crypto => $image) {
-            $this->generateCotation($crypto, $image);
+            $this->generateHistoricalData($crypto, $image);
         }
 
-        $this->info('Cotations générées avec succès !');
+        $this->info('Cotations historiques générées avec succès !');
     }
 
-    private function generateCotation($crypto, $image)
+    private function generateHistoricalData($crypto, $image)
     {
-        $latestCotation = CryptoCotation::where('crypto_name', $crypto)->latest('date')->first();
-        $lastValue = $latestCotation ? $latestCotation->value : rand(50, 100);
+        $cryptocurrency = Cryptocurrency::firstOrCreate(
+            ['name' => $crypto],
+            ['image' => Storage::url($image), 'currentPrice' => rand(50, 100)]
+        );
 
-        $variation = ((rand(0, 99) > 40) ? 1 : -1) * (rand(1, 10) * 0.01);
-        $newValue = max(0, $lastValue + $variation);
-   
-        $imageUrl = Storage::url($image); // Génère une URL publique de l'image
-        CryptoCotation::create([
-            'crypto_name' => $crypto,
-            'image' => $imageUrl,
-            'date' => Carbon::now()->format('Y-m-d'),
-            'value' => $newValue,
-        ]);
+        // S'assurer qu'il y a des historiques pour les 30 derniers jours
+        for ($i = 30; $i > 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $existingHistory = $cryptocurrency->priceHistory()->where('date', $date)->first();
+
+            // Si l'historique n'existe pas pour cette date, on le génère
+            if (!$existingHistory) {
+                // Prendre le dernier prix ou un prix aléatoire initial
+                $lastValue = $cryptocurrency->priceHistory()->latest('date')->value('value') ?? $cryptocurrency->currentPrice;
+
+                // Générer une variation aléatoire
+                $variation = ((rand(0, 99) > 40) ? 1 : -1) * (rand(1, 10) * 0.01);
+                $newValue = max(0, $lastValue + $variation);
+
+                // Enregistrer cet historique
+                $cryptocurrency->priceHistory()->create([
+                    'date' => $date,
+                    'value' => $newValue,
+                ]);
+            }
+        }
     }
 }

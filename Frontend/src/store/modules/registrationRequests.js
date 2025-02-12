@@ -6,11 +6,22 @@ export default {
     requests: [],
   },
   mutations: {
-    setRequests(state, requests) {
+    SET_REQUESTS(state, requests) {
       state.requests = requests;
     },
-    removeRequest(state, requestId) {
-      state.requests = state.requests.filter((req) => req.id !== requestId);
+    APPROVE_REQUEST(state, requestId) {
+      const request = state.requests.find((req) => req.id === requestId);
+      if (request) {
+        request.is_approved = true;
+        request.is_rejected = false;
+      }
+    },
+    REJECT_REQUEST(state, requestId) {
+      const request = state.requests.find((req) => req.id === requestId);
+      if (request) {
+        request.is_approved = false;
+        request.is_rejected = true;
+      }
     },
   },
   actions: {
@@ -30,32 +41,45 @@ export default {
           }
         );
 
-        commit("setRequests", response.data);
+        commit("SET_REQUESTS", response.data);
       } catch (error) {
         console.error("Erreur lors du chargement des demandes :", error);
         throw error;
       }
     },
 
-    async deleteRequest({ commit }, requestId) {
+    async approveRequest({ commit }, requestId) {
       try {
-        const token = localStorage.getItem("token"); // 🔹 Récupérer le token
-        if (!token)
-          throw new Error("Aucun token trouvé, utilisateur non authentifié.");
-
-        await axios.delete(
-          `http://localhost:8000/api/admin/registration-requests/${requestId}`,
+        const response = await axios.post(
+          `http://localhost:8000/api/admin/registration-requests/${requestId}/approve`,
+          {},
           {
             headers: {
-              Authorization: `Bearer ${token}`, // ✅ Ajouter le token
-              Accept: "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        commit("APPROVE_REQUEST", requestId);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async rejectRequest({ commit }, requestId) {
+      try {
+        await axios.post(
+          `http://localhost:8000/api/admin/registration-requests/${requestId}/reject`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
 
-        commit("removeRequest", requestId);
+        commit("REJECT_REQUEST", requestId);
       } catch (error) {
-        console.error("Erreur lors de la suppression de la demande :", error);
+        console.error("Error while rejecting request :", error);
         throw error;
       }
     },

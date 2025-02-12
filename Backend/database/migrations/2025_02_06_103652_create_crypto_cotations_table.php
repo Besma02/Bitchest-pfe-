@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('crypto_cotations', function (Blueprint $table) {
             $table->id();
-            $table->string('crypto_name');
+            $table->string('name');
             $table->date('date');
-            $table->decimal('value', 10, 2);
+            $table->decimal('currentPrice', 10, 2);
             $table->string('image')->nullable();
             $table->timestamps();
         });

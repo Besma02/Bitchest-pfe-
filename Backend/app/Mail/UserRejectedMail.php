@@ -6,26 +6,23 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class UserApprovedMail extends Mailable
+class UserRejectedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $email;
-    public $password;
-    public $loginUrl;
+    public $rejectionMessage;
 
     /**
      * Create a new message instance.
      *
      * @param string $email
-     * @param string $password
-     * @param string $loginUrl
+     * @param string $rejectionMessage
      */
-    public function __construct($email, $password, $loginUrl)
+    public function __construct($email, $rejectionMessage)
     {
         $this->email = $email;
-        $this->password = $password;
-        $this->loginUrl = $loginUrl;
+        $this->rejectionMessage = $rejectionMessage;
     }
 
     /**
@@ -35,12 +32,11 @@ class UserApprovedMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Your Bitchest Account Has Been Approved')
-            ->view('emails.user_approved')
+        return $this->subject('Your Bitchest Account Has Been Rejected')
+            ->view('emails.user_rejected') // Vue de l'e-mail
             ->with([
                 'email' => $this->email,
-                'password' => $this->password,
-                'loginUrl' => $this->loginUrl,
+                'rejectionMessage' => $this->rejectionMessage,
             ]);
     }
 }
