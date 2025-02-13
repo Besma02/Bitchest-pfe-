@@ -1,10 +1,13 @@
 <template>
   <div>
+    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
+      Crypto Management
+    </h1>
     <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
       <!-- Affiche le bouton "Add crypto" seulement si l'utilisateur n'est pas un client -->
       <router-link
         to="/admin/crypto/add"
-        class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center"
+        class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center "
       >
         Add crypto
       </router-link>
