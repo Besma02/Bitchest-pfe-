@@ -1,5 +1,8 @@
 <template>
   <div>
+    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
+      Crypto Management
+    </h1>
     <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
       <router-link
         to="/admin/crypto/add"
@@ -45,6 +48,7 @@
           </h3>
           <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.currentPrice }} €</h4>
           <router-link
+           :to="`/dashboard/crypto/${crypto.id}`"
             @click="ViewCrypto(crypto.id)"
             class="text-yellow-500 hover:text-yellow-600 transition duration-150 lg:mr-2 sm:mr-0 md:mr-0"
             >view
@@ -71,7 +75,7 @@
 <script>
 import cryptoService from "../../../services/cryptoService";
 import Pagination from "../../Pagination.vue";
-
+import Loader from '../../utils/Loader.vue'
 export default {
   components: {
     Loader,

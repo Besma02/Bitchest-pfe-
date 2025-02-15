@@ -48,15 +48,6 @@
           :key="crypto.crypto_name"
           class="bg-white w-full max-w-[220px] mx-auto h-[180px] sm:h-[190px] border border-gray-300 rounded-[1.5rem] p-4 sm:p-5 lg:p-6 text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
         >
-<<<<<<< HEAD
-          <img :src="getImageUrl(crypto.image_url)" :alt="crypto.crypto_name" class="mx-auto mb-4 w-12 h-12 object-contain" />
-          <h3 class="text-bitchest-success font-bold text-sm sm:text-base md:text-lg lg:text-xl">
-            {{ crypto.name }}
-          </h3>
-          <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.currentPrice }} €</h4>
-          <!-- Affichage de la date -->
-     <!-- <p class="text-xs sm:text-sm md:text-base lg:text-lg text-gray-500">{{ formatDate(crypto.date) }}</p>-->
-=======
           <img
             :src="getImageUrl(crypto.image_url)"
             :alt="crypto.crypto_name"
@@ -70,7 +61,6 @@
           <h4 class="text-sm sm:text-base md:text-lg lg:text-xl">
             {{ crypto.currentPrice }} $
           </h4>
->>>>>>> 292eafabad9b49efcfd1f640ebf61995b96e5745
         </div>
       </div>
     </div>
@@ -98,13 +88,9 @@ export default {
     },
     async fetchCryptos() {
       try {
-<<<<<<< HEAD
-        const response = await axios.get("http://localhost:8000/api/cryptos/current");
-=======
         const response = await axios.get(
           "http://127.0.0.1:8000/api/cryptos/current"
         );
->>>>>>> 292eafabad9b49efcfd1f640ebf61995b96e5745
         this.cryptos = response.data;
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
