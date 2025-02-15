@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('email')->unique();
             $table->boolean('is_approved')->default(false);
+            $table->boolean('is_rejected')->default(false);
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

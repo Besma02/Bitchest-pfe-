@@ -29,10 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('api')->group(function () {
-    // CSRF Cookie Route for Sanctum Authentication
-    Route::get('/sanctum/csrf-cookie', function (Request $request) {
-        return response()->noContent();
-    });
 
     // Authentication Routes
     Route::post('/login', [AuthController::class, 'login']);
@@ -62,7 +58,11 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
 
 
-use App\Http\Controllers\CryptoCotationController;
-//récupérer les dernières cotations
-Route::get('/crypto-cotations', [CryptoCotationController::class, 'index']);
 
+use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\PriceHistoryController;
+
+//récupérer les dernières cotations
+//Route::get('/crypto-cotations', [CryptocurrencyController::class, 'index']);
+Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
+Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);

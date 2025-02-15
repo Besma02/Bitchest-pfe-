@@ -20,8 +20,13 @@ class ProfileController extends Controller
      */
     public function getProfile(Request $request)
     {
-        $user = $request->user();
-        return response()->json($this->profileService->getProfile($user));
+        $user = $request->user(); // Cela récupère l'utilisateur authentifié
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'photo' => $user->photo
+        ]);
     }
 
     /**
@@ -49,11 +54,22 @@ class ProfileController extends Controller
 
         $validatedData = $request->validate([
             'old_password' => 'required|string',
-            'new_password' => 'required|string|min:6|confirmed',
-        ], [
-            'new_password.confirmed' => 'The new password and confirmation password do not match.'
+            'new_password' => 'required|string|min:8',
         ]);
 
-        return response()->json($this->profileService->changePassword($user, $validatedData));
+        $result = $this->profileService->changePassword($user, $validatedData);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+                'errors' => []
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['message']
+        ]);
     }
 }

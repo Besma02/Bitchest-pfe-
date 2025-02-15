@@ -12,20 +12,35 @@ class UserApprovedMail extends Mailable
 
     public $email;
     public $password;
+    public $loginUrl;
 
-    public function __construct($email, $password)
+    /**
+     * Create a new message instance.
+     *
+     * @param string $email
+     * @param string $password
+     * @param string $loginUrl
+     */
+    public function __construct($email, $password, $loginUrl)
     {
         $this->email = $email;
         $this->password = $password;
+        $this->loginUrl = $loginUrl;
     }
 
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
     public function build()
     {
-        return $this->subject('Your account has been created!')
-            ->view('emails.user-approved')
+        return $this->subject('Your Bitchest Account Has Been Approved')
+            ->view('emails.user_approved')
             ->with([
                 'email' => $this->email,
                 'password' => $this->password,
+                'loginUrl' => $this->loginUrl,
             ]);
     }
 }

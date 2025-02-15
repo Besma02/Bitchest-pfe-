@@ -1,5 +1,17 @@
 import axios from "axios";
 
+// 🔹 URL de base de l'API
+const API_BASE_URL = "http://localhost:8000/api";
+
+// 🔹 Configuration d'Axios pour inclure le token d'authentification
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default {
   namespaced: true,
   state: {
@@ -25,110 +37,120 @@ export default {
     // 🔹 Connexion utilisateur
     async login({ commit }, { email, password }) {
       try {
-        await axios.get("http://localhost:8000/sanctum/csrf-cookie"); // Laravel CSRF
-        const response = await axios.post("http://localhost:8000/api/login", {
+        // Récupérer le cookie CSRF
+        await axios.get("http://localhost:8000/sanctum/csrf-cookie");
+
+        // Envoyer les informations de connexion
+        const response = await axios.post(`${API_BASE_URL}/login`, {
           email,
           password,
         });
 
-        if (response.data && response.data.token && response.data.user) {
+        if (response.data?.token && response.data?.user) {
           commit("SET_USER", {
             user: response.data.user,
             token: response.data.token,
           });
           return response.data; // ✅ Succès
         } else {
-          throw new Error("Invalid login response");
+          throw new Error("Réponse de connexion invalide");
         }
       } catch (error) {
-        console.error("Échec de connexion:", error);
-        throw error; // ❌ Gère l'erreur côté composant Vue
+        console.error(
+          "Échec de connexion:",
+          error.response?.data?.message || error.message
+        );
+        throw new Error(
+          "Échec de connexion. Veuillez vérifier vos identifiants."
+        );
       }
     },
 
     // 🔹 Récupérer le profil utilisateur
     async fetchProfile({ commit }) {
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8000/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get(`${API_BASE_URL}/profile`);
+        commit("SET_USER", {
+          user: response.data,
+          token: localStorage.getItem("token"),
         });
-
-        commit("SET_USER", { user: response.data, token });
         return response.data;
       } catch (error) {
-        console.error("Erreur lors du chargement du profil:", error);
-        throw error;
+        console.error(
+          "Erreur lors du chargement du profil:",
+          error.response?.data?.message || error.message
+        );
+        throw new Error("Impossible de charger le profil utilisateur.");
       }
     },
 
     // 🔹 Mise à jour du profil utilisateur
     async updateProfile(_, formData) {
       try {
-        const token = localStorage.getItem("token");
-
-        console.log("Sending API request with:", formData);
+        if (!formData || typeof formData !== "object") {
+          throw new Error("Données de formulaire invalides.");
+        }
 
         const response = await axios.post(
-          "http://localhost:8000/api/profile/update",
+          `${API_BASE_URL}/profile/update`,
           formData,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data", // Indiquer que c'est une requête avec fichier
-            },
+            headers: { "Content-Type": "multipart/form-data" },
           }
         );
 
-        console.log("Profile update successful:", response.data);
+        if (process.env.NODE_ENV !== "production") {
+          console.log("Profil mis à jour avec succès:", response.data);
+        }
         return response.data;
       } catch (error) {
-        console.error("Erreur lors de la mise à jour du profil:", error);
-        throw error;
+        console.error(
+          "Erreur lors de la mise à jour du profil:",
+          error.response?.data?.message || error.message
+        );
+        throw new Error("Échec de la mise à jour du profil.");
       }
     },
+
+    // 🔹 Changer le mot de passe
     async changePassword(_, passwordData) {
       try {
-        const token = localStorage.getItem("token");
-
-        console.log("Sending API request with:", passwordData);
+        if (!passwordData?.current_password || !passwordData?.new_password) {
+          throw new Error("Les champs du mot de passe sont requis.");
+        }
 
         const response = await axios.post(
-          "http://localhost:8000/api/profile/change-password",
+          `${API_BASE_URL}/profile/change-password`,
           {
-            old_password: passwordData.current_password, // Vérifie que c'est bien "old_password"
+            old_password: passwordData.current_password,
             new_password: passwordData.new_password,
-            new_password_confirmation: passwordData.new_password_confirmation, // Correcte
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
           }
         );
 
-        console.log("Password change successful:", response.data);
+        if (process.env.NODE_ENV !== "production") {
+          console.log("Mot de passe changé avec succès:", response.data);
+        }
         return response.data;
       } catch (error) {
-        console.error("Erreur lors du changement de mot de passe:", error);
-        throw error;
+        console.error(
+          "Erreur lors du changement de mot de passe:",
+          error.response?.data?.message || error.message
+        );
+        throw new Error("Échec du changement de mot de passe.");
       }
     },
 
     // 🔹 Déconnexion de l'utilisateur
     async logout({ commit }) {
       try {
-        const token = localStorage.getItem("token");
-        await axios.post(
-          "http://localhost:8000/api/logout",
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
+        await axios.post(`${API_BASE_URL}/logout`);
         commit("LOGOUT");
       } catch (error) {
-        console.error("Erreur lors de la déconnexion:", error);
+        console.error(
+          "Erreur lors de la déconnexion:",
+          error.response?.data?.message || error.message
+        );
+        throw new Error("Échec de la déconnexion.");
       }
     },
   },

@@ -4,11 +4,11 @@
       <NavBar />
     </header>
     <main>
-      
-      <HomeSection/>
-      <AboutSection/>
+      <HomeSection />
+      <AboutSection />
       <TradeSection />
-      <ServicesSection/>
+      <ServicesSection />
+      <FooterSection />
     </main>
   </div>
 </template>
@@ -20,6 +20,7 @@ import HomeSection from "@/components/sections/HomeSection.vue";
 import AboutSection from "../components/sections/AboutSection.vue";
 import ServicesSection from "../components/sections/ServicesSection.vue";
 import TradeSection from "../components/sections/TradeSection.vue";
+import FooterSection from "@/components/sections/FooterSection.vue";
 
 export default {
   components: {
@@ -27,7 +28,8 @@ export default {
     HomeSection,
     AboutSection,
     TradeSection,
-    ServicesSection
+    ServicesSection,
+    FooterSection,
   },
 };
 </script>
