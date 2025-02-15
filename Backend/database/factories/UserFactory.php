@@ -16,8 +16,8 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password'),
-            'balance' => $this->faker->randomFloat(2, 0, 1000),  // Balance aléatoire entre 0 et 1000 avec 2 décimales
-            'type' => 'client',
+            'balance' => $this->faker->randomFloat(3, 0, 1000),  // Balance aléatoire entre 0 et 1000 avec 2 décimales
+            'role' => 'client',
         ];
     }
 }
