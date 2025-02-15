@@ -4,7 +4,6 @@
       Crypto Management
     </h1>
     <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
-      <!-- Affiche le bouton "Add crypto" seulement si l'utilisateur n'est pas un client -->
       <router-link
         to="/admin/crypto/add"
         class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center "
@@ -41,7 +40,6 @@
             >view
             <i class="far fa-eye text-bitchest-secondary mr-2 mt-2"></i>
           </router-link>
-          <!-- Si l'utilisateur est un client, afficher "Buy" à la place de "Edit" -->
           <router-link
             @click="isClient ? buyCrypto(crypto.id) : editCrypto(crypto.id)"
             class="text-yellow-500 hover:text-yellow-600 transition duration-150 mr-2"
@@ -50,38 +48,19 @@
             <i :class="isClient ? 'fas fa-cart-plus text-bitchest-success' : 'fas fa-edit text-bitchest-success'"></i>
           </router-link>
         </div>
-        
       </div>
-      
     </div>
-    
-    <!-- Pagination with page numbers -->
-    <div v-if="totalPages > 1" class="flex justify-center mt-4">
-      <button 
-        v-if="currentPage > 1" 
-        @click="previousPage" 
-        class="text-blue-500 mx-2">Previous</button>
-      
-      <!-- Pagination numbers -->
-      <button 
-        v-for="page in totalPages" 
-        :key="page" 
-        :class="{'bg-blue-500 text-white': page === currentPage, 'text-blue-500': page !== currentPage}"
-        @click="goToPage(page)"
-        class="mx-1 px-3 py-1 border rounded-full">
-        {{ page }}
-      </button>
-      
-      <button 
-        v-if="currentPage < totalPages" 
-        @click="nextPage" 
-        class="text-blue-500 mx-2">Next</button>
-    </div>
+
+    <!-- Utiliser le composant Pagination -->
+    <Pagination 
+      :currentPage="currentPage" 
+      :totalPages="totalPages" 
+      @goToPage="goToPage" />
   </div>
 </template>
-
 <script>
-import axios from "axios";
+import cryptoService from "../../../services/cryptoService";
+import Pagination from "../../Pagination.vue";
 
 export default {
   props: {
@@ -102,9 +81,8 @@ export default {
   methods: {
     async fetchCryptos() {
       try {
-        const response = await axios.get("http://localhost:8000/api/cryptos/current");
-        this.cryptos = response.data;
-        this.totalPages = Math.ceil(this.cryptos.length / this.limit); // Calcul du nombre total de pages
+        this.cryptos = await cryptoService.fetchCryptos();
+        this.totalPages = Math.ceil(this.cryptos.length / this.limit);
         this.updatePaginatedCryptos();
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
@@ -137,13 +115,14 @@ export default {
       return `http://127.0.0.1:8000${imagePath}`;
     },
     buyCrypto(cryptoId) {
-      // Logique pour acheter la crypto
       console.log(`Buying crypto with ID: ${cryptoId}`);
     },
     editCrypto(cryptoId) {
-      // Logique pour éditer la crypto
       console.log(`Editing crypto with ID: ${cryptoId}`);
     }
+  },
+  components: {
+    Pagination
   },
   mounted() {
     console.log('isClient:', this.isClient);

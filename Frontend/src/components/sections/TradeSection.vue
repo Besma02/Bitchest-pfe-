@@ -39,9 +39,9 @@
         >
           <img :src="getImageUrl(crypto.image_url)" :alt="crypto.crypto_name" class="mx-auto mb-4 w-12 h-12 object-contain" />
           <h3 class="text-bitchest-success font-bold text-sm sm:text-base md:text-lg lg:text-xl">
-            {{ crypto.crypto_name }}
+            {{ crypto.name }}
           </h3>
-          <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.current_value }} €</h4>
+          <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.currentPrice }} €</h4>
           <!-- Affichage de la date -->
      <!-- <p class="text-xs sm:text-sm md:text-base lg:text-lg text-gray-500">{{ formatDate(crypto.date) }}</p>-->
         </div>
@@ -69,7 +69,7 @@ export default {
     },
     async fetchCryptos() {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/crypto-cotations");
+        const response = await axios.get("http://localhost:8000/api/cryptos/current");
         this.cryptos = response.data;
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
