@@ -48,14 +48,37 @@ class ProfileService
      */
     public function changePassword(User $user, array $data)
     {
+        // Vérifier que l'ancien mot de passe est correct
         if (!Hash::check($data['old_password'], $user->password)) {
-            return response()->json(['error' => 'Incorrect old password.'], 422);
+            return [
+                'success' => false,
+                'message' => 'The current password is incorrect.',
+            ];
         }
 
-        $user->update(['password' => Hash::make($data['new_password'])]);
+        // Vérifier que le nouveau mot de passe est différent de l'ancien
+        if (Hash::check($data['new_password'], $user->password)) {
+            return [
+                'success' => false,
+                'message' => 'The new password must be different from the current password.',
+            ];
+        }
+
+        // Vérifier la complexité du nouveau mot de passe
+        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $data['new_password'])) {
+            return [
+                'success' => false,
+                'message' => 'The password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.',
+            ];
+        }
+
+        // Mettre à jour le mot de passe
+        $user->password = Hash::make($data['new_password']);
+        $user->save();
 
         return [
-            'message' => 'Password updated successfully.',
+            'success' => true,
+            'message' => 'Password changed successfully.',
         ];
     }
 }

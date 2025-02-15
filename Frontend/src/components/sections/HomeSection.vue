@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    <div class="w-full md:w-1/2 md:flex md:items-center mb-4 md:mb-0">
+    <div class="w-full md:w-1/2 md:flex md:items-center md:mb-0">
       <img
         src="@/assets/homeImage.png"
         alt="Crypto Marketplace"
@@ -89,6 +89,7 @@ export default {
         this.modalMessage = "An error occurred. Please try again later.";
       }
       this.showModal = true;
+      this.setInputData = "";
     },
     handleModalClose() {
       this.showModal = false;

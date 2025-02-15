@@ -9,8 +9,11 @@
   <div v-else class="flex flex-col md:flex-row min-h-screen bg-gray-100">
     <!-- Sidebar gauche -->
     <aside
-      class="w-64 bg-sidebar-bg text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out"
-      :class="{ '-translate-x-full': isSmallScreen && !isSidebarOpen }"
+      class="w-64 text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out z-40 bg-gray-100"
+      :class="{
+        '-translate-x-full': isSmallScreen && !isSidebarOpen,
+        'bg-sidebar-bg': isSmallScreen,
+      }"
     >
       <div>
         <div class="p-6 flex justify-between items-center">
@@ -51,8 +54,8 @@
           <ul>
             <li
               class="py-3 px-6 hover:bg-gray-200 cursor-pointer flex items-center"
-              :class="{ 'bg-gray-200': isActive('/profile') }"
-              @click="navigateTo('/profile')"
+              :class="{ 'bg-gray-200': isActive('/dashboard/profile') }"
+              @click="this.$router.push('/dashboard/profile')"
             >
               <img :src="profileIcon" alt="icon" class="w-5 h-5 mr-2" />
               Profile
@@ -70,15 +73,16 @@
     </aside>
 
     <!-- Contenu principal -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col h-screen">
       <!-- Barre de navigation supérieure -->
       <header class="bg-white shadow p-4 flex justify-end items-center gap-10">
         <button
-          class="md:hidden bg-gray-200 text-white px-3 py-2 rounded"
+          class="md:hidden bg-gray-200 text-bitchest-black px-3 py-2 rounded text-2xl"
           @click="toggleSidebar"
         >
-          ☰
+          {{ isSidebarOpen ? "✖" : "☰" }}
         </button>
+
         <h1 class="text-xl font-bold text-gray-700">Dashboard</h1>
 
         <button class="ml-4 relative" @click="toggleNotifications">
@@ -89,18 +93,22 @@
           <img
             src="@/assets/icons/notification.svg"
             alt="Notifications"
-            class="w-6 h-6"
+            class="w-9 h-8"
           />
         </button>
         <img
           v-if="isSmallScreen"
-          :src="user.photo ? user.photo : '/images/unknown.png'"
+          :src="
+            user.photo
+              ? `http://localhost:8000/storage/${user.photo}`
+              : '/images/unknown.png'
+          "
           alt="User Profile"
           class="w-8 h-8 rounded-full ml-4"
         />
       </header>
 
-      <main class="flex-1 p-6 bg-white overflow-x-auto">
+      <main class="flex-1 p-6 bg-white w-full overflow-auto">
         <router-view />
       </main>
     </div>
@@ -109,21 +117,18 @@
     <aside
       v-if="!isLoading"
       :class="[
-        'w-64 bg-sidebar-bg p-6 fixed right-0 top-0 h-full transform transition-transform duration-300',
-        isUserSidebarOpen ? 'translate-x-0' : 'translate-x-full',
+        'w-64 bg-sidebar-bg p-6 fixed right-0 top-0 h-screen transform transition-transform duration-300',
+        'translate-x-full',
         'md:relative md:translate-x-0',
       ]"
     >
-      <button
-        class="md:hidden text-gray-600 text-2xl absolute top-4 left-4"
-        @click="toggleUserSidebar"
-      >
-        ✖
-      </button>
-
       <div class="text-center">
         <img
-          :src="user.photo ? user.photo : '/images/unknown.png'"
+          :src="
+            user.photo
+              ? `http://localhost:8000/storage/${user.photo}`
+              : '/images/unknown.png'
+          "
           alt="User Profile"
           class="w-16 h-16 rounded-full mx-auto"
         />
@@ -149,7 +154,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import { mapActions, mapState } from "vuex";
 import MyStats from "@/components/sections/MyStats.vue";
 import RegistrationRequestsList from "@/components/admin/RegistrationRequestsList.vue";
 import ProfileManager from "@/components/sections/ProfileManager.vue";
@@ -180,11 +185,7 @@ export default {
       isLoading: true, // Afficher Loader au début
       isSidebarOpen: false,
       isSmallScreen: window.innerWidth <= 768,
-      user: {
-        name: "Chargement...",
-        role: "client",
-        photo: null,
-      },
+
       currentView: "MyStats",
       menuItems: [],
       profileIcon,
@@ -192,7 +193,12 @@ export default {
     };
   },
   computed: {
+    ...mapState("auth", {
+      user: (state) => state.user,
+    }),
+
     filteredMenuItems() {
+      console.log(this.user);
       return this.user.role === "admin"
         ? [
             {
@@ -203,25 +209,25 @@ export default {
             },
             {
               label: "Registration Requests",
-              route: "/registration-requests",
+              route: "/dashboard/registration-requests",
               component: "RegistrationRequestsList",
               icon: registrationIcon,
             },
             {
               label: "Transactions",
-              route: "/transactions",
+              route: "/dashboard/transactions",
               component: "TransactionsList",
               icon: transactionsIcon,
             },
             {
               label: "Manage Users",
-              route: "/manage-users",
+              route: "/dashboard/manage-users",
               component: "AdminUserList",
               icon: usersIcon,
             },
             {
               label: "Manage Crypto",
-              route: "/manage-crypto",
+              route: "/dashboard/manage-crypto",
               component: "CryptoManagement",
               icon: cryptoIcon,
             },
@@ -235,19 +241,19 @@ export default {
             },
             {
               label: "Transactions",
-              route: "/transactions",
+              route: "/dashboard/transactions",
               component: "TransactionsList",
               icon: transactionsIcon,
             },
             {
               label: "Wallet",
-              route: "/wallet",
+              route: "/dashboard/wallet",
               component: "WalletView",
               icon: walletIcon,
             },
             {
               label: "Trading & Market",
-              route: "/trading-market",
+              route: "/dashboard/trading-market",
               component: "TradingMarket",
               icon: tradingIcon,
             },
@@ -255,51 +261,19 @@ export default {
     },
   },
   async created() {
-    await this.fetchUserProfile();
-    this.isLoading = false; // Désactiver le Loader après chargement
+    console.log("Before fetchProfile");
+    await this.fetchProfile();
+    console.log("After fetchProfile", this.user.photo);
+    this.isLoading = false;
     this.menuItems = this.filteredMenuItems;
+    console.log("Menu items:", this.menuItems);
     window.addEventListener("resize", this.checkScreenSize);
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
   methods: {
-    async fetchUserProfile() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          this.$router.push({ name: "login" });
-          return;
-        }
-
-        const response = await axios.get(
-          "http://localhost:8000/api/user-profile",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        this.user = {
-          name: response.data.name,
-          role: response.data.role,
-          photo: response.data.photo
-            ? `http://localhost:8000/storage/${response.data.photo}`
-            : null,
-        };
-
-        this.menuItems = this.filteredMenuItems; // Mettre à jour le menu
-
-        this.$forceUpdate(); // Forcer la mise à jour du DOM pour afficher les nouvelles infos utilisateur
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération du profil utilisateur:",
-          error
-        );
-      } finally {
-        this.isLoading = false; // Désactiver le Loader après chargement
-      }
-    },
-
+    ...mapActions("auth", ["fetchProfile"]),
     navigateTo(route) {
       this.$router.push(route);
       this.menuItems = this.filteredMenuItems; // Mettre à jour le menu après navigation
@@ -311,6 +285,7 @@ export default {
     toggleSidebar() {
       this.isSidebarOpen = !this.isSidebarOpen;
     },
+
     checkScreenSize() {
       this.isSmallScreen = window.innerWidth <= 768;
     },

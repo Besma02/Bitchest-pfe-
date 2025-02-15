@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\UserApprovedMail;
+use App\Mail\UserRejectedMail;
 
 class RegistrationRequestService
 {
@@ -57,24 +58,33 @@ class RegistrationRequestService
         $user = User::create([
             'email' => $registrationRequest->email,
             'password' => Hash::make($password),
-            'role' => 'user', // Définir un rôle par défaut
+            'role' => 'client', // Définir un rôle par défaut
         ]);
 
-        // Envoyer un e-mail avec le mot de passe
-        Mail::to($user->email)->send(new UserApprovedMail($user->email, $password));
+        // Lien d'accès à l'application
+        $loginUrl = url('http://localhost:5173/login');
+
+        // Envoyer un e-mail avec le mot de passe et le lien d'accès
+        Mail::to($user->email)->send(new UserApprovedMail($user->email, $password, $loginUrl));
 
         // Marquer la demande comme approuvée
         $registrationRequest->is_approved = true;
+        $registrationRequest->user_id = $user->id;
         $registrationRequest->save();
 
         return $user;
     }
 
-    public function rejectRequest($requestId)
+    public function rejectRequest($requestId, $rejectionMessage = 'Your registration request has been rejected.')
     {
         $registrationRequest = RegistrationRequest::findOrFail($requestId);
-        $registrationRequest->is_approved = false;
+
+        // Marquer la demande comme rejetée
+        $registrationRequest->is_rejected = true;
         $registrationRequest->save();
+
+        // Envoyer un e-mail de rejet
+        Mail::to($registrationRequest->email)->send(new UserRejectedMail($registrationRequest->email, $rejectionMessage));
 
         return $registrationRequest;
     }

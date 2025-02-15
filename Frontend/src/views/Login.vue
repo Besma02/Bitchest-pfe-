@@ -74,13 +74,13 @@ export default {
 
         // ✅ Check if login was successful
         if (response && response.token) {
-          this.toast.success("✅ Login successful! ");
+          this.toast.success(" Login successful! ");
           setTimeout(() => this.$router.push("/dashboard"), 100);
         } else {
-          throw new Error("Invalid login credentials"); // ❌ Invalid response
+          throw new Error("Invalid login credentials");
         }
       } catch (error) {
-        this.toast.error("❌ Login failed. Please check your credentials.");
+        this.toast.error(" Login failed. Please check your credentials.");
       }
     },
   },
