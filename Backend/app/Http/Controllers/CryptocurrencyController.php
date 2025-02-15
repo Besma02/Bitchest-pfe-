@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cryptocurrency;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+
 class CryptocurrencyController extends Controller
 {
     // Route pour récupérer les prix actuels
@@ -80,8 +81,4 @@ class CryptocurrencyController extends Controller
             'price_history' => $priceHistory
         ]);
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> cae4cdb679cb2e00bdbfd866447139f54c207f26

@@ -4,12 +4,13 @@ namespace Database\Seeders;
 
 
 use Illuminate\Database\Seeder;
-use App\Models\Client;
+
+use App\Models\User;
 
 class UserSeeder extends Seeder
 {
     public function run()
     {
-        Client::factory(10)->create();  // Crée 10 clients avec la balance initiale
+        User::factory(20)->create();
     }
 }
