@@ -38,8 +38,9 @@
     </div>
 
     <!-- Graphique -->
-    <div class="relative h-80">
-      <canvas ref="priceChart"></canvas>
+    <div class="relative h-80 flex items-center justify-center">
+      <Loader v-if="isLoading" />
+      <canvas v-show="!isLoading" ref="priceChart"></canvas>
     </div>
 
     <!-- Statistiques -->
@@ -69,8 +70,12 @@
 import { mapState, mapActions } from "vuex";
 import { Chart } from "chart.js/auto";
 import moment from "moment";
+import Loader from "../utils/Loader.vue";
 
 export default {
+  components: {
+    Loader,
+  },
   props: ["id"],
   data() {
     return {
@@ -81,10 +86,11 @@ export default {
         { label: "15 Days", value: 15 },
         { label: "1 Month", value: 30 },
       ],
+      isLoading: false, // Gère le loader du graphique
     };
   },
   computed: {
-    ...mapState("crypto", ["priceHistory", "crypto"]), // ✅ Récupère directement crypto
+    ...mapState("crypto", ["priceHistory", "crypto"]),
 
     maxPrice() {
       return Math.max(...this.priceHistory.map((entry) => entry.value), 0);
@@ -106,18 +112,36 @@ export default {
     ...mapActions("crypto", ["loadPriceHistory"]),
 
     async updateChart() {
+      this.isLoading = true; // Afficher le loader pendant le chargement
+
       await this.loadPriceHistory({
         cryptoId: this.id,
         days: this.selectedDays,
       });
-      this.drawChart();
+
+      this.isLoading = false; // Masquer le loader après le chargement
+      this.$nextTick(() => {
+        this.drawChart();
+      });
     },
 
     drawChart() {
       if (this.priceHistory.length === 0) return;
+
+      // Vérifie si le canvas est bien rendu
+      if (!this.$refs.priceChart) {
+        console.error("Le canvas n'est pas encore disponible.");
+        return;
+      }
+
       if (this.chartInstance) this.chartInstance.destroy();
 
       const ctx = this.$refs.priceChart.getContext("2d");
+      if (!ctx) {
+        console.error("Impossible d'obtenir le contexte 2D du canvas.");
+        return;
+      }
+
       this.chartInstance = new Chart(ctx, {
         type: "line",
         data: {

@@ -2,7 +2,7 @@
   <!-- Loader : s'affiche tant que les données ne sont pas chargées -->
   <div
     v-if="isLoading"
-    class="fixed inset-0 flex items-center justify-center bg-white z-50"
+    class="fixed inset-0 flex items-center justify-center h-screen z-50"
   >
     <Loader />
   </div>
