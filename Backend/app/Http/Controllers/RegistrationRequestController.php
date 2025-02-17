@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
-use App\Http\Services\RegistrationRequestService;
+use App\Services\RegistrationRequestService;
 use Illuminate\Http\Request;
 class RegistrationRequestController extends Controller
 {

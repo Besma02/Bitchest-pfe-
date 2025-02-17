@@ -13,7 +13,7 @@
       </router-link>
     </div>
 
-    <!-- Tableau classique avec pagination -->
+    <!-- Tableau classique avec pagination (desktop) -->
     <div class="overflow-hidden hidden lg:block">
       <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
         <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
@@ -32,20 +32,10 @@
             </td>
           </tr>
 
-          <!-- Utilisateurs paginés -->
           <tr v-for="user in paginatedUsers" :key="user.id" class="border-b border-gray-200">
             <td class="px-4 py-2 text-sm text-gray-700 text-center">
-              <img
-                v-if="user.photo"
-                :src="user.photo"
-                class="h-12 w-12 rounded-full object-cover"
-              />
-              <img
-                v-else
-                src="/images/unknown.png"
-                alt="User Photo"
-                class="h-12 w-12 rounded-full object-cover"
-              />
+              <img v-if="user.photo" :src="user.photo" class="h-12 w-12 rounded-full object-cover" />
+              <img v-else src="/images/unknown.png" alt="User Photo" class="h-12 w-12 rounded-full object-cover" />
             </td>
             <td class="px-4 py-2 text-sm text-gray-700 text-center">{{ user.name }}</td>
             <td class="px-4 py-2 text-sm text-gray-700 text-center">{{ user.email }}</td>
@@ -63,28 +53,7 @@
       </table>
     </div>
 
-    <!-- Pagination Desktop -->
-    <div v-if="totalPages > 1" class="flex justify-end mt-4 hidden lg:flex">
-      <button v-if="currentPage > 1" @click="previousPage" class="text-blue-500 mx-2">Previous</button>
-      
-      <!-- Boutons de pagination numérotée -->
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        :class="{
-          'bg-blue-500 text-white': page === currentPage,
-          'text-blue-500': page !== currentPage,
-        }"
-        @click="goToPage(page)"
-        class="mx-1 px-3 py-1 border rounded-full"
-      >
-        {{ page }}
-      </button>
-      
-      <button v-if="currentPage < totalPages" @click="nextPage" class="text-blue-500 mx-2">Next</button>
-    </div>
-
-    <!-- SECTION : Liste pour sm/md -->
+    <!-- Liste mobile -->
     <div class="lg:hidden">
       <div v-for="user in paginatedUsers" :key="user.id" class="bg-white p-4 mb-4 rounded-lg shadow-md border">
         <div class="flex items-center justify-normal gap-3 space-x-4">
@@ -104,40 +73,15 @@
           </button>
         </div>
       </div>
-
-      <!-- Pagination Mobile -->
-      <div v-if="totalPages > 1" class="flex justify-center mt-4">
-        <button v-if="currentPage > 1" @click="previousPage" class="text-blue-500 mx-2">Previous</button>
-
-        <!-- Boutons de pagination numérotée -->
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          :class="{
-            'bg-blue-500 text-white': page === currentPage,
-            'text-blue-500': page !== currentPage,
-          }"
-          @click="goToPage(page)"
-          class="mx-1 px-3 py-1 border rounded-full"
-        >
-          {{ page }}
-        </button>
-
-        <button v-if="currentPage < totalPages" @click="nextPage" class="text-blue-500 mx-2">Next</button>
-      </div>
     </div>
 
-    <!-- Modal de confirmation -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-lg font-bold">Confirm Deletion</h2>
-        <p class="mt-2">Are you sure you want to delete this user?</p>
-        <div class="flex justify-end mt-4">
-          <button @click="showModal = false" class="px-4 py-2 mr-2 bg-gray-300 rounded">Cancel</button>
-          <button @click="handleDeleteUser" class="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
-        </div>
-      </div>
-    </div>
+    <!-- Pagination Desktop + Mobile -->
+    <Pagination
+      v-if="totalPages > 1"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @goToPage="goToPage"
+    />
   </div>
 </template>
 
@@ -145,11 +89,13 @@
 import { mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 import Loader from "../utils/Loader.vue";
+import Pagination from "../../components/Pagination.vue"; // Import du composant pagination
 
 export default {
   name: "AdminUserList",
   components: {
     Loader,
+    Pagination, // Déclaration du composant
   },
   setup() {
     const toast = useToast();
@@ -160,9 +106,9 @@ export default {
       showModal: false,
       userIdToDelete: null,
       isLoading: true,
-      limit: 6, // Nombre d'utilisateurs par page
-      currentPage: 1, // Page actuelle
-      totalPages: 0, // Nombre total de pages
+      limit: 6,
+      currentPage: 1,
+      totalPages: 0,
     };
   },
   computed: {
@@ -179,12 +125,10 @@ export default {
   async created() {
     try {
       await this.fetchUsers();
-      this.totalPages = Math.ceil(this.users.length / this.limit); // Calcul du nombre total de pages
+      this.totalPages = Math.ceil(this.users.length / this.limit);
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
-      this.toast.error("Failed to fetch users List. ❌", {
-        className: "bg-red-700 text-white font-bold px-4 py-3 rounded shadow-md",
-      });
+      this.toast.error("Failed to fetch users List. ❌");
     } finally {
       this.isLoading = false;
     }
@@ -199,36 +143,8 @@ export default {
       this.showModal = true;
     },
     async handleDeleteUser() {
-      try {
-        await this.deleteUser(this.userIdToDelete);
-        this.toast.error("User deleted successfully! 🗑️", {
-          timeout: 3000,
-          position: "top-right",
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          showCloseButtonOnHover: true,
-          hideProgressBar: false,
-          className: "bg-bitchest-alert text-white font-bold px-4 py-3 rounded shadow-md",
-        });
-      } catch (error) {
-        console.error("Erreur lors de la suppression :", error);
-        this.toast.error("Failed to delete user. ❌", {
-          className: "bg-red-700 text-white font-bold px-4 py-3 rounded shadow-md",
-        });
-      }
+      await this.deleteUser(this.userIdToDelete);
       this.showModal = false;
-      this.userIdToDelete = null;
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
-    },
-    previousPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
     },
     goToPage(page) {
       this.currentPage = page;
