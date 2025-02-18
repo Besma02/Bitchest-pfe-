@@ -39,6 +39,7 @@ class CryptocurrencyService
 
         $cryptosData = $cryptos->map(function ($crypto) {
             return [
+                'id' => $crypto->id, // Ajout de l'ID
                 'name' => $crypto->name,
                 'currentPrice' => $crypto->priceHistory()->latest('date')->value('value'),
                 'date' => Carbon::now()->format('Y-m-d'),
