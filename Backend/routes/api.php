@@ -60,9 +60,11 @@ Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 
 
 
 use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\PriceHistoryController;
+
 //use App\Http\Controllers\PriceHistoryController;
 
 //récupérer les dernières cotations
 Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
-Route::get('/cryptos/{id}/history', [CryptocurrencyController::class, 'getPriceHistory']);
+Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
 //Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);

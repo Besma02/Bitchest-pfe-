@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->string('name')->unique();
             $table->string('image')->nullable();
             $table->float('currentPrice');
+            $table->float('inStock')->nullable();
             $table->timestamps();
         });
     }

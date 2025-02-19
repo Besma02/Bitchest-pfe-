@@ -12,8 +12,7 @@ class CreateCryptoWalletsTable extends Migration
             $table->id();
             $table->foreignId('idCrypto')->constrained('cryptocurrencies');
             $table->foreignId('idWallet')->constrained('wallets');
-            $table->decimal('quantity', 18, 8);
-            $table->string('status')->default('owned');
+            $table->decimal('quantity', 18, 3);
             $table->timestamps();
         });
     }

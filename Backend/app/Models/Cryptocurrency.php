@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Cryptocurrency extends Model {
+class Cryptocurrency extends Model
+{
     use HasFactory;
 
-    protected $fillable = ['name', 'image', 'currentPrice'];
+    protected $fillable = ['name', 'image', 'currentPrice', 'inStock'];
 
-    public function priceHistory() {
+    public function priceHistory()
+    {
         return $this->hasMany(PriceHistory::class);
     }
 }

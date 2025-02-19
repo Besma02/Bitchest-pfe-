@@ -12,9 +12,10 @@ class TransactionFactory extends Factory
     public function definition()
     {
         return [
-            'idCryptoBankStore' => $this->faker->numberBetween(1, 20), // Référence à une crypto_bank_store existante
-            'idRecipient' => $this->faker->numberBetween(1, 20), // Référence à un utilisateur existant
-            'fee' => $this->faker->randomFloat(2, 0.1, 10), // Frais aléatoires entre 0.1 et 10
+            'idCryptoWallet' => $this->faker->numberBetween(1, 10),
+            'quantity' => $this->faker->randomFloat(3, 20),
+            'unitPrice' => $this->faker->randomFloat(3, 0.1, 10),
+            'totalPrice' => $this->faker->randomFloat(3, 0.1, 10),
             'date' => $this->faker->dateTimeThisYear(), // Date aléatoire dans l'année en cours
         ];
     }

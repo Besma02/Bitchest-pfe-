@@ -1,72 +1,99 @@
 <template>
   <div>
-    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
+    <!-- Heading -->
+    <h1
+      class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-gray-800 mb-4 sm:mb-6 lg:mb-8"
+    >
       Crypto Management
     </h1>
-    <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
+
+    <!-- Add Crypto Button -->
+    <div class="flex justify-center mb-4 sm:mb-6 lg:mb-8" v-if="!isClient">
       <router-link
         to="/admin/crypto/add"
-        class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center "
+        class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center"
       >
         Add crypto
       </router-link>
     </div>
 
-    <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5">
-      <!-- Section des cartes -->
+    <!-- Crypto Cards Section -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div v-if="loading" class="text-center w-full">
-        <p>Loading cryptos...</p>
+        <Loader />
       </div>
 
       <div v-else-if="error" class="text-center w-full text-red-500">
         <p>{{ error }}</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-[3.75rem] lg:p-[1.25rem]">
-        <!-- Carte individuelle dynamique -->
+      <div
+        v-else
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+      >
+        <!-- Dynamic Crypto Card -->
         <div
           v-for="crypto in paginatedCryptos"
           :key="crypto.name"
-          class="bg-bitchest-white w-full sm:w-[160px] md:w-[200px] lg:w-[240px] h-[190px] sm:h-[200px] md:h-[210px] border border-gray-300 rounded-[2.0625rem] p-4 sm:p-[1.5rem] lg:p-[2.5rem] text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
+          class="bg-bitchest-white w-full sm:w-auto border border-gray-300 rounded-[2.0625rem] p-4 sm:p-6 lg:p-8 text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
         >
-          <img :src="getImageUrl(crypto.image_url)" :alt="crypto.name" class="mx-auto mb-4 w-12 h-12 object-contain" />
-          <h3 class="text-bitchest-success font-bold text-sm sm:text-base md:text-lg lg:text-xl">
+          <img
+            :src="getImageUrl(crypto.image_url)"
+            :alt="crypto.name"
+            class="mx-auto mb-4 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain"
+          />
+          <h3
+            class="text-bitchest-success font-bold text-sm sm:text-base lg:text-lg"
+          >
             {{ crypto.name }}
           </h3>
-          <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.currentPrice }} €</h4>
-          <router-link
-           :to="`/dashboard/crypto/${crypto.id}`"
-          
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150 lg:mr-2 sm:mr-0 md:mr-0"
-            >view
-            <i class="far fa-eye text-bitchest-secondary mr-2 mt-2"></i>
-          </router-link>
-          <router-link
-            @click="isClient ? buyCrypto(crypto.id) : editCrypto(crypto.id)"
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150 mr-2"
-          >
-            {{ isClient ? 'Buy' : 'Edit' }}
-            <i :class="isClient ? 'fas fa-cart-plus text-bitchest-success' : 'fas fa-edit text-bitchest-success'"></i>
-          </router-link>
+          <h4 class="text-xs sm:text-sm lg:text-base">
+            {{ crypto.currentPrice }} €
+          </h4>
+          <div class="mt-4 flex justify-center space-x-4">
+            <router-link
+              :to="`/dashboard/crypto/${crypto.id}`"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+            >
+              View
+              <i class="far fa-eye text-bitchest-secondary ml-1"></i>
+            </router-link>
+            <router-link
+              @click="isClient ? buyCrypto(crypto.id) : editCrypto(crypto.id)"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+              to="#"
+            >
+              {{ isClient ? "Buy" : "Edit" }}
+              <i
+                :class="
+                  isClient
+                    ? 'fas fa-cart-plus text-bitchest-success ml-1'
+                    : 'fas fa-edit text-bitchest-success ml-1'
+                "
+              ></i>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Utiliser le composant Pagination -->
-    <Pagination 
-      :currentPage="currentPage" 
-      :totalPages="totalPages" 
-      @goToPage="goToPage" />
+    <!-- Pagination -->
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @goToPage="goToPage"
+    />
   </div>
 </template>
 <script>
+import Loader from "@/components/utils/Loader.vue";
 import cryptoService from "../../../services/cryptoService";
 import Pagination from "../../Pagination.vue";
 
 export default {
   props: {
     isClient: Boolean,
-    required: true
+    required: true,
   },
   data() {
     return {
@@ -120,14 +147,15 @@ export default {
     },
     editCrypto(cryptoId) {
       console.log(`Editing crypto with ID: ${cryptoId}`);
-    }
+    },
   },
   components: {
-    Pagination
+    Pagination,
+    Loader,
   },
   mounted() {
-    console.log('isClient:', this.isClient);
+    console.log("isClient:", this.isClient);
     this.fetchCryptos();
-  }
+  },
 };
 </script>

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Services;
 
 use App\Models\Cryptocurrency;
@@ -39,8 +40,9 @@ class CryptocurrencyService
 
         $cryptosData = $cryptos->map(function ($crypto) {
             return [
+                'id' => $crypto->id,
                 'name' => $crypto->name,
-                'currentPrice' => $crypto->priceHistory()->latest('date')->value('value'),
+                'currentPrice' => $crypto->priceHistory()->where('date', Carbon::now()->format('Y-m-d'))->value('value'),
                 'date' => Carbon::now()->format('Y-m-d'),
                 'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
             ];

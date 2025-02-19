@@ -27,6 +27,7 @@ const actions = {
         throw new Error("Données invalides");
 
       const { crypto, history } = response.data.original;
+      console.log(response.data);
       commit("SET_PRICE_HISTORY", history || []);
       commit("SET_CRYPTO", crypto || null);
     } catch (error) {

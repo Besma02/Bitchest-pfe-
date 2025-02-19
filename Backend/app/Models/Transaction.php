@@ -10,19 +10,15 @@ class Transaction extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'idCryptoBankStore',
-        'idRecipient',
-        'fee',
+        'idCryptoWallet',
+        'quantity',
+        'unitPrice',
+        'totalPrice',
         'date'
     ];
 
-    public function cryptoBankStore()
+    public function cryptoWallet()
     {
-        return $this->belongsTo(CryptoBankStore::class, 'idCryptoBankStore');
-    }
-
-    public function recipient()
-    {
-        return $this->belongsTo(User::class, 'idRecipient');
+        return $this->belongsTo(CryptoWallet::class, 'idCryptoWallet');
     }
 }

@@ -11,17 +11,11 @@ class CryptoWallet extends Model
     protected $fillable = [
         'idCrypto',
         'idWallet',
-        'quantity',
-        'status'
+        'quantity'
     ];
 
     public function wallet()
     {
         return $this->belongsTo(Wallet::class, 'idWallet');
-    }
-
-    public function cryptoBankStores()
-    {
-        return $this->hasMany(CryptoBankStore::class, 'idCryptoWallet');
     }
 }

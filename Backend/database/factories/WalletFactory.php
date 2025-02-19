@@ -12,7 +12,7 @@ class WalletFactory extends Factory
     public function definition()
     {
         return [
-            'idUser' => \App\Models\User::factory(), // Crée un nouvel utilisateur pour chaque wallet
+            'idUser' => \App\Models\User::factory(),
             'publicAdress' => '0x' . $this->faker->sha256(), // Adresse publique aléatoire
             'privateAdress' => '0x' . $this->faker->sha256(), // Adresse privée aléatoire
         ];

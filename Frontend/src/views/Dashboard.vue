@@ -55,7 +55,12 @@
             <li
               class="py-3 px-6 hover:bg-gray-200 cursor-pointer flex items-center"
               :class="{ 'bg-gray-200': isActive('/dashboard/profile') }"
-              @click="this.$router.push('/dashboard/profile')"
+              @click="
+                () => {
+                  this.$router.push('/dashboard/profile');
+                  this.closeSidebar();
+                }
+              "
             >
               <img :src="profileIcon" alt="icon" class="w-5 h-5 mr-2" />
               Profile
@@ -137,17 +142,8 @@
       </div>
 
       <div class="mt-6">
-        <h4 class="font-bold text-gray-700 mb-4">Statistiques</h4>
-        <div class="space-y-4">
-          <div
-            v-for="stat in statistics"
-            :key="stat.label"
-            class="flex justify-between items-center"
-          >
-            <p>{{ stat.label }}</p>
-            <span class="font-bold">{{ stat.value }}</span>
-          </div>
-        </div>
+        <h4 class="font-bold text-gray-700 mb-4">Statistics</h4>
+        <div class="space-y-4"></div>
       </div>
     </aside>
   </div>
@@ -276,7 +272,8 @@ export default {
     ...mapActions("auth", ["fetchProfile"]),
     navigateTo(route) {
       this.$router.push(route);
-      this.menuItems = this.filteredMenuItems; // Mettre à jour le menu après navigation
+      this.menuItems = this.filteredMenuItems;
+      this.closeSidebar();
     },
 
     isActive(route) {
@@ -286,12 +283,19 @@ export default {
       this.isSidebarOpen = !this.isSidebarOpen;
     },
 
+    closeSidebar() {
+      if (this.isSmallScreen) {
+        this.isSidebarOpen = false; // Fermer le sidebar sur les petits écrans
+      }
+    },
+
     checkScreenSize() {
       this.isSmallScreen = window.innerWidth <= 768;
     },
     async logout() {
       localStorage.removeItem("token");
       this.$router.push({ name: "login" });
+      this.closeSidebar(); // Fermer le sidebar après le logout
     },
   },
 };

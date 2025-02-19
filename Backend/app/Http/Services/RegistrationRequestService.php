@@ -15,6 +15,7 @@ class RegistrationRequestService
 
     public function checkExistingRequests(string $email)
     {
+
         if (RegistrationRequest::where('email', $email)->exists()) {
             return [
                 'message' => 'You have already submitted a registration request. Please wait for approval.',

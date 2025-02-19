@@ -16,7 +16,7 @@
       </p>
       <CustomInput
         @inputData="setInputData"
-        placeholder="enter your email"
+        placeholder="Enter your email"
         class="mr-8 CustomInput"
       />
       <CustomButton variant="primary" @click="submitEmail">
@@ -50,6 +50,7 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomInput from "@/components/CustomInput.vue";
 import registrationService from "@/services/registrationService.js";
@@ -68,10 +69,11 @@ export default {
       modalRedirect: false,
     };
   },
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
   methods: {
-    setInputData(value) {
-      this.email = value;
-    },
     async submitEmail() {
       if (!this.email || !this.validateEmail(this.email)) {
         this.modalMessage = "Please enter a valid email.";
@@ -88,13 +90,14 @@ export default {
       } catch {
         this.modalMessage = "An error occurred. Please try again later.";
       }
+
       this.showModal = true;
-      this.setInputData = "";
+      this.email = "";
     },
     handleModalClose() {
       this.showModal = false;
       if (this.modalRedirect) {
-        window.location.href = "/login";
+        this.router.push("/login");
       }
     },
     validateEmail(email) {

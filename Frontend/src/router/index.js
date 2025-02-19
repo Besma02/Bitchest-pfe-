@@ -37,7 +37,7 @@ const router = createRouter({
           component: MyStats,
         },
         {
-          path: "registration-requests", // Pas de "/" au début
+          path: "registration-requests",
           name: "registration-requests",
           component: RegistrationRequestsList,
         },

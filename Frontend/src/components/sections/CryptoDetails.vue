@@ -3,6 +3,7 @@
     <!-- Nom et Logo de la crypto -->
     <div v-if="crypto" class="flex items-center space-x-4 mb-4">
       <img
+        v-if="crypto.image"
         :src="`http://localhost:8000/storage/cryptos/${crypto.image}`"
         alt="Crypto Logo"
         class="w-12 h-12 rounded-full"
@@ -86,51 +87,59 @@ export default {
         { label: "15 Days", value: 15 },
         { label: "1 Month", value: 30 },
       ],
-      isLoading: false, // Gère le loader du graphique
+      isLoading: false,
     };
   },
   computed: {
     ...mapState("crypto", ["priceHistory", "crypto"]),
 
     maxPrice() {
-      return Math.max(...this.priceHistory.map((entry) => entry.value), 0);
+      return this.priceHistory.length
+        ? Math.max(...this.priceHistory.map((entry) => entry.value))
+        : 0;
     },
     minPrice() {
-      return Math.min(
-        ...this.priceHistory.map((entry) => entry.value),
-        Infinity
-      );
+      return this.priceHistory.length
+        ? Math.min(...this.priceHistory.map((entry) => entry.value))
+        : 0;
     },
     priceChange() {
       if (this.priceHistory.length < 2) return 0;
       const start = this.priceHistory[0].value;
       const end = this.priceHistory[this.priceHistory.length - 1].value;
-      return ((end - start) / start) * 100;
+      return start ? ((end - start) / start) * 100 : 0;
     },
   },
   methods: {
     ...mapActions("crypto", ["loadPriceHistory"]),
 
     async updateChart() {
-      this.isLoading = true; // Afficher le loader pendant le chargement
+      if (!this.id) {
+        console.error("ID de la crypto manquant");
+        return;
+      }
 
-      await this.loadPriceHistory({
-        cryptoId: this.id,
-        days: this.selectedDays,
-      });
-
-      this.isLoading = false; // Masquer le loader après le chargement
-      this.$nextTick(() => {
-        this.drawChart();
-      });
+      this.isLoading = true;
+      try {
+        await this.loadPriceHistory({
+          cryptoId: this.id,
+          days: this.selectedDays,
+        });
+        this.$nextTick(() => this.drawChart());
+      } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
 
     drawChart() {
-      if (this.priceHistory.length === 0) return;
-
-      // Vérifie si le canvas est bien rendu
       if (!this.$refs.priceChart) {
-        console.error("Le canvas n'est pas encore disponible.");
+        console.error("Le canvas du graphique est introuvable.");
+        return;
+      }
+      if (!this.priceHistory.length) {
+        console.warn("Aucune donnée pour afficher le graphique.");
         return;
       }
 
@@ -138,7 +147,7 @@ export default {
 
       const ctx = this.$refs.priceChart.getContext("2d");
       if (!ctx) {
-        console.error("Impossible d'obtenir le contexte 2D du canvas.");
+        console.error("Impossible d'obtenir le contexte du canvas.");
         return;
       }
 

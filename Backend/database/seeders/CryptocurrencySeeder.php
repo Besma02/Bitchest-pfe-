@@ -12,16 +12,16 @@ class CryptocurrencySeeder extends Seeder
     public function run()
     {
         $cryptos = [
-            ['name' => 'Bitcoin', 'logo' => 'btc.png'],
-            ['name' => 'Ethereum', 'logo' => 'eth.png'],
-            ['name' => 'Ripple', 'logo' => 'xrp.png'],
-            ['name' => 'Bitcoin Cash', 'logo' => 'bch.png'],
-            ['name' => 'Cardano', 'logo' => 'ada.png'],
-            ['name' => 'Litecoin', 'logo' => 'ltc.png'],
-            ['name' => 'NEM', 'logo' => 'xem.png'],
-            ['name' => 'Stellar', 'logo' => 'xlm.png'],
-            ['name' => 'IOTA', 'logo' => 'miota.png'],
-            ['name' => 'Dash', 'logo' => 'dash.png'],
+            ['name' => 'Bitcoin', 'image' => 'bitcoin.png'],
+            ['name' => 'Ethereum', 'image' => 'ethereum.png'],
+            ['name' => 'Ripple', 'image' => 'ripple.png'],
+            ['name' => 'Bitcoin Cash', 'image' => 'bitcoin_cash.png'],
+            ['name' => 'Cardano', 'image' => 'cardano.png'],
+            ['name' => 'Litecoin', 'image' => 'litecoin.png'],
+            ['name' => 'NEM', 'image' => 'nem.png'],
+            ['name' => 'Stellar', 'image' => 'stellar.png'],
+            ['name' => 'IOTA', 'image' => 'iota.png'],
+            ['name' => 'Dash', 'image' => 'dash.png'],
         ];
 
         foreach ($cryptos as $cryptoData) {
@@ -30,7 +30,7 @@ class CryptocurrencySeeder extends Seeder
 
             $crypto = Cryptocurrency::create([
                 'name' => $cryptoData['name'],
-                'logo' => $cryptoData['logo'],
+                'image' => $cryptoData['image'],
                 'currentPrice' => $initialPrice,
             ]);
 
@@ -53,7 +53,7 @@ class CryptocurrencySeeder extends Seeder
 
         for ($i = 0; $i < 30; $i++) {
             $variation =  self::getCotationFor($crypto->name);
-            $currentPrice = max(0.01, $currentPrice + $variation); // Évite les prix négatifs
+            $currentPrice = max(0.01, $currentPrice + $variation); // Éviter les prix négatifs
 
             PriceHistory::create([
                 'cryptocurrency_id' => $crypto->id,
