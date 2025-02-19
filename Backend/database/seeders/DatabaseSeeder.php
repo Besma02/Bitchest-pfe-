@@ -28,14 +28,17 @@ class DatabaseSeeder extends Seeder
             // Sélectionne un nombre aléatoire de cryptos (1 à 5) pour cet utilisateur
             $userCryptos = $allCryptos->random(rand(1, 5));
 
-            // Pour chaque crypto sélectionnée, simuler plusieurs achats
+            // Pour chaque crypto sélectionnée, simuler plusieurs transactions (achats et ventes)
             $userCryptos->each(function ($crypto) use ($wallet, $faker) {
-                // Nombre d'achats aléatoire (1 à 3 fois)
-                $purchaseCount = rand(1, 3);
+                // Nombre total d'achats et de ventes aléatoires
+                $transactionCount = rand(2, 5);
 
-                for ($i = 0; $i < $purchaseCount; $i++) {
-                    // Quantité achetée
-                    $quantity = $faker->randomFloat(6, 0.1, 10);
+                for ($i = 0; $i < $transactionCount; $i++) {
+                    // Type de transaction (buy ou sell)
+                    $transactionType = $faker->randomElement(['buy', 'sell']);
+
+                    // Quantité aléatoire de transaction
+                    $quantity = $faker->randomFloat(6, 0.1, 10); // Entre 0.1 et 10 unités
 
                     // Récupère un prix historique aléatoire
                     $priceHistory = PriceHistory::where('cryptocurrency_id', $crypto->id)
@@ -43,7 +46,7 @@ class DatabaseSeeder extends Seeder
                         ->first();
 
                     if (!$priceHistory) {
-                        continue;
+                        continue; // Passe au prochain achat/vente si aucun prix trouvé
                     }
 
                     // Vérifie si cette crypto existe déjà dans le wallet
@@ -51,26 +54,37 @@ class DatabaseSeeder extends Seeder
                         ->where('idWallet', $wallet->id)
                         ->first();
 
-                    if ($cryptoWallet) {
-                        // Met à jour la quantité existante
-                        $cryptoWallet->quantity += $quantity;
-                        $cryptoWallet->save();
-                    } else {
-                        // Crée une nouvelle entrée dans crypto-wallets
-                        $cryptoWallet = CryptoWallet::create([
-                            'idCrypto' => $crypto->id,
-                            'idWallet' => $wallet->id,
-                            'quantity' => $quantity,
-                        ]);
+                    if ($transactionType === 'buy') {
+                        // Achat : on ajoute la quantité dans le wallet
+                        if ($cryptoWallet) {
+                            $cryptoWallet->quantity += $quantity;
+                            $cryptoWallet->save();
+                        } else {
+                            // Crée une nouvelle entrée si l'utilisateur n'a pas encore cette crypto
+                            $cryptoWallet = CryptoWallet::create([
+                                'idCrypto' => $crypto->id,
+                                'idWallet' => $wallet->id,
+                                'quantity' => $quantity,
+                            ]);
+                        }
+                    } elseif ($transactionType === 'sell') {
+                        // Vente : on soustrait la quantité si possible
+                        if ($cryptoWallet && $cryptoWallet->quantity >= $quantity) {
+                            $cryptoWallet->quantity -= $quantity;
+                            $cryptoWallet->save();
+                        } else {
+                            continue; // Annule la transaction si pas assez de quantité
+                        }
                     }
 
-                    // Crée une nouvelle transaction pour cet achat
+                    // Enregistre la transaction
                     Transaction::create([
                         'idCryptoWallet' => $cryptoWallet->id,
                         'quantity' => $quantity,
                         'unitPrice' => $priceHistory->value,
                         'totalPrice' => $quantity * $priceHistory->value,
                         'date' => $priceHistory->date,
+                        'type' => $transactionType, // Indique s'il s'agit d'un achat ou d'une vente
                     ]);
                 }
             });

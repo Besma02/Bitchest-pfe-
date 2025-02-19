@@ -11,10 +11,11 @@ class CreateTransactionsTable extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('idCryptoWallet')->constrained('cypto_wallets');
-            $table->float('quantity');
+            $table->decimal('quantity', 18, 3);
             $table->decimal('unitPrice', 18, 3);
             $table->decimal('totalPrice', 18, 3);
             $table->dateTime('date');
+            $table->string('type');
             $table->timestamps();
         });
     }

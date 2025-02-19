@@ -14,7 +14,8 @@ class Transaction extends Model
         'quantity',
         'unitPrice',
         'totalPrice',
-        'date'
+        'date',
+        'type'
     ];
 
     public function cryptoWallet()
