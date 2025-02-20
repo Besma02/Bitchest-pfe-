@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('cryptocurrencies', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('logo');
-            $table->decimal('current_price', 15, 2);
+            $table->string('logo')->nullable();
+            $table->decimal('current_price', 15, 2)->nullable();
             $table->timestamps();
        });
     }

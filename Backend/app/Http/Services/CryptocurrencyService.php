@@ -1,31 +1,81 @@
 <?php
+
 namespace App\Http\Services;
 
 use App\Models\Cryptocurrency;
+use App\Models\PriceHistory;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class CryptocurrencyService
 {
-    public function addCrypto(array $data)
+    // ✅ Validate cryptocurrency data
+    public function validateCryptoData($data, $id = null)
     {
-        return Cryptocurrency::create($data);
+        $rules = [
+            'name' => 'required|string|unique:cryptocurrencies,name,' . ($id ?? 'NULL') . ',id',
+            'currentPrice' => 'required|numeric|min:0',
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return $data;
     }
 
-    public function updateCrypto($id, array $data)
+    // ✅ Add a new cryptocurrency
+    public function addCrypto($data)
     {
-        $crypto = Cryptocurrency::findOrFail($id);
-        $crypto->update($data);
+        $crypto = Cryptocurrency::create([
+            'name' => $data['name'],
+            'currentPrice' => $data['currentPrice'],
+            'logo' => $data['logo'] ?? null,
+        ]);
+
+       
+
         return $crypto;
     }
 
-    public function validateCryptoData(array $data, $id = null)
+    // ✅ Update an existing cryptocurrency
+    public function updateCrypto($id, $data)
     {
-        $rules = [
-            'name' => 'required|string|unique:cryptocurrencies,name' . ($id ? ',' . $id : ''),
-            'logo' => 'required|string',
-            'current_price' => 'required|numeric|min:0',
-        ];
+        $crypto = Cryptocurrency::findOrFail($id);
 
-        return validator($data, $rules)->validate();
+        $crypto->update([
+            'name' => $data['name'],
+            'currentPrice' => $data['currentPrice'],
+            'logo_path' => $data['logo_path'] ?? $crypto->logo_path,
+        ]);
+
+        $this->logPriceHistory($crypto->id, $data['currentPrice']);
+
+        return $crypto;
+    }
+
+    // ✅ Log price history
+    private function logPriceHistory($cryptoId, $currentPrice)
+    {
+        PriceHistory::create([
+            'cryptocurrency_id' => $cryptoId,
+            'date' => now()->format('Y-m-d'),
+            'value' => $currentPrice,
+        ]);
+    }
+
+    // ✅ Fetch current prices
+    public function getCurrentPrices()
+    {
+        return Cryptocurrency::all()->map(function ($crypto) {
+            return [
+                'name' => $crypto->name,
+                'currentPrice' => $crypto->currentPrice,
+                'date' => now()->format('Y-m-d'),
+                'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
+            ];
+        });
     }
 }

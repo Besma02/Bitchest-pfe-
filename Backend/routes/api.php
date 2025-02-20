@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
@@ -12,11 +13,12 @@ use Illuminate\Support\Facades\Route;
 | API Routes 
 |-------------------------------------------------------------------------- 
 | Here is where you can register API routes for your application. These 
-| routes are loaded by the RouteServiceProvider and all of them will 
-| be assigned to the "api" middleware group. Make something great! 
+| routes are loaded by the RouteServiceProvider and all of them will be 
+| assigned to the "api" middleware group. Make something great! 
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    // User Routes
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/profile', [ProfileController::class, 'getProfile']);
     Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
@@ -41,9 +43,13 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     // Admin Cryptocurrency Routes
     Route::post('admin/cryptocurrencies', [CryptocurrencyController::class, 'store'])->name('admin.cryptocurrency.store');
     Route::put('admin/cryptocurrencies/{id}', [CryptocurrencyController::class, 'update'])->name('admin.cryptocurrency.update');
-    
+    Route::get('admin/cryptocurrencies/{id}', [CryptocurrencyController::class, 'show'])->name('cryptocurrency.show');
     // Admin Registration Requests
     Route::get('admin/registration-requests', [RegistrationRequestController::class, 'index']);
     Route::post('admin/registration-requests/{id}/approve', [RegistrationRequestController::class, 'approve']);
-    Route::post('admin/registration-requests/{id}/reject', [RegistrationRequestController::class, 'reject']);
+    
 });
+
+Route::get('cryptocurrencies', [CryptocurrencyController::class, 'getCurrentPrices']);
+Route::get('cryptocurrencies/{cryptoName}/history', [CryptocurrencyController::class, 'getPriceHistory']);
+
