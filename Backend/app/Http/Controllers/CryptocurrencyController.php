@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Services\CryptocurrencyService;
 use Illuminate\Http\Request;
-use App\Models\Cryptocurrency;
-
 use Illuminate\Validation\ValidationException;
 
 class CryptocurrencyController extends Controller
@@ -23,6 +21,21 @@ class CryptocurrencyController extends Controller
         return response()->json($this->cryptoService->getCurrentPrices(), 200);
     }
 
+    // ✅ Get price history for a specific cryptocurrency
+    public function getPriceHistory($cryptoName)
+    {
+        $priceHistory = $this->cryptoService->getPriceHistory($cryptoName);
+
+        if (empty($priceHistory)) {
+            return response()->json(['error' => 'Cryptocurrency not found'], 404);
+        }
+
+        return response()->json([
+            'name' => $cryptoName,
+            'price_history' => $priceHistory
+        ]);
+    }
+
     // ✅ Store a new cryptocurrency (Admin Only)
     public function store(Request $request)
     {
@@ -35,11 +48,11 @@ class CryptocurrencyController extends Controller
                 $file = $request->file('logo');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $path = $file->storeAs('public/cryptos', $filename);
-                $validatedData['logo_path'] = str_replace('public/', '', $path); // Save relative path
+                $validatedData['logo'] = str_replace('public/', '', $path); // Save relative path
             }
 
             // Create cryptocurrency
-            $crypto = $this->cryptoService->addCrypto($request->all());
+            $crypto = $this->cryptoService->addCrypto($validatedData);
 
             return response()->json($crypto, 201);
         } catch (ValidationException $e) {
@@ -61,7 +74,7 @@ class CryptocurrencyController extends Controller
                 $file = $request->file('logo');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $path = $file->storeAs('public/cryptos', $filename);
-                $validatedData['logo_path'] = str_replace('public/', '', $path);
+                $validatedData['logo'] = str_replace('public/', '', $path); // Save relative path
             }
 
             // Update cryptocurrency

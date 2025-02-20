@@ -6,6 +6,7 @@ use App\Models\Cryptocurrency;
 use App\Models\PriceHistory;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class CryptocurrencyService
 {
@@ -34,9 +35,7 @@ class CryptocurrencyService
             'currentPrice' => $data['currentPrice'],
             'logo' => $data['logo'] ?? null,
         ]);
-
-       
-
+ 
         return $crypto;
     }
 
@@ -48,7 +47,7 @@ class CryptocurrencyService
         $crypto->update([
             'name' => $data['name'],
             'currentPrice' => $data['currentPrice'],
-            'logo_path' => $data['logo_path'] ?? $crypto->logo_path,
+            'logo' => $data['logo'] ?? $crypto->logo,
         ]);
 
         $this->logPriceHistory($crypto->id, $data['currentPrice']);
@@ -75,6 +74,26 @@ class CryptocurrencyService
                 'currentPrice' => $crypto->currentPrice,
                 'date' => now()->format('Y-m-d'),
                 'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
+            ];
+        });
+    }
+    public function getPriceHistory($cryptoName)
+    {
+        $cryptocurrency = Cryptocurrency::where('name', $cryptoName)->first();
+
+        if (!$cryptocurrency) {
+            return null;
+        }
+
+        // Récupérer l'historique des prix des 30 derniers jours
+        $history = $cryptocurrency->priceHistory()->where('date', '>=', Carbon::now()->subDays(30)->format('Y-m-d'))
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return $history->map(function ($entry) {
+            return [
+                'date' => $entry->date,
+                'value' => $entry->value,
             ];
         });
     }
