@@ -37,19 +37,24 @@ class GenerateCryptoCotations extends Command
 
     private function generateHistoricalData($crypto, $image)
     {
+        // Recherche ou création de la cryptomonnaie avec un prix aléatoire
         $cryptocurrency = Cryptocurrency::firstOrCreate(
             ['name' => $crypto],
             ['image' => Storage::url($image), 'currentPrice' => rand(50, 100)]
         );
 
-        // S'assurer qu'il y a des historiques pour les 30 derniers jours
-        for ($i = 30; $i > 0; $i--) {
+        // Mise à jour explicite du prix actuel
+        $newPrice = rand(50, 100);  // Par exemple, un nouveau prix aléatoire pour chaque exécution
+        $cryptocurrency->update(['currentPrice' => $newPrice]);
+
+        // Générer ou mettre à jour l'historique des prix sur les 30 derniers jours
+        for ($i = 30; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
             $existingHistory = $cryptocurrency->priceHistory()->where('date', $date)->first();
 
             // Si l'historique n'existe pas pour cette date, on le génère
             if (!$existingHistory) {
-                // Prendre le dernier prix ou un prix aléatoire initial
+                // Prendre le dernier prix ou un prix initial aléatoire
                 $lastValue = $cryptocurrency->priceHistory()->latest('date')->value('value') ?? $cryptocurrency->currentPrice;
 
                 // Générer une variation aléatoire

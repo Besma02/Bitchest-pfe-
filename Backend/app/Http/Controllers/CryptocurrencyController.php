@@ -2,9 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\CryptocurrencyService;
-use App\Models\Cryptocurrency;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class CryptocurrencyController extends Controller
 {
@@ -34,44 +32,33 @@ class CryptocurrencyController extends Controller
     }
 
     // Get current prices of all cryptocurrencies
+    protected $cryptocurrencyService;
+
+    public function __construct(CryptocurrencyService $cryptocurrencyService)
+    {
+        $this->cryptocurrencyService = $cryptocurrencyService;
+    }
+
+    // Route pour récupérer les prix actuels
     public function getCurrentPrices()
     {
-        $cryptos = Cryptocurrency::all()->map(function ($crypto) {
-            return [
-                'name' => $crypto->name,
-                'currentPrice' => $crypto->currentPrice,
-                'date' => now()->format('Y-m-d'),
-                'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
-            ];
-        });
-
-        return response()->json($cryptos);
+        $cryptosData = $this->cryptocurrencyService->getCurrentPrices();
+        return response()->json($cryptosData);
     }
 
     // Get price history for a specific cryptocurrency
     public function getPriceHistory($cryptoName)
     {
-        $cryptocurrency = Cryptocurrency::where('name', $cryptoName)->first();
+        $priceHistory = $this->cryptocurrencyService->getPriceHistory($cryptoName);
 
-        if (!$cryptocurrency) {
+        if (!$priceHistory) {
             return response()->json(['error' => 'Cryptocurrency not found'], 404);
         }
 
-        // Retrieve price history for the last 30 days
-        $history = $cryptocurrency->priceHistory()->where('date', '>=', Carbon::now()->subDays(30)->format('Y-m-d'))
-            ->orderBy('date', 'asc')
-            ->get();
-
-        $priceHistory = $history->map(function ($entry) {
-            return [
-                'date' => $entry->date,
-                'value' => $entry->value,
-            ];
-        });
-
         return response()->json([
-            'name' => $cryptocurrency->name,
+            'name' => $cryptoName,
             'price_history' => $priceHistory
         ]);
     }
 }
+
