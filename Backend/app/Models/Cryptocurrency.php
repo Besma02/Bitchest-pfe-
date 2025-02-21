@@ -10,6 +10,10 @@ class Cryptocurrency extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'image', 'currentPrice', 'inStock'];
+    public function cryptoWallets()
+    {
+        return $this->hasMany(CryptoWallet::class, 'idCrypto');
+    }
 
     public function priceHistory()
     {
