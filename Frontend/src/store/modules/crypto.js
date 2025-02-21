@@ -1,12 +1,16 @@
 
 
 import axios from "axios";
+import api from "@/services/api";
 
 export default {
   namespaced: true,
   state: {
-    cryptocurrencies: [],
+    cryptocurrencies: [], // List of all cryptocurrencies
+    priceHistory: [], // Price history for selected cryptocurrency
+    crypto: null, // Selected cryptocurrency details
   },
+
   mutations: {
     SET_CRYPTO(state, crypto) {
         state.cryptocurrencies = [crypto]; 
@@ -21,6 +25,7 @@ export default {
       }
     },
   },
+
   actions: {
     async fetchCrypto({ commit }, cryptoId) {
       try {
@@ -84,7 +89,9 @@ export default {
     },
     
   },
+
   getters: {
     allCryptos: (state) => state.cryptocurrencies,
+    getPriceHistory: (state) => state.priceHistory,
   },
 };

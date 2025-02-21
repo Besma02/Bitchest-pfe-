@@ -48,7 +48,6 @@
             <i :class="isClient ? 'fas fa-cart-plus text-bitchest-success' : 'fas fa-edit text-bitchest-success'"></i>
           </router-link>
         </div>
-        
       </div>
 
     </div>
@@ -84,7 +83,7 @@ import axios from "axios";
 export default {
   props: {
     isClient: Boolean,
-    required: true
+    required: true,
   },
   data() {
     return {
@@ -165,6 +164,6 @@ export default {
   },
   mounted() {
     this.fetchCryptos();
-  }
+  },
 };
 </script>

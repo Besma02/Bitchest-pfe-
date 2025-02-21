@@ -54,8 +54,8 @@
           <ul>
             <li
               class="py-3 px-6 hover:bg-gray-200 cursor-pointer flex items-center"
-              :class="{ 'bg-gray-200': isActive('/profile') }"
-              @click="navigateTo('/profile')"
+              :class="{ 'bg-gray-200': isActive('/dashboard/profile') }"
+              @click="this.$router.push('/dashboard/profile')"
             >
               <img :src="profileIcon" alt="icon" class="w-5 h-5 mr-2" />
               Profile
@@ -154,7 +154,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import { mapActions, mapState } from "vuex";
 import MyStats from "@/components/sections/MyStats.vue";
 import RegistrationRequestsList from "@/components/admin/RegistrationRequestsList.vue";
@@ -210,25 +209,25 @@ export default {
             },
             {
               label: "Registration Requests",
-              route: "/registration-requests",
+              route: "/dashboard/registration-requests",
               component: "RegistrationRequestsList",
               icon: registrationIcon,
             },
             {
               label: "Transactions",
-              route: "/transactions",
+              route: "/dashboard/transactions",
               component: "TransactionsList",
               icon: transactionsIcon,
             },
             {
               label: "Manage Users",
-              route: "/manage-users",
+              route: "/dashboard/manage-users",
               component: "AdminUserList",
               icon: usersIcon,
             },
             {
               label: "Manage Crypto",
-              route: "/manage-crypto",
+              route: "/dashboard/manage-crypto",
               component: "CryptoManagement",
               icon: cryptoIcon,
             },
@@ -242,19 +241,19 @@ export default {
             },
             {
               label: "Transactions",
-              route: "/transactions",
+              route: "/dashboard/transactions",
               component: "TransactionsList",
               icon: transactionsIcon,
             },
             {
               label: "Wallet",
-              route: "/wallet",
+              route: "/dashboard/wallet",
               component: "WalletView",
               icon: walletIcon,
             },
             {
               label: "Trading & Market",
-              route: "/trading-market",
+              route: "/dashboard/trading-market",
               component: "TradingMarket",
               icon: tradingIcon,
             },

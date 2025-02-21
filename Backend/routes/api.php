@@ -6,6 +6,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\PriceHistoryController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\CryptoPurchaseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,8 +26,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'getProfile']);
     Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+
+    // Wallet Routes
+    Route::post('/wallet/create', [WalletController::class, 'createWallet']);
+    Route::get('/crypto/wallet', [CryptoPurchaseController::class, 'getUserWallet']);
+
+    // Crypto purchase routes
+    Route::post('/crypto/buy', [CryptoPurchaseController::class, 'buyCrypto']);
+    Route::get('/transactions', [CryptoPurchaseController::class, 'getUserTransactions']);
 });
 
+// Public Routes (No authentication required)
 Route::middleware('api')->group(function () {
     // Authentication Routes
     Route::post('/login', [AuthController::class, 'login']);

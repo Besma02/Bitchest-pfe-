@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Services\CryptocurrencyService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-
 class CryptocurrencyController extends Controller
 {
     protected $cryptoService;
@@ -31,6 +30,7 @@ class CryptocurrencyController extends Controller
         }
 
         return response()->json([
+            'name' => $cryptoName,
             'name' => $cryptoName,
             'price_history' => $priceHistory
         ]);
