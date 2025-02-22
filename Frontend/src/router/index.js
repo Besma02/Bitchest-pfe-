@@ -11,6 +11,9 @@ import ProfileManager from "@/components/sections/ProfileManager.vue";
 import CryptoList from "@/components/admin/cryptos/CryptoList.vue";
 import CryptoDetails from "@/components/sections/CryptoDetails.vue";
 import MyStats from "@/components/sections/MyStats.vue";
+import CryptoWallet from "@/components/wallet/CryptoWallet.vue";
+import Transactions from "@/components/Transactions.vue";
+import CryptoPurchaseDetails from "@/components/wallet/CryptoPurchaseDetails.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,15 +50,14 @@ const router = createRouter({
           component: AdminUserList,
         },
         {
-          path: "admin/users/add", // Pas de "/" au début
+          path: "/admin/users/add", // Pas de "/" au début
           name: "add-user",
           component: AddUserForm,
         },
         {
-          path: "admin/users/edit/:id", // Pas de "/" au début
-          name: "edit-user",
+          path: "/admin/users/edit/:id",
+          name: "EditUser",
           component: EditUser,
-          props: true, // Permet de passer les paramètres de route comme props
         },
         {
           path: "profile",
@@ -80,6 +82,25 @@ const router = createRouter({
           component: CryptoList,
           props: { isClient: true }, // Passage de props
         },
+      //affiche des achats
+        {
+          path: "wallet", 
+          name: "crypto-wallet",
+          component: CryptoWallet,
+        },
+        //cryptoPurchaseDetails
+        {
+          path: '/crypto/:id/purchases',
+          name: 'cryptoPurchaseDetails',
+          component: CryptoPurchaseDetails, // Le composant où vous affichez l'historique des achats
+           props: true
+        },
+        //affiche des transactions
+        {
+          path: "transactions", 
+          name: "transactions",
+          component: Transactions,
+        }
       ],
     },
   ],

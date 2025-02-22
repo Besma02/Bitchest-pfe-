@@ -70,6 +70,7 @@ Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHis
 
 // Route pour créer un wallet (portefeuille)
 Route::middleware('auth:sanctum')->post('/wallet/create', [WalletController::class, 'createWallet']);
+Route::middleware('auth:sanctum')->get('/wallet', [WalletController::class, 'getWalletInfo']);
 
 //achat de crypto
 use App\Http\Controllers\CryptoPurchaseController;
@@ -78,5 +79,11 @@ Route::middleware('auth:sanctum')->post('/crypto/buy', [CryptoPurchaseController
 
 
 Route::middleware('auth:api')->get('/crypto/wallet', [CryptoPurchaseController::class, 'getUserWallet']);
+//cryptoWalletDeatils
+use App\Http\Controllers\CryptoWalletController;
+
+Route::middleware('auth:sanctum')->get('/crypto/wallet/{id}/purchases', [CryptoWalletController::class, 'getCryptoPurchases']);
+
+//transactions
 Route::middleware('auth:sanctum')->get('/transactions', [CryptoPurchaseController::class, 'getUserTransactions']);
 

@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wallets', function (Blueprint $table) {
+        Schema::create('crypto_wallets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('idUser')->unique()->constrained('users');
-            $table->string('publicAdress')->nullable();
-            $table->string('privateAdress')->nullable();
-            $table->decimal('balance', 15, 2)->default(0);// Solde du portefeuille avec 2 décimales
+            $table->foreignId('idCrypto')->constrained('cryptocurrencies');
+            $table->foreignId('idWallet')->constrained('wallets');
+            $table->decimal('quantity', 18, 3);
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wallets');
+        Schema::dropIfExists('crypto_wallets');
     }
 };
