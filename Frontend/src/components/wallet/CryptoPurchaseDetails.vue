@@ -34,10 +34,10 @@
 </template>
 
 <script>
-import axios from "axios";
+import cryptoPurshaseDetails from "@/services/cryptoPurshaseDetails"; // Import du service
 
 export default {
-  props: ["id"], 
+  props: ["id"],
   data() {
     return {
       purchases: [],
@@ -55,14 +55,10 @@ export default {
       // Récupérer l'ID de la crypto à partir de params de la route
       const cryptoId = this.$route.params.id;
 
-      // Requête API dynamique pour récupérer les achats
-      const response = await axios.get(`http://127.0.0.1:8000/api/crypto/wallet/${cryptoId}/purchases`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      this.purchases = response.data;
+      // Utiliser le service pour récupérer les achats
+      this.purchases = await cryptoPurshaseDetails.fetchPurchases(cryptoId, token);
     } catch (err) {
-      this.error = err.response?.data?.message || "Failed to load purchase details.";
+      this.error = err.message;
     } finally {
       this.loading = false;
     }

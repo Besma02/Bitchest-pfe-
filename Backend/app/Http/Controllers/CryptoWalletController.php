@@ -2,35 +2,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Transaction;
-use App\Models\CryptoWallet;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Services\CryptoWalletService;
 
 class CryptoWalletController extends Controller
 {
+    protected $cryptoWalletService;
+
+    public function __construct(CryptoWalletService $cryptoWalletService)
+    {
+        $this->cryptoWalletService = $cryptoWalletService;
+    }
+
     public function getCryptoPurchases($cryptoId)
     {
-        $userId = Auth::id(); // Récupérer l'utilisateur connecté
+        $result = $this->cryptoWalletService->getCryptoPurchases($cryptoId);
 
-        // Vérifier si l'utilisateur possède un portefeuille contenant cette crypto
-        $cryptoWallet = CryptoWallet::whereHas('wallet', function ($query) use ($userId) {
-            $query->where('idUser', $userId);
-        })->where('idCrypto', $cryptoId)->first();
-
-        if (!$cryptoWallet) {
-            return response()->json(['message' => 'No wallet found for this cryptocurrency.'], 404);
+        // If there's an error message in the result
+        if (isset($result['error'])) {
+            return response()->json(['message' => $result['error']], 404);
         }
 
-        // Récupérer les transactions liées à ce portefeuille
-        $purchases = Transaction::where('idCryptoWallet', $cryptoWallet->id)
-            ->where('type', 'buy') // Filtrer uniquement les achats
-            ->orderBy('date', 'desc') // Trier du plus récent au plus ancien
-            ->get();
-
-        if ($purchases->isEmpty()) {
-            return response()->json(['message' => 'No purchases found for this cryptocurrency.'], 404);
-        }
-
-        return response()->json($purchases);
+        return response()->json($result);
     }
 }

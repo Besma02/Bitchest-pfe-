@@ -3,49 +3,39 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Wallet;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Services\WalletService;
 
 class WalletController extends Controller
 {
-    public function __construct()
+    protected $walletService;
+
+    public function __construct(WalletService $walletService)
     {
         $this->middleware('auth:sanctum');  // Vérifie si l'utilisateur est authentifié
+        $this->walletService = $walletService;  // Injection du service
     }
 
+    // Créer un wallet si l'utilisateur n'en a pas encore
     public function createWallet(Request $request)
     {
-        $user = Auth::user();  // Récupérer l'utilisateur authentifié
-
-        // Vérifier si l'utilisateur a un wallet
-        $wallet = Wallet::where('idUser', $user->id)->first();
-        if (!$wallet) {
-            // Si aucun wallet n'est trouvé, créer un nouveau wallet
-            $wallet = Wallet::create([
-                'idUser' => $user->id,
-                'balance' => 0, // Solde initial
-            ]);
-        }
-
+        $wallet = $this->walletService->createWallet();  // Appel à la méthode du service
 
         return response()->json(['wallet' => $wallet], 201);
     }
+
+    // Obtenir les informations du wallet de l'utilisateur
     public function getWalletInfo()
-{
-    $user = Auth::user();
+    {
+        $wallet = $this->walletService->getWalletInfo();  // Appel à la méthode du service
 
-    // Récupérer le portefeuille de l'utilisateur
-    $wallet = Wallet::where('idUser', $user->id)->first();
+        if (!$wallet) {
+            return response()->json(['error' => 'Wallet not found.'], 404);
+        }
 
-    if (!$wallet) {
-        return response()->json(['error' => 'Wallet not found.'], 404);
+        return response()->json([
+            'balance' => $wallet->balance,
+            'public_address' => $wallet->public_address,
+            'private_address' => $wallet->private_address, // ⚠️ Peut-être à masquer pour la sécurité
+        ]);
     }
-
-    return response()->json([
-        'balance' => $wallet->balance,
-        'public_address' => $wallet->public_address,
-        'private_address' => $wallet->private_address, // ⚠️ Peut-être à masquer pour la sécurité
-    ]);
-}
-
 }

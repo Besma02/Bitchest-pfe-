@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import WalletInfo from "./WalletInfo.vue";
+import walletService from "@/services/walletService"; // Importer le service
 
 export default {
   components: {
@@ -90,21 +90,15 @@ export default {
         throw new Error("Token is missing. Please log in.");
       }
 
-      // Récupérer les cryptos du portefeuille
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/crypto/wallet",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      console.log("Wallet Data:", response.data);
+      // Récupérer les cryptos du portefeuille via le service
+      this.cryptos = await walletService.getWalletCryptos(token);
       // Ajouter l'URL complète pour l'image et les données nécessaires
-      this.cryptos = response.data.map((crypto) => ({
+      this.cryptos = this.cryptos.map((crypto) => ({
         ...crypto,
         imageUrl: `http://127.0.0.1:8000${crypto.image}`, // Préfixe l'URL avec la base de ton serveur
       }));
     } catch (err) {
-      this.error = err.response?.data?.error || "Failed to load wallet.";
+      this.error = err.message || "Failed to load wallet.";
     } finally {
       this.loading = false;
     }

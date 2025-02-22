@@ -84,7 +84,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import cryptoService from "../../../services/cryptoService";
 import Pagination from "../../Pagination.vue";
 import { useToast } from "vue-toastification";
@@ -149,19 +148,13 @@ export default {
           return;
         }
 
-        await axios.post("http://127.0.0.1:8000/api/crypto/buy", {
-          crypto_id: this.selectedCrypto.id,
-          quantity: this.quantity,
-          price: this.selectedCrypto.currentPrice,
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await cryptoService.buyCrypto(this.selectedCrypto.id, this.quantity, this.selectedCrypto.currentPrice, token);
 
         this.toast.success("Purchase successful!");
         this.showBuyModal = false;
         this.$router.push("/dashboard/wallet");
       } catch (error) {
-        this.toast.error(error.response?.data?.error || "Purchase failed!");
+        this.toast.error(error.message || "Purchase failed!");
       }
     },
   },
