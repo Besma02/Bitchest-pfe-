@@ -1,17 +1,17 @@
 <template>
   <div>
+    <!-- Add Crypto Button (Visible to Admin) -->
     <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
-      <!-- Button to Add Crypto, only visible if not a client -->
       <router-link
-         :to="{ name: 'AddCrypto' }"
+        :to="{ name: 'AddCrypto' }"
         class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center"
       >
-        Add crypto
+        Add Crypto
       </router-link>
     </div>
 
+    <!-- Crypto List -->
     <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5">
-      <!-- Section displaying cards -->
       <div v-if="loading" class="text-center w-full">
         <p>Loading cryptos...</p>
       </div>
@@ -21,7 +21,6 @@
       </div>
 
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-[3.75rem] lg:p-[1.25rem]">
-        <!-- Individual dynamic cards -->
         <div
           v-for="crypto in paginatedCryptos"
           :key="crypto.id"
@@ -32,35 +31,34 @@
             {{ crypto.name }}
           </h3>
           <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.currentPrice }} €</h4>
+          
+          <!-- View and Edit Links -->
           <router-link
             @click="viewCrypto(crypto.id)"
             class="text-yellow-500 hover:text-yellow-600 transition duration-150 lg:mr-2 sm:mr-0 md:mr-0"
-            >view
+            >View
             <i class="far fa-eye text-bitchest-secondary mr-2 mt-2"></i>
           </router-link>
-          <!-- Show "Buy" for clients or "Edit" for admins -->
+          
+          <!-- Edit (Admin) or Buy (Client) -->
           <router-link
-           :to="`/admin/crypto/edit/${crypto.id}`"
-           @click="console.log('Editing crypto with ID:', crypto.id)"
+            :to="isClient ? `/buy/${crypto.id}` : `/admin/crypto/edit/${crypto.id}`"
             class="text-yellow-500 hover:text-yellow-600 transition duration-150 mr-2"
           >
             {{ isClient ? 'Buy' : 'Edit' }}
             <i :class="isClient ? 'fas fa-cart-plus text-bitchest-success' : 'fas fa-edit text-bitchest-success'"></i>
           </router-link>
         </div>
-        
       </div>
-
     </div>
 
-    <!-- Pagination for the cryptos -->
+    <!-- Pagination -->
     <div v-if="totalPages > 1" class="flex justify-center mt-4">
       <button 
         v-if="currentPage > 1" 
         @click="previousPage" 
         class="text-blue-500 mx-2">Previous</button>
 
-      <!-- Pagination numbers -->
       <button 
         v-for="page in totalPages" 
         :key="page" 
@@ -83,8 +81,7 @@ import axios from "axios";
 
 export default {
   props: {
-    isClient: Boolean,
-    required: true
+    isClient: Boolean, // Prop to indicate whether the user is a client or admin
   },
   data() {
     return {
@@ -92,20 +89,22 @@ export default {
       paginatedCryptos: [],
       loading: true,
       error: null,
-      limit: 6,
-      currentPage: 1,
-      totalPages: 0,
+      limit: 6, // Number of cryptos per page
+      currentPage: 1, // Current page of pagination
+      totalPages: 0, // Total number of pages
     };
   },
+  created() {
+    this.fetchCryptos(); // Fetch the list of cryptos when the component is created
+  },
   methods: {
-    // Fetch all cryptocurrencies
+    // Fetch the list of cryptos from the API
     async fetchCryptos() {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/cryptocurrencies");
         this.cryptos = response.data;
-        console.log(response.data);
-        this.totalPages = Math.ceil(this.cryptos.length / this.limit); // Calculate total pages
-        this.updatePaginatedCryptos();
+        this.totalPages = Math.ceil(this.cryptos.length / this.limit); // Calculate the total number of pages
+        this.updatePaginatedCryptos(); // Update the list of cryptos for the current page
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
       } finally {
@@ -113,58 +112,45 @@ export default {
       }
     },
 
-    // Handle pagination
+    // Update the list of cryptos displayed on the current page
     updatePaginatedCryptos() {
       const startIndex = (this.currentPage - 1) * this.limit;
       const endIndex = startIndex + this.limit;
       this.paginatedCryptos = this.cryptos.slice(startIndex, endIndex);
     },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-        this.updatePaginatedCryptos();
-      }
+
+    // Go to a specific page
+    goToPage(page) {
+      this.currentPage = page;
+      this.updatePaginatedCryptos(); // Update the displayed cryptos for the new page
     },
+
+    // Navigate to the previous page
     previousPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
-        this.updatePaginatedCryptos();
+        this.updatePaginatedCryptos(); // Update the displayed cryptos
       }
     },
-    goToPage(page) {
-      this.currentPage = page;
-      this.updatePaginatedCryptos();
+
+    // Navigate to the next page
+    nextPage() {
+      if (this.currentPage < this.totalPages) {x
+        this.currentPage++;
+        this.updatePaginatedCryptos(); // Update the displayed cryptos
+      }
     },
 
-    // Helper to get the image URL
-    getImageUrl(imagePath) {
-      return `http://127.0.0.1:8000${imagePath}`;
+    // Helper method to get the image URL of the crypto
+    getImageUrl(imageUrl) {
+      return imageUrl ? imageUrl : "default-image.jpg"; // Fallback to default image if no URL is provided
     },
 
-    // Logic to buy crypto (For clients)
-    buyCrypto(cryptoId) {
-      console.log(`Buying crypto with ID: ${cryptoId}`);
-    },
-
-    // Logic to edit crypto (For non-clients/admins)
-    editCrypto(cryptoId) {
-  console.log("Vue Router instance:", this.$router);
-  if (this.$router) {
-    this.$router.push({ name: 'EditCrypto', params: { id: cryptoId } });
-    console.log(`Navigating to edit crypto with ID: ${cryptoId}`);
-  } else {
-    console.error("Router is not available");
-  }
-},
-
-
-    // View details of a crypto
+    // Method to handle the view link click (for clients)
     viewCrypto(cryptoId) {
-      console.log(`Viewing crypto with ID: ${cryptoId}`);
-    },
-  },
-  mounted() {
-    this.fetchCryptos();
+      this.$router.push({ name: "ViewCrypto", params: { id: cryptoId } });
+    }
   }
 };
 </script>
+

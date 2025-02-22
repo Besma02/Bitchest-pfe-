@@ -39,6 +39,13 @@
             Login
           </button>
         </form>
+
+        <!-- Forgot Password Link -->
+        <div class="text-center mt-4">
+          <p class="text-sm text-blue-500 cursor-pointer" @click="goToForgotPassword">
+            Forgot Password?
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -74,15 +81,20 @@ export default {
 
         // ✅ Check if login was successful
         if (response && response.token) {
-          this.toast.success(" Login successful! ");
+          this.toast.success("Login successful!");
           setTimeout(() => this.$router.push("/dashboard"), 100);
         } else {
           throw new Error("Invalid login credentials");
         }
       } catch (error) {
-        this.toast.error(" Login failed. Please check your credentials.");
+        this.toast.error("Login failed. Please check your credentials.");
       }
     },
+
+    // Redirect to the forgot password page
+    goToForgotPassword() {
+      this.$router.push("/forgot-password");
+    }
   },
 };
 </script>

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Login from "../views/Login.vue";
+import ForgotPassword from "../views/ResetPassword.vue";
 
 import AdminUserList from "../components/admin/AdminUserList.vue";
 import AddUserForm from "../components/admin/AddUserForm.vue";
@@ -11,6 +12,7 @@ import ProfileManager from "@/components/sections/ProfileManager.vue";
 import AdmincryptoList from "@/components/admin/cryptos/CryptoList.vue"; 
 import AddCryptoForm from "@/components/admin/cryptos/AddCryptoForm.vue";
 import EditCryptoForm from "@/components/admin/cryptos/EditCryptoForm.vue"; 
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +26,11 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: Login,
+    },
+    {
+      path:"/forgot-password",
+      name:"forgot-password",
+      component: ForgotPassword,
     },
     {
       path: "/dashboard",

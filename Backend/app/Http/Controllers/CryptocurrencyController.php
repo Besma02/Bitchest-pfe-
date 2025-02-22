@@ -87,4 +87,20 @@ class CryptocurrencyController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // ✅ Show cryptocurrency by ID (Admin/Client)
+    public function show($id)
+    {
+        try {
+            $cryptoData = $this->cryptoService->getCryptoById($id);
+
+            if (!$cryptoData) {
+                return response()->json(['error' => 'Cryptocurrency not found'], 404);
+            }
+
+            return response()->json($cryptoData, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

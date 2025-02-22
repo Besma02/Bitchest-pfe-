@@ -7,7 +7,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Services\AuthService;
+
+use App\Mail\PasswordResetMail;
 class AuthController extends Controller 
 {
     public function register(Request $request)
@@ -85,4 +88,26 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User successfully logged out']);
     }
+     // Forgot Password Endpoint
+     public function forgotPassword(Request $request)
+     {
+         $request->validate([
+             'email' => 'required|email',
+         ]);
+ 
+         $email = $request->email;
+         $user = User::where('email', $email)->first();
+ 
+         if (!$user) {
+             return response()->json(['message' => 'Email not found'], 404);
+         }
+ 
+         // Call the service to handle the password reset logic
+         $newPassword = $this->authService->resetPassword($user);
+ 
+         // Send an email with the new password
+         Mail::to($user->email)->send(new PasswordResetMail($user, $newPassword));
+ 
+         return response()->json(['message' => 'Password reset successfully. Please check your email for the new password.']);
+     }
 }
