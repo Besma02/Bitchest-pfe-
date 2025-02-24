@@ -53,6 +53,18 @@
       </table>
     </div>
 
+    <!-- Modal de confirmation de suppression -->
+    <div v-if="showModal" class="fixed inset-x-0 top-0 flex justify-center items-start p-4">
+      <div class="bg-gray-50 rounded-lg p-4 w-1/3 shadow-md mt-12">
+        <h2 class="text-lg font-semibold">Confirm Deletion</h2>
+        <p>Are you sure you want to delete this user?</p>
+        <div class="mt-4 flex justify-between">
+          <button @click="cancelDelete" class="bg-gray-300 px-4 py-2 rounded-md">Cancel</button>
+          <button @click="handleDeleteUser" class="bg-red-500 text-white px-4 py-2 rounded-md">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Liste mobile -->
     <div class="lg:hidden">
       <div v-for="user in paginatedUsers" :key="user.id" class="bg-white p-4 mb-4 rounded-lg shadow-md border">
@@ -68,7 +80,7 @@
           <button @click="editUser(user.id)" class="text-bitchest-success hover:text-yellow-600 text-sm">
             <i class="fas fa-edit"></i>
           </button>
-          <button @click="openModal(user.id)" class="text-red-500 hover:text-red-700 text-sm">
+          <button @click="openModal(user.id)" class="text-red-500 hover:text-red-700 text-sm ">
             <i class="fas fa-trash-alt"></i>
           </button>
         </div>
@@ -142,9 +154,20 @@ export default {
       this.userIdToDelete = userId;
       this.showModal = true;
     },
-    async handleDeleteUser() {
-      await this.deleteUser(this.userIdToDelete);
+    cancelDelete() {
       this.showModal = false;
+      this.userIdToDelete = null;
+    },
+    async handleDeleteUser() {
+      try {
+        await this.deleteUser(this.userIdToDelete);
+        this.toast.success("User deleted successfully! ✅");
+        this.fetchUsers();  // Rafraîchir la liste après la suppression
+        this.showModal = false;
+      } catch (error) {
+        this.toast.error("Error deleting user. ❌");
+        this.showModal = false;
+      }
     },
     goToPage(page) {
       this.currentPage = page;

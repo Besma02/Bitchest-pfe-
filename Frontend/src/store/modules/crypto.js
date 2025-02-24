@@ -1,4 +1,3 @@
-import axios from "axios";
 import api from "@/services/api";
 
 export default {
@@ -6,10 +5,7 @@ export default {
   state: {
     cryptocurrencies: [], // List of all cryptocurrencies
     priceHistory: [], // Price history for selected cryptocurrency
-    crypto: null, // Selected cryptocurrency details
-    cryptocurrencies: [],
-    currentCrypto: null,
-    priceHistory: [],
+    currentCrypto: null, // Selected cryptocurrency details
   },
 
   mutations: {
@@ -50,6 +46,7 @@ export default {
         throw error;
       }
     },
+
     async addCrypto({ commit }, crypto) {
       try {
         const token = localStorage.getItem("token");
@@ -74,6 +71,7 @@ export default {
         throw error;
       }
     },
+
     async updateCrypto({ commit }, { id, cryptoData }) {
       try {
         const token = localStorage.getItem("token");
@@ -93,11 +91,12 @@ export default {
 
         commit("UPDATE_CRYPTO", response.data);
         return response.data;
-      } catch (error) { 
+      } catch (error) {
         console.error("Error updating cryptocurrency:", error.response?.data.errors || error);
         throw error;
       }
     },
+
     async removeCrypto({ commit }, cryptoId) {
       try {
         const token = localStorage.getItem("token");
@@ -111,6 +110,7 @@ export default {
         throw error;
       }
     },
+
     async loadPriceHistory({ commit }, { cryptoId, days = 30 }) {
       try {
         const response = await api.get(`/cryptos/${cryptoId}/history?days=${days}`);
@@ -126,6 +126,7 @@ export default {
       }
     },
   },
+
   getters: {
     allCryptos: (state) => state.cryptocurrencies,
     currentCrypto: (state) => state.currentCrypto,

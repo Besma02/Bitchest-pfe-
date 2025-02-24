@@ -66,11 +66,11 @@
 
 <script>
 import { mapActions } from "vuex";
-import { useToast } from "vue-toastification"; // 🔥 Import du toast
+import { useToast } from "vue-toastification"; // Importing toast notification library
 
 export default {
   setup() {
-    const toast = useToast(); // 🔥 Utilisation du toast
+    const toast = useToast(); // Using toast for success/failure messages
     return { toast };
   },
   data() {
@@ -79,32 +79,32 @@ export default {
       email: "",
       role: "client",
       photo: null,
-      errors: {},
+      errors: {}, // Storing validation errors
     };
   },
   methods: {
-    ...mapActions("users", ["addUser"]),
+    ...mapActions("users", ["addUser"]), // Action from Vuex store to add user
     handlePhotoUpload(event) {
-      this.photo = event.target.files[0];
+      this.photo = event.target.files[0]; // Handling photo upload
     },
     async submitForm() {
       const formData = new FormData();
-      formData.append("name", this.name);
+      formData.append("name", this.name); // Appending user data to FormData
       formData.append("email", this.email);
       formData.append("role", this.role);
       if (this.photo) {
-        formData.append("photo", this.photo);
+        formData.append("photo", this.photo); // Adding photo if present
       }
 
       try {
-        await this.addUser(formData);
-        this.toast.success("User added successfully! 🎉"); // 🔥 Affichage du toast
-        this.$router.push({ name: "manage-users" });
+        await this.addUser(formData); // Dispatching the action to add user
+        this.toast.success("User added successfully! 🎉"); // Display success message
+        this.$router.push({ name: "manage-users" }); // Navigating to 'manage-users' page
       } catch (error) {
         if (error.response && error.response.status === 422) {
-          this.errors = error.response.data.errors;
+          this.errors = error.response.data.errors; // Handling validation errors
         } else {
-          console.error("Error adding user:", error);
+          console.error("Error adding user:", error); // Logging error in case of failure
         }
       }
     },

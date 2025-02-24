@@ -248,7 +248,7 @@ export default {
             {
               label: "Wallet",
               route: "/dashboard/wallet",
-              component: "WalletView",
+              component: "CryptoWallet",
               icon: walletIcon,
             },
             {

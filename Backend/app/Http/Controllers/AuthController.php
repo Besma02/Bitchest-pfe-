@@ -69,16 +69,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Please check your email and password'], 401);
     }
 
-    // Vérifier si l'utilisateur a un wallet
-    $wallet = Wallet::where('idUser', $user->id)->first();
-    if (!$wallet) {
-        // Si aucun wallet n'est trouvé, créer un nouveau wallet
-        $wallet = Wallet::create([
-            'idUser' => $user->id,
-            'balance' => 0, // Solde initial
-        ]);
-    }
-
+   
     // Créer un token Sanctum pour l'utilisateur authentifié
     $token = $user->createToken('authToken')->plainTextToken;
 
@@ -87,7 +78,7 @@ class AuthController extends Controller
         'message' => 'Login successful.',
         'token' => $token,
         'user' => $user,
-        'wallet' => $wallet, // Retourner le wallet si nécessaire
+       
     ]);
 }
 

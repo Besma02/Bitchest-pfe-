@@ -15,6 +15,9 @@ import EditCryptoForm from "@/components/admin/cryptos/EditCryptoForm.vue";
 import CryptoList from "@/components/admin/cryptos/CryptoList.vue";
 import CryptoDetails from "@/components/sections/CryptoDetails.vue";
 import MyStats from "@/components/sections/MyStats.vue";
+import CryptoWallet from "@/components/wallet/CryptoWallet.vue";
+import Transactions from "@/components/Transactions.vue";
+import CryptoPurchaseDetails from "@/components/wallet/CryptoPurchaseDetails.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,11 +59,17 @@ const router = createRouter({
           component: AdminUserList, // Component for listing users
         },
         {
+          path: "/admin/users/add", // Pas de "/" au début
+          name: "add-user",
+          component: AddUserForm,
           path: "/admin/users/add", 
           name: "add-user", 
           component: AddUserForm, 
         },
         {
+          path: "/admin/users/edit/:id",
+          name: "EditUser",
+          component: EditUser,
           path: "admin/users/edit/:id",
           name: "admin-edit-user",
           component: EditUser, 

@@ -28,7 +28,7 @@
         <!-- Carte individuelle -->
         <div
           v-for="crypto in paginatedCryptos"
-          :key="crypto.name"
+          :key="crypto.id"
           class="bg-bitchest-white w-full max-w-sm h-auto border border-gray-300 rounded-[2rem] p-4 sm:p-5 md:p-6 text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
         >
           <img :src="getImageUrl(crypto.image_url)" :alt="crypto.name" class="mx-auto mb-4 w-12 h-12 object-contain" />
@@ -96,6 +96,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from "axios";
 
@@ -162,6 +163,7 @@ export default {
         this.updatePaginatedCryptos(); // Update the displayed cryptos
       }
     },
+
     getImageUrl(imagePath) {
       return `http://127.0.0.1:8000${imagePath}`;
     },
@@ -188,5 +190,6 @@ export default {
   mounted() {
     this.fetchCryptos();
   },
+ 
 };
 </script>
