@@ -12,7 +12,9 @@ import ProfileManager from "@/components/sections/ProfileManager.vue";
 import AdmincryptoList from "@/components/admin/cryptos/CryptoList.vue"; 
 import AddCryptoForm from "@/components/admin/cryptos/AddCryptoForm.vue";
 import EditCryptoForm from "@/components/admin/cryptos/EditCryptoForm.vue"; 
-
+import CryptoList from "@/components/admin/cryptos/CryptoList.vue";
+import CryptoDetails from "@/components/sections/CryptoDetails.vue";
+import MyStats from "@/components/sections/MyStats.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,56 +38,80 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
+      meta: { requiresAuth: true }, 
       children: [
         {
-          path: "/registration-requests",
+          path: "",
+          name: "my-stats",
+          component: MyStats,
+        },
+        {
+          path: "registration-requests", 
           name: "registration-requests",
           component: RegistrationRequestsList,
         },
         {
-          path: "/manage-users", // Manage users route
-          name: "manage-users",
-          component: AdminUserList, // Component for listing users
+          path: "manage-users",
+          name: "admin-manage-users",
+          component: AdminUserList,
         },
         {
-          path: "/admin/users/add", 
-          name: "add-user", 
+          path: "admin/users/add", 
+          name: "admin-add-user", 
           component: AddUserForm, 
         },
         {
-          path: "/admin/users/edit/:id",
-          name: "edit-user",
+          path: "admin/users/edit/:id",
+          name: "admin-edit-user",
           component: EditUser, 
+          props: true, 
         },
         {
-          path: "/profile",
+          path: "profile",
           name: "profile-manager",
           component: ProfileManager,
         },
         {
-          path: "/manage-crypto", // Manage cryptocurrencies
-          name: "manage-crypto",
+          path: "manage-crypto", 
+          name: "admin-crypto-list",
           component: AdmincryptoList, 
         },
         {
-          path: "/admin/crypto/add", 
-          name: "add-crypto", 
-          component: AddCryptoForm, 
+          path: "admin/crypto/add", 
+          name: "admin-add-crypto",   
+          component: AddCryptoForm,
         },
         {
-          path: '/admin/crypto/edit/:id',
-          name: 'EditCrypto',
+          path: "admin/crypto/edit/:id",
+          name: "admin-edit-crypto",
           component: EditCryptoForm,
           props: true,  
         },
         {
-          path: "/admin/crypto/add", 
-          name: "AddCrypto",   
-          component: AddCryptoForm,
+          path: "crypto/:id", 
+          name: "crypto-detail",
+          component: CryptoDetails,
+          props: true,
+        },
+        {
+          path: "trading-market", 
+          name: "client-trade-market",
+          component: CryptoList,
+          props: { isClient: true },
         },
       ],
     },
   ],
+});
+
+// Garde de navigation pour vérifier l'authentification
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem("token"); 
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next("/login"); 
+  } else {
+    next(); 
+  }
 });
 
 export default router;

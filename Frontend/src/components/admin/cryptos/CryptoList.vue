@@ -10,78 +10,113 @@
       </router-link>
     </div>
 
-    <!-- Crypto List -->
-    <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5">
-      <div v-if="loading" class="text-center w-full">
-        <p>Loading cryptos...</p>
+    <!-- Conteneur principal -->
+    <div class="flex flex-col p-4 sm:p-5 md:p-6 lg:p-5">
+      <!-- Loader -->
+      <div
+        v-if="loading"
+        class="fixed inset-0 flex items-center justify-center bg-white z-50 h-screen"
+      >
+        <Loader />
       </div>
 
+      <!-- Message d'erreur -->
       <div v-else-if="error" class="text-center w-full text-red-500">
         <p>{{ error }}</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-[3.75rem] lg:p-[1.25rem]">
+      <!-- Grille des cryptos -->
+      <div
+        v-else
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10"
+      >
+        <!-- Carte individuelle -->
         <div
           v-for="crypto in paginatedCryptos"
-          :key="crypto.id"
-          class="bg-bitchest-white w-full sm:w-[160px] md:w-[200px] lg:w-[240px] h-[190px] sm:h-[200px] md:h-[210px] border border-gray-300 rounded-[2.0625rem] p-4 sm:p-[1.5rem] lg:p-[2.5rem] text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
+          :key="crypto.name"
+          class="bg-bitchest-white w-full max-w-sm h-auto border border-gray-300 rounded-[2rem] p-4 sm:p-5 md:p-6 text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
         >
-          <img :src="getImageUrl(crypto.image_url)" :alt="crypto.name" class="mx-auto mb-4 w-12 h-12 object-contain" />
-          <h3 class="text-bitchest-success font-bold text-sm sm:text-base md:text-lg lg:text-xl">
+          <img
+            :src="getImageUrl(crypto.image_url)"
+            :alt="crypto.name"
+            class="mx-auto mb-4 w-16 h-16 object-contain"
+          />
+          <h3 class="text-bitchest-success font-bold text-lg sm:text-xl">
             {{ crypto.name }}
           </h3>
-          <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">{{ crypto.currentPrice }} €</h4>
-          
-          <!-- View and Edit Links -->
-          <router-link
-            @click="viewCrypto(crypto.id)"
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150 lg:mr-2 sm:mr-0 md:mr-0"
-            >View
-            <i class="far fa-eye text-bitchest-secondary mr-2 mt-2"></i>
-          </router-link>
-          
-          <!-- Edit (Admin) or Buy (Client) -->
-          <router-link
-            :to="isClient ? `/buy/${crypto.id}` : `/admin/crypto/edit/${crypto.id}`"
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150 mr-2"
-          >
-            {{ isClient ? 'Buy' : 'Edit' }}
-            <i :class="isClient ? 'fas fa-cart-plus text-bitchest-success' : 'fas fa-edit text-bitchest-success'"></i>
-          </router-link>
+          <h4 class="text-sm sm:text-base md:text-lg">
+            {{ crypto.currentPrice }} €
+          </h4>
+          <div class="mt-4 flex justify-center space-x-3">
+            <router-link
+              :to="`/dashboard/crypto/${crypto.id}`"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+            >
+              View
+              <i class="far fa-eye text-bitchest-secondary ml-1"></i>
+            </router-link>
+            <button
+              @click="isClient ? buyCrypto(crypto.id) : editCrypto(crypto.id)"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+            >
+              {{ isClient ? "Buy" : "Edit" }}
+              <i
+                :class="
+                  isClient
+                    ? 'fas fa-cart-plus text-bitchest-success ml-1'
+                    : 'fas fa-edit text-bitchest-success ml-1'
+                "
+              ></i>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex justify-center mt-4">
-      <button 
-        v-if="currentPage > 1" 
-        @click="previousPage" 
-        class="text-blue-500 mx-2">Previous</button>
-
-      <button 
-        v-for="page in totalPages" 
-        :key="page" 
-        :class="{'bg-blue-500 text-white': page === currentPage, 'text-blue-500': page !== currentPage}"
-        @click="goToPage(page)"
-        class="mx-1 px-3 py-1 border rounded-full">
-        {{ page }}
-      </button>
-
-      <button 
-        v-if="currentPage < totalPages" 
-        @click="nextPage" 
-        class="text-blue-500 mx-2">Next</button>
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="flex justify-center mt-6 space-x-2">
+        <button
+          v-if="currentPage > 1"
+          @click="previousPage"
+          class="text-blue-500 px-3 py-1 sm:px-4 sm:py-2 border rounded-full hover:bg-blue-50 transition duration-150"
+        >
+          Previous
+        </button>
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          :class="{
+            'bg-blue-500 text-white': page === currentPage,
+            'text-blue-500 hover:bg-blue-50': page !== currentPage,
+          }"
+          @click="goToPage(page)"
+          class="px-3 py-1 sm:px-4 sm:py-2 border rounded-full transition duration-150"
+        >
+          {{ page }}
+        </button>
+        <button
+          v-if="currentPage < totalPages"
+          @click="nextPage"
+          class="text-blue-500 px-3 py-1 sm:px-4 sm:py-2 border rounded-full hover:bg-blue-50 transition duration-150"
+        >
+          Next
+        </button>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
+import Loader from "@/components/utils/Loader.vue";
 import axios from "axios";
 
 export default {
+  components: {
+    Loader,
+  },
   props: {
-    isClient: Boolean, // Prop to indicate whether the user is a client or admin
+    isClient: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -101,10 +136,14 @@ export default {
     // Fetch the list of cryptos from the API
     async fetchCryptos() {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/cryptocurrencies");
+        this.loading = true;
+        const response = await axios.get(
+          "http://localhost:8000/api/cryptos/current"
+        );
         this.cryptos = response.data;
-        this.totalPages = Math.ceil(this.cryptos.length / this.limit); // Calculate the total number of pages
-        this.updatePaginatedCryptos(); // Update the list of cryptos for the current page
+        console.log(this.cryptos);
+        this.totalPages = Math.ceil(this.cryptos.length / this.limit);
+        this.updatePaginatedCryptos();
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
       } finally {
@@ -140,17 +179,45 @@ export default {
         this.updatePaginatedCryptos(); // Update the displayed cryptos
       }
     },
-
-    // Helper method to get the image URL of the crypto
-    getImageUrl(imageUrl) {
-      return imageUrl ? imageUrl : "default-image.jpg"; // Fallback to default image if no URL is provided
+    getImageUrl(imagePath) {
+      console.log(imagePath);
+      return `http://127.0.0.1:8000${imagePath}`;
     },
-
-    // Method to handle the view link click (for clients)
-    viewCrypto(cryptoId) {
-      this.$router.push({ name: "ViewCrypto", params: { id: cryptoId } });
-    }
-  }
+    buyCrypto(cryptoId) {
+      console.log(`Buying crypto with ID: ${cryptoId}`);
+    },
+    editCrypto(cryptoId) {
+      this.$router.push(`/admin/crypto/edit/${cryptoId}`);
+    },
+  },
+  mounted() {
+    this.fetchCryptos();
+  },
 };
 </script>
+<style scoped>
+/* Adaptation responsive améliorée */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
 
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+</style>

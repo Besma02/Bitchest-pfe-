@@ -9,13 +9,13 @@ class PriceHistory extends Model
 {
     use HasFactory;
     protected $casts = [
-    'date' => 'datetime',
-];
+        'date' => 'datetime',
+    ];
 
     protected $fillable = ['cryptocurrency_id', 'value', 'date'];
 
     public function cryptocurrency()
     {
-        return $this->belongsTo(Cryptocurrency::class);
+        return $this->belongsTo(Cryptocurrency::class, 'cryptocurrency_id');
     }
 }

@@ -1,10 +1,12 @@
 import axios from "axios";
+import api from "@/services/api";
 
 export default {
   namespaced: true,
   state: {
     cryptocurrencies: [],
     currentCrypto: null,
+    priceHistory: [],
   },
   mutations: {
     SET_CRYPTOCURRENCIES(state, cryptos) {
@@ -25,24 +27,15 @@ export default {
     REMOVE_CRYPTO(state, cryptoId) {
       state.cryptocurrencies = state.cryptocurrencies.filter((crypto) => crypto.id !== cryptoId);
     },
+    SET_PRICE_HISTORY(state, history) {
+      state.priceHistory = history;
+    },
   },
   actions: {
-    async fetchCryptos({ commit }) {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get("/api/cryptocurrencies", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        commit("SET_CRYPTOCURRENCIES", response.data);
-      } catch (error) {
-        console.error("Error fetching cryptocurrencies:", error.response?.data || error);
-        throw error;
-      }
-    },
     async fetchCrypto({ commit }, cryptoId) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`/api/admin/cryptocurrencies/${cryptoId}`, {
+        const response = await api.get(`/admin/cryptocurrencies/${cryptoId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         commit("SET_CRYPTO", response.data);
@@ -62,7 +55,7 @@ export default {
           formData.append("logo", crypto.logo);
         }
 
-        const response = await axios.post("/api/admin/cryptocurrencies", formData, {
+        const response = await api.post("/admin/cryptocurrencies", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
@@ -86,7 +79,7 @@ export default {
           formData.append("logo", cryptoData.logo);
         }
 
-        const response = await axios.put(`/api/admin/cryptocurrencies/${id}`, formData, {
+        const response = await api.put(`/admin/cryptocurrencies/${id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
@@ -103,7 +96,7 @@ export default {
     async removeCrypto({ commit }, cryptoId) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`/api/admin/cryptocurrencies/${cryptoId}`, {
+        await api.delete(`/admin/cryptocurrencies/${cryptoId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -113,9 +106,24 @@ export default {
         throw error;
       }
     },
+    async loadPriceHistory({ commit }, { cryptoId, days = 30 }) {
+      try {
+        const response = await api.get(`/cryptos/${cryptoId}/history?days=${days}`);
+  
+        if (!response.data || !response.data.original) throw new Error("Données invalides");
+  
+        const { crypto, history } = response.data.original;
+        commit("SET_PRICE_HISTORY", history || []);
+        commit("SET_CRYPTO", crypto || null);
+      } catch (error) {
+        console.error("Erreur lors de la récupération de l'historique des prix", error);
+        commit("SET_PRICE_HISTORY", []);
+      }
+    },
   },
   getters: {
     allCryptos: (state) => state.cryptocurrencies,
     currentCrypto: (state) => state.currentCrypto,
+    priceHistory: (state) => state.priceHistory,
   },
 };

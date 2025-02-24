@@ -7,6 +7,7 @@ use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CryptocurrencyController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PriceHistoryController;
 
 Route::middleware('auth:sanctum')->group(function () {
     // User Routes
@@ -45,3 +46,15 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 Route::get('cryptocurrencies', [CryptocurrencyController::class, 'getCurrentPrices']);
 Route::get('cryptocurrencies/{cryptoName}/history', [CryptocurrencyController::class, 'getPriceHistory']);
 
+// Dans routes/api.php
+Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);
+
+
+
+
+
+
+//récupérer les dernières cotations
+//Route::get('/crypto-cotations', [CryptocurrencyController::class, 'index']);
+Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
+Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);

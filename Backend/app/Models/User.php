@@ -17,16 +17,16 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    
-        protected $fillable = [
+
+    protected $fillable = [
         'name',
         'email',
         'password',
         'role',
-         'photo',
+        'photo',
         'balance'
     ];
-    
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -37,4 +37,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    public function wallets()
+    {
+        return $this->hasMany(Wallet::class, 'idUser');
+    }
 }

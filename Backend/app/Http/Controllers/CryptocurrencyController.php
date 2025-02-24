@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\CryptocurrencyService;
+use App\Models\Cryptocurrency;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class CryptocurrencyController extends Controller
 {
@@ -18,7 +20,41 @@ class CryptocurrencyController extends Controller
     // ✅ Get all cryptocurrencies with current prices
     public function getCurrentPrices()
     {
-        return response()->json($this->cryptoService->getCurrentPrices(), 200);
+        $cryptos = Cryptocurrency::all();
+
+        foreach ($cryptos as $crypto) {
+            $today = Carbon::now()->format('Y-m-d');
+            $existingPrice = $crypto->priceHistory()->where('date', $today)->first();
+
+            if (!$existingPrice) {
+                $this->generateTodayPrice($crypto);
+            }
+        }
+
+        $cryptosData = $cryptos->map(function ($crypto) {
+            return [
+                'id' => $crypto->id,
+                'name' => $crypto->name,
+                'currentPrice' => $crypto->priceHistory()->latest('date')->value('value'),
+                'date' => Carbon::now()->format('Y-m-d'),
+                'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
+                'updated_at' => $crypto->updated_at,
+            ];
+        });
+
+        return response()->json($cryptosData);
+    }
+
+    private function generateTodayPrice($crypto)
+    {
+        $lastPrice = $crypto->priceHistory()->latest('date')->value('value') ?? $crypto->currentPrice;
+        $variation = ((rand(0, 99) > 40) ? 1 : -1) * (rand(1, 10) * 0.01);
+        $newPrice = max(0, $lastPrice + $variation);
+
+        $crypto->priceHistory()->create([
+            'date' => Carbon::now()->format('Y-m-d'),
+            'value' => $newPrice,
+        ]);
     }
 
     // ✅ Get price history for a specific cryptocurrency
@@ -40,18 +76,15 @@ class CryptocurrencyController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validate request data
             $validatedData = $this->cryptoService->validateCryptoData($request->all());
 
-            // Handle file upload if a logo is provided
             if ($request->hasFile('logo')) {
                 $file = $request->file('logo');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $path = $file->storeAs('public/cryptos', $filename);
-                $validatedData['logo'] = str_replace('public/', '', $path); // Save relative path
+                $validatedData['logo'] = str_replace('public/', '', $path);
             }
 
-            // Create cryptocurrency
             $crypto = $this->cryptoService->addCrypto($validatedData);
 
             return response()->json($crypto, 201);
@@ -66,18 +99,15 @@ class CryptocurrencyController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            // Validate request data
             $validatedData = $this->cryptoService->validateCryptoData($request->all(), $id);
 
-            // Handle file upload if a new logo is provided
             if ($request->hasFile('logo')) {
                 $file = $request->file('logo');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $path = $file->storeAs('public/cryptos', $filename);
-                $validatedData['logo'] = str_replace('public/', '', $path); // Save relative path
+                $validatedData['logo'] = str_replace('public/', '', $path);
             }
 
-            // Update cryptocurrency
             $crypto = $this->cryptoService->updateCrypto($id, $validatedData);
 
             return response()->json($crypto, 200);
