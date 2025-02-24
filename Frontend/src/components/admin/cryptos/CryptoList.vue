@@ -10,17 +10,12 @@
       </router-link>
     </div>
 
-    <!-- Conteneur principal -->
-    <div class="flex flex-col p-4 sm:p-5 md:p-6 lg:p-5">
-      <!-- Loader -->
-      <div
-        v-if="loading"
-        class="fixed inset-0 flex items-center justify-center bg-white z-50 h-screen"
-      >
-        <Loader />
+    <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5">
+      <!-- Section displaying cards -->
+      <div v-if="loading" class="text-center w-full">
+        <p>Loading cryptos...</p>
       </div>
 
-      <!-- Message d'erreur -->
       <div v-else-if="error" class="text-center w-full text-red-500">
         <p>{{ error }}</p>
       </div>
@@ -36,12 +31,8 @@
           :key="crypto.name"
           class="bg-bitchest-white w-full max-w-sm h-auto border border-gray-300 rounded-[2rem] p-4 sm:p-5 md:p-6 text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
         >
-          <img
-            :src="getImageUrl(crypto.image_url)"
-            :alt="crypto.name"
-            class="mx-auto mb-4 w-16 h-16 object-contain"
-          />
-          <h3 class="text-bitchest-success font-bold text-lg sm:text-xl">
+          <img :src="getImageUrl(crypto.image_url)" :alt="crypto.name" class="mx-auto mb-4 w-12 h-12 object-contain" />
+          <h3 class="text-bitchest-success font-bold text-sm sm:text-base md:text-lg lg:text-xl">
             {{ crypto.name }}
           </h3>
           <h4 class="text-sm sm:text-base md:text-lg">
@@ -104,19 +95,14 @@
     </div>
   </div>
 </template>
+
 <script>
-import Loader from "@/components/utils/Loader.vue";
 import axios from "axios";
 
 export default {
-  components: {
-    Loader,
-  },
   props: {
-    isClient: {
-      type: Boolean,
-      required: true,
-    },
+    isClient: Boolean,
+    required: true,
   },
   data() {
     return {
@@ -136,13 +122,10 @@ export default {
     // Fetch the list of cryptos from the API
     async fetchCryptos() {
       try {
-        this.loading = true;
-        const response = await axios.get(
-          "http://localhost:8000/api/cryptos/current"
-        );
+        const response = await axios.get("http://127.0.0.1:8000/api/cryptocurrencies");
         this.cryptos = response.data;
-        console.log(this.cryptos);
-        this.totalPages = Math.ceil(this.cryptos.length / this.limit);
+        console.log(response.data);
+        this.totalPages = Math.ceil(this.cryptos.length / this.limit); // Calculate total pages
         this.updatePaginatedCryptos();
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
@@ -180,7 +163,6 @@ export default {
       }
     },
     getImageUrl(imagePath) {
-      console.log(imagePath);
       return `http://127.0.0.1:8000${imagePath}`;
     },
     buyCrypto(cryptoId) {
@@ -188,6 +170,19 @@ export default {
     },
     editCrypto(cryptoId) {
       this.$router.push(`/admin/crypto/edit/${cryptoId}`);
+  console.log("Vue Router instance:", this.$router);
+  if (this.$router) {
+    this.$router.push({ name: 'EditCrypto', params: { id: cryptoId } });
+    console.log(`Navigating to edit crypto with ID: ${cryptoId}`);
+  } else {
+    console.error("Router is not available");
+  }
+},
+
+
+    // View details of a crypto
+    viewCrypto(cryptoId) {
+      console.log(`Viewing crypto with ID: ${cryptoId}`);
     },
   },
   mounted() {
@@ -195,29 +190,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-/* Adaptation responsive améliorée */
-@media (max-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  }
-}
-
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  }
-}
-
-@media (min-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
-</style>

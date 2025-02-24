@@ -51,13 +51,13 @@ const router = createRouter({
           component: RegistrationRequestsList,
         },
         {
-          path: "manage-users",
-          name: "admin-manage-users",
-          component: AdminUserList,
+          path: "/manage-users", // Manage users route
+          name: "manage-users",
+          component: AdminUserList, // Component for listing users
         },
         {
-          path: "admin/users/add", 
-          name: "admin-add-user", 
+          path: "/admin/users/add", 
+          name: "add-user", 
           component: AddUserForm, 
         },
         {
@@ -98,6 +98,9 @@ const router = createRouter({
           name: "client-trade-market",
           component: CryptoList,
           props: { isClient: true },
+          path: "/admin/crypto/add", 
+          name: "AddCrypto",   
+          component: AddCryptoForm,
         },
       ],
     },

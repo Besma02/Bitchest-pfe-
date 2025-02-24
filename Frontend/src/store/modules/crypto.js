@@ -4,10 +4,14 @@ import api from "@/services/api";
 export default {
   namespaced: true,
   state: {
+    cryptocurrencies: [], // List of all cryptocurrencies
+    priceHistory: [], // Price history for selected cryptocurrency
+    crypto: null, // Selected cryptocurrency details
     cryptocurrencies: [],
     currentCrypto: null,
     priceHistory: [],
   },
+
   mutations: {
     SET_CRYPTOCURRENCIES(state, cryptos) {
       state.cryptocurrencies = cryptos;
@@ -31,6 +35,7 @@ export default {
       state.priceHistory = history;
     },
   },
+
   actions: {
     async fetchCrypto({ commit }, cryptoId) {
       try {
@@ -125,5 +130,6 @@ export default {
     allCryptos: (state) => state.cryptocurrencies,
     currentCrypto: (state) => state.currentCrypto,
     priceHistory: (state) => state.priceHistory,
+    getPriceHistory: (state) => state.priceHistory,
   },
 };

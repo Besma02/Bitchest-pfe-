@@ -11,7 +11,7 @@ use Carbon\Carbon;
 class CryptocurrencyService
 {
     // ✅ Validate cryptocurrency data
-    public function     validateCryptoData($data, $id = null)
+    public function validateCryptoData($data, $id = null)
     {
         $rules = [
             'name' => 'required|string|unique:cryptocurrencies,name,' . ($id ?? 'NULL') . ',id',
@@ -30,21 +30,18 @@ class CryptocurrencyService
     // ✅ Add a new cryptocurrency
     public function addCrypto($data)
     {
-        $crypto = Cryptocurrency::create([
+        return Cryptocurrency::create([
             'name' => $data['name'],
             'currentPrice' => $data['currentPrice'],
             'logo' => $data['logo'] ?? null,
         ]);
- 
-        return $crypto;
     }
 
     // ✅ Update an existing cryptocurrency
     public function updateCrypto($id, $data)
     {
         $crypto = Cryptocurrency::findOrFail($id);
-    
-        // Handle file upload if a new logo is provided
+
         if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
             $filename = time() . '_' . $data['logo']->getClientOriginalName();
             $path = $data['logo']->storeAs('public/cryptos', $filename);
@@ -52,20 +49,19 @@ class CryptocurrencyService
         } else {
             $data['logo'] = $crypto->logo; // Keep old logo if not updated
         }
-    
+
         // Update cryptocurrency
         $crypto->update([
             'name' => $data['name'],
             'currentPrice' => $data['currentPrice'],
             'logo' => $data['logo'],
         ]);
-    
+
         // Log price history
         $this->logPriceHistory($crypto->id, $data['currentPrice']);
-    
+
         return $crypto;
     }
-    
 
     // ✅ Log price history
     private function logPriceHistory($cryptoId, $currentPrice)
@@ -100,30 +96,26 @@ class CryptocurrencyService
             return null;
         }
 
-        // Récupérer l'historique des prix des 30 derniers jours
-        $history = $cryptocurrency->priceHistory()->where('date', '>=', Carbon::now()->subDays(30)->format('Y-m-d'))
+        return $cryptocurrency->priceHistory()->where('date', '>=', Carbon::now()->subDays(30)->format('Y-m-d'))
             ->orderBy('date', 'asc')
-            ->get();
-
-        return $history->map(function ($entry) {
-            return [
-                'date' => $entry->date,
-                'value' => $entry->value,
-            ];
-        });
+            ->get()
+            ->map(function ($entry) {
+                return [
+                    'date' => $entry->date,
+                    'value' => $entry->value,
+                ];
+            });
     }
 
     // ✅ Get cryptocurrency by ID
     public function getCryptoById($id)
     {
-        // Fetch cryptocurrency by ID
         $crypto = Cryptocurrency::find($id);
 
         if (!$crypto) {
-            return null;  // Return null if not found
+            return null;
         }
 
-        // Optionally, you can also include the price history for the crypto
         $priceHistory = $crypto->priceHistory()->orderBy('date', 'desc')->take(30)->get();
 
         return [
