@@ -86,4 +86,5 @@ Route::middleware('auth:sanctum')->get('/crypto/wallet/{id}/purchases', [CryptoW
 
 //transactions
 Route::middleware('auth:sanctum')->get('/transactions', [CryptoPurchaseController::class, 'getUserTransactions']);
-
+//getTotalPurchases
+Route::middleware('auth:sanctum')->get('/crypto/total-purchases', [CryptoPurchaseController::class, 'getTotalPurchases']);

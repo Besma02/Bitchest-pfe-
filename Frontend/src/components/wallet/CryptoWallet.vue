@@ -16,8 +16,8 @@
     </div>
 
     <!-- Affichage des cryptos dans le portefeuille -->
-    <div v-else-if="cryptos.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="crypto in cryptos" :key="crypto.id" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+    <div v-else-if="paginatedCryptos.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-for="crypto in paginatedCryptos" :key="crypto.id" class="bg-white p-4 rounded-xl shadow-md border border-gray-200">
         <!-- Image de la crypto -->
         <div class="flex justify-center mb-4">
           <img :src="crypto.imageUrl" alt="crypto image" class="w-10 h-10 object-contain" />
@@ -38,22 +38,20 @@
 
         <!-- Bouton pour voir les détails d'achat -->
         <div class="mt-2">
-        <button 
-          @click="viewPurchaseDetails(crypto.id)"
-          class="text-bitchest-primary text-sm  underline sm:text-base mt-2 mr-12 px-2 hover:text-bitchest-secondary"
-        >
-           Details
-        </button>
-         <!-- link pour voir la vente-->
-         <router-link
-          @click="viewPurchaseDetails(crypto.id)"
-        
-          class="  bg-bitchest-secondary  text-white text-sm sm:text-base mt-2  px-4 py-1 rounded-md hover:bg-blue-500 transition duration-200 shadow-md w-full sm:w-auto text-center"
+          <button 
+            @click="viewPurchaseDetails(crypto.id)"
+            class="text-bitchest-primary text-sm underline sm:text-base mt-2 mr-12 px-2 hover:text-bitchest-secondary"
           >
-          <i class="fas fa-euro-sign mr-1 text-white"></i>Sell
-        </router-link>
-
-      </div>
+             Details
+          </button>
+          <!-- Link pour voir la vente-->
+          <router-link
+            @click="viewPurchaseDetails(crypto.id)"
+            class="bg-bitchest-secondary text-white text-sm sm:text-base mt-2 px-4 py-1 rounded-md hover:bg-blue-500 transition duration-200 shadow-md w-full sm:w-auto text-center"
+          >
+            <i class="fas fa-euro-sign mr-1 text-white"></i> Sell
+          </router-link>
+        </div>
       </div>
     </div>
 
@@ -61,6 +59,9 @@
     <div v-else class="text-center text-gray-600 text-lg">
       No cryptocurrencies found in your wallet.
     </div>
+
+    <!-- Pagination -->
+    <Pagination :currentPage="currentPage" :totalPages="totalPages" @goToPage="goToPage" />
 
     <router-link to="/dashboard/trading-market" class="flex items-center text-black mt-4">
       <i class="fas fa-arrow-left mr-2"></i> Back
@@ -71,17 +72,31 @@
 <script>
 import WalletInfo from "./WalletInfo.vue";
 import walletService from "@/services/walletService"; // Importer le service
+import Pagination from "@/components/Pagination.vue"; // Importer la pagination
 
 export default {
   components: {
     WalletInfo,
+    Pagination,
   },
   data() {
     return {
       cryptos: [], // Stocke les cryptos du portefeuille
       loading: true, // Indicateur de chargement
       error: null, // Stocke les erreurs
+      currentPage: 1, // Page actuelle
+      limit: 3, // Nombre de cryptos par page
     };
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.cryptos.length / this.limit);
+    },
+    paginatedCryptos() {
+      const startIndex = (this.currentPage - 1) * this.limit;
+      const endIndex = startIndex + this.limit;
+      return this.cryptos.slice(startIndex, endIndex);
+    },
   },
   async mounted() {
     try {
@@ -119,6 +134,9 @@ export default {
         return;
       }
       this.$router.push({ name: "cryptoPurchaseDetails", params: { id: cryptoId } });
+    },
+    goToPage(page) {
+      this.currentPage = page;
     },
   },
 };

@@ -54,16 +54,16 @@
     </div>
 
     <!-- Modal de confirmation de suppression -->
-<div v-if="showModal" class="fixed inset-x-0 top-0 flex justify-center items-start p-4">
-  <div class="bg-gray-50 rounded-lg p-4 w-1/3 shadow-md mt-12">
-    <h2 class="text-lg font-semibold">Confirm Deletion</h2>
-    <p>Are you sure you want to delete this user?</p>
-    <div class="mt-4 flex justify-between">
-      <button @click="cancelDelete" class="bg-gray-300 px-4 py-2 rounded-md">Cancel</button>
-      <button @click="handleDeleteUser" class="bg-red-500 text-white px-4 py-2 rounded-md">Delete</button>
+    <div v-if="showModal" class="fixed inset-x-0 top-0 flex justify-center items-start p-4">
+      <div class="bg-gray-50 rounded-lg p-4 w-1/3 shadow-md mt-12">
+        <h2 class="text-lg font-semibold">Confirm Deletion</h2>
+        <p>Are you sure you want to delete this user?</p>
+        <div class="mt-4 flex justify-between">
+          <button @click="cancelDelete" class="bg-gray-300 px-4 py-2 rounded-md">Cancel</button>
+          <button @click="handleDeleteUser" class="bg-red-500 text-white px-4 py-2 rounded-md">Delete</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <!-- Liste mobile -->
     <div class="lg:hidden">
@@ -162,7 +162,7 @@ export default {
       try {
         await this.deleteUser(this.userIdToDelete);
         this.toast.success("User deleted successfully! ✅");
-        this.fetchUsers();  // Refresh the list after deletion
+        this.fetchUsers();  // Rafraîchir la liste après la suppression
         this.showModal = false;
       } catch (error) {
         this.toast.error("Error deleting user. ❌");

@@ -148,4 +148,29 @@ class CryptoPurchaseService
             ];
         });
     }
+// getTotalCryptoPurchases
+public function getTotalCryptoPurchases()
+{
+    $user = Auth::user();
+
+    // Retrieve the wallet for the user
+    $wallet = Wallet::where('idUser', $user->id)->first();
+
+    // Check if the wallet exists
+    if (!$wallet) {
+        return ['error' => 'Wallet not found.'];
+    }
+
+    // Get the total purchase amount for the user
+    $totalPurchases = Transaction::whereHas('cryptoWallet', function ($query) use ($wallet) {
+        $query->where('idWallet', $wallet->id);
+    })
+    ->where('type', 'buy')
+    ->sum('totalPrice');
+
+    return ['totalCryptoPurchase' => (float) $totalPurchases];
+}
+
+
+
 }

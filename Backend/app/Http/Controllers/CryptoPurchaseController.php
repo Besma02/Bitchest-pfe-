@@ -53,4 +53,29 @@ class CryptoPurchaseController extends Controller
 
         return response()->json($result);
     }
+    public function getTotalPurchases()
+{
+    try {
+        // Get the total crypto purchases from the service
+        $totalPurchases = $this->cryptoPurchaseService->getTotalCryptoPurchases();
+
+        // Check if there's an error message returned from the service
+        if (isset($totalPurchases['error'])) {
+            return response()->json([
+                'error' => $totalPurchases['error'],
+            ], 400); // Respond with a 400 status if there's an error
+        }
+
+        // Return the total crypto purchase amount
+        return response()->json($totalPurchases, 200);
+    } catch (\Exception $e) {
+        // Handle unexpected errors
+        return response()->json([
+            'error' => 'An error occurred while processing your request.',
+            'details' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 }
