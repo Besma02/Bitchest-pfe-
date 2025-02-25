@@ -3,6 +3,7 @@
     <!-- Nom et Logo de la crypto -->
     <div v-if="crypto" class="flex items-center space-x-4 mb-4">
       <img
+        v-if="crypto.image"
         :src="`http://localhost:8000/storage/cryptos/${crypto.image}`"
         alt="Crypto Logo"
         class="w-12 h-12 rounded-full"
@@ -38,8 +39,9 @@
     </div>
 
     <!-- Graphique -->
-    <div class="relative h-80">
-      <canvas ref="priceChart"></canvas>
+    <div class="relative h-80 flex items-center justify-center">
+      <Loader v-if="isLoading" />
+      <canvas v-show="!isLoading" ref="priceChart"></canvas>
     </div>
 
     <!-- Statistiques -->
@@ -69,8 +71,12 @@
 import { mapState, mapActions } from "vuex";
 import { Chart } from "chart.js/auto";
 import moment from "moment";
+import Loader from "../utils/Loader.vue";
 
 export default {
+  components: {
+    Loader,
+  },
   props: ["id"],
   data() {
     return {
@@ -81,43 +87,70 @@ export default {
         { label: "15 Days", value: 15 },
         { label: "1 Month", value: 30 },
       ],
+      isLoading: false,
     };
   },
   computed: {
-    ...mapState("crypto", ["priceHistory", "crypto"]), // ✅ Récupère directement crypto
+    ...mapState("crypto", ["priceHistory", "crypto"]),
 
     maxPrice() {
-      return Math.max(...this.priceHistory.map((entry) => entry.value), 0);
+      return this.priceHistory.length
+        ? Math.max(...this.priceHistory.map((entry) => entry.value))
+        : 0;
     },
     minPrice() {
-      return Math.min(
-        ...this.priceHistory.map((entry) => entry.value),
-        Infinity
-      );
+      return this.priceHistory.length
+        ? Math.min(...this.priceHistory.map((entry) => entry.value))
+        : 0;
     },
     priceChange() {
       if (this.priceHistory.length < 2) return 0;
       const start = this.priceHistory[0].value;
       const end = this.priceHistory[this.priceHistory.length - 1].value;
-      return ((end - start) / start) * 100;
+      return start ? ((end - start) / start) * 100 : 0;
     },
   },
   methods: {
     ...mapActions("crypto", ["loadPriceHistory"]),
 
     async updateChart() {
-      await this.loadPriceHistory({
-        cryptoId: this.id,
-        days: this.selectedDays,
-      });
-      this.drawChart();
+      if (!this.id) {
+        console.error("ID de la crypto manquant");
+        return;
+      }
+
+      this.isLoading = true;
+      try {
+        await this.loadPriceHistory({
+          cryptoId: this.id,
+          days: this.selectedDays,
+        });
+        this.$nextTick(() => this.drawChart());
+      } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
 
     drawChart() {
-      if (this.priceHistory.length === 0) return;
+      if (!this.$refs.priceChart) {
+        console.error("Le canvas du graphique est introuvable.");
+        return;
+      }
+      if (!this.priceHistory.length) {
+        console.warn("Aucune donnée pour afficher le graphique.");
+        return;
+      }
+
       if (this.chartInstance) this.chartInstance.destroy();
 
       const ctx = this.$refs.priceChart.getContext("2d");
+      if (!ctx) {
+        console.error("Impossible d'obtenir le contexte du canvas.");
+        return;
+      }
+
       this.chartInstance = new Chart(ctx, {
         type: "line",
         data: {

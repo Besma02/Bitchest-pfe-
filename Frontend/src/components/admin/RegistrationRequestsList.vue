@@ -1,19 +1,16 @@
 <template>
-  <div
-    v-if="isLoading"
-    class="fixed inset-0 flex items-center justify-center bg-white z-50"
-  >
-    <Loader />
-  </div>
-  <div v-else class="container mx-auto p-4 sm:p-6">
+  <div class="container mx-auto p-4 sm:p-6">
     <h1
       class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6"
     >
       Registration Requests
     </h1>
+    <div v-if="loading" class="text-center w-full">
+      <Loader />
+    </div>
 
     <div
-      v-if="requests.length === 0"
+      v-else-if="requests.length === 0"
       class="text-center text-gray-500 text-sm sm:text-base"
     >
       <p>No registration requests found.</p>
@@ -178,7 +175,7 @@ export default {
     return {
       showModal: false,
       requestIdToDelete: null,
-      isLoading: true,
+      loading: true,
     };
   },
   computed: {
@@ -197,7 +194,7 @@ export default {
           "bg-red-700 text-white font-bold px-4 py-3 rounded shadow-md",
       });
     } finally {
-      this.isLoading = false;
+      this.loading = false;
     }
   },
   methods: {

@@ -33,7 +33,7 @@ class CryptocurrencyService
         return Cryptocurrency::create([
             'name' => $data['name'],
             'currentPrice' => $data['currentPrice'],
-            'logo' => $data['logo'] ?? null,
+            'image' => $data['image'] ?? null,
         ]);
     }
 
@@ -42,19 +42,19 @@ class CryptocurrencyService
     {
         $crypto = Cryptocurrency::findOrFail($id);
 
-        if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
-            $filename = time() . '_' . $data['logo']->getClientOriginalName();
-            $path = $data['logo']->storeAs('public/cryptos', $filename);
-            $data['logo'] = str_replace('public/', '', $path); // Save relative path
+        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+            $filename = time() . '_' . $data['image']->getClientOriginalName();
+            $path = $data['image']->storeAs('public/cryptos', $filename);
+            $data['image'] = str_replace('public/', '', $path); // Save relative path
         } else {
-            $data['logo'] = $crypto->logo; // Keep old logo if not updated
+            $data['image'] = $crypto->image; // Keep old logo if not updated
         }
 
         // Update cryptocurrency
         $crypto->update([
             'name' => $data['name'],
             'currentPrice' => $data['currentPrice'],
-            'logo' => $data['logo'],
+            'image' => $data['image'],
         ]);
 
         // Log price history
@@ -80,8 +80,8 @@ class CryptocurrencyService
             return [
                 'id' => $crypto->id,
                 'name' => $crypto->name,
-                'currentPrice' => $crypto->currentPrice,
-                'date' => now()->format('Y-m-d'),
+                'currentPrice' => $crypto->priceHistory()->where('date', Carbon::now()->format('Y-m-d'))->value('value'),
+                'date' => Carbon::now()->format('Y-m-d'),
                 'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
             ];
         });

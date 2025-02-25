@@ -13,7 +13,7 @@
     <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5">
       <!-- Section displaying cards -->
       <div v-if="loading" class="text-center w-full">
-        <p>Loading cryptos...</p>
+        <Loader />
       </div>
 
       <div v-else-if="error" class="text-center w-full text-red-500">
@@ -167,9 +167,11 @@ export default {
     getImageUrl(imagePath) {
       return `http://127.0.0.1:8000${imagePath}`;
     },
+
     buyCrypto(cryptoId) {
       console.log(`Buying crypto with ID: ${cryptoId}`);
     },
+
     editCrypto(cryptoId) {
       this.$router.push(`/admin/crypto/edit/${cryptoId}`);
   console.log("Vue Router instance:", this.$router);
@@ -188,8 +190,11 @@ export default {
     },
   },
   mounted() {
+    console.log("isClient:", this.isClient);
     this.fetchCryptos();
   },
+
  
 };
 </script>
+
