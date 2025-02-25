@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Http\Services\StatsService;
 use Illuminate\Http\Request;
 
@@ -15,28 +14,50 @@ class StatsController extends Controller
         $this->statsService = $statsService;
     }
 
-    public function getStats(Request $request)
+    /**
+     * Pour le client : Valeur totale du portefeuille
+     */
+    public function userPortfolio(Request $request)
     {
-        $user = $request->user();
-        $userId = $user->id;
-        $role = $user->role;
+        $userId = $request->id;
+        $data = $this->statsService->getUserPortfolio($userId);
+        return response()->json($data);
+    }
 
-        if ($role === 'admin') {
-            $adminStats = $this->statsService->getAdminStats();
-            return response()->json([
-                'userId' => $userId,
-                'totalValue' => $adminStats['totalValue'],
-                'totalByCrypto' => $adminStats['totalByCrypto'],
-                'totalPurchases' => $adminStats['totalPurchases']
-            ]);
-        } else {
-            $userStats = $this->statsService->getUserStats($userId, $user->balance);
-            return response()->json([
-                'userId' => $userId,
-                'balance' => $userStats['balance'],
-                'investedAmount' => $userStats['investedAmount'],
-                'currentValueByCrypto' => $userStats['currentValueByCrypto']
-            ]);
-        }
+    /**
+     * Pour le client : Détails par crypto
+     */
+    public function userCryptoDetails(Request $request)
+    {
+        $userId = $request->id;
+        $data = $this->statsService->getUserCryptoDetails($userId);
+        return response()->json($data);
+    }
+
+    /**
+     * Pour l'admin : Valeur totale des cryptos sur la plateforme
+     */
+    public function platformTotalValue()
+    {
+        $data = $this->statsService->getPlatformTotalValue();
+        return response()->json($data);
+    }
+
+    /**
+     * Pour l'admin : Valeur par crypto sur la plateforme
+     */
+    public function platformCryptoDetails()
+    {
+        $data = $this->statsService->getPlatformCryptoDetails();
+        return response()->json($data);
+    }
+
+    /**
+     * Pour l'admin : Top 5 des cryptos les plus échangées
+     */
+    public function topCryptos()
+    {
+        $data = $this->statsService->getTopCryptos();
+        return response()->json($data);
     }
 }

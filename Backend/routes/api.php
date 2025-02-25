@@ -28,8 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
-
-    Route::get('/stats', [StatsController::class, 'getStats']);
+    //Routes Statistiques
+    Route::get('/stats/user-portfolio', [StatsController::class, 'userPortfolio']);
+    Route::get('/stats/user-crypto-details', [StatsController::class, 'userCryptoDetails']);
 });
 
 Route::middleware('api')->group(function () {
@@ -57,6 +58,11 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::get('admin/registration-requests', [RegistrationRequestController::class, 'index']);
     Route::post('admin/registration-requests/{id}/approve', [RegistrationRequestController::class, 'approve']);
     Route::post('admin/registration-requests/{id}/reject', [RegistrationRequestController::class, 'reject']);
+
+    //Stats routes for admin
+    Route::get('/stats/platform-total-value', [StatsController::class, 'platformTotalValue']);
+    Route::get('/stats/platform-crypto-details', [StatsController::class, 'platformCryptoDetails']);
+    Route::get('/stats/top-cryptos', [StatsController::class, 'topCryptos']);
 });
 // Dans routes/api.php
 Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);

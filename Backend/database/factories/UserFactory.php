@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserFactory extends Factory
 {
-    protected $model = Client::class;
-
     public function definition()
     {
         return [

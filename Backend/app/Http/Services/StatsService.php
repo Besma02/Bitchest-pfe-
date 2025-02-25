@@ -2,59 +2,86 @@
 
 namespace App\Http\Services;
 
-use App\Models\Cryptocurrency;
-use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 
 class StatsService
 {
-    public function getAdminStats()
+    /**
+     * Valeur totale des cryptos sur la plateforme
+     */
+    public function getPlatformTotalValue()
     {
-        $totalValue = Cryptocurrency::sum(DB::raw('currentPrice * (SELECT SUM(quantity) FROM crypto_wallets WHERE crypto_wallets.idCrypto = cryptocurrencies.id)'));
-
-        $totalByCrypto = Cryptocurrency::withSum('cryptoWallets as totalQuantity', 'quantity')
-            ->get(['id', 'name', 'currentPrice'])
-            ->map(function ($crypto) {
-                return [
-                    'crypto' => $crypto->name,
-                    'quantity' => $crypto->totalQuantity ?? 0,
-                    'totalValue' => $crypto->totalQuantity * $crypto->currentPrice
-                ];
-            });
-
-        $totalPurchases = Transaction::sum('totalPrice');
-
-        return [
-            'totalValue' => $totalValue,
-            'totalByCrypto' => $totalByCrypto,
-            'totalPurchases' => $totalPurchases
-        ];
+        return DB::table('cryptocurrencies as c')
+            ->leftJoin('crypto_wallets as cw', 'cw.idCrypto', '=', 'c.id')
+            ->select(
+                DB::raw('SUM(c.inStock * c.currentPrice) + COALESCE(SUM(cw.quantity * c.currentPrice), 0) AS totalValue')
+            )
+            ->first();
     }
 
-    public function getUserStats($userId, $balance)
+    /**
+     * Valeur par crypto sur la plateforme
+     */
+    public function getPlatformCryptoDetails()
     {
-        $investedAmount = Transaction::whereHas('cryptoWallet.wallet', function ($query) use ($userId) {
-            $query->where('idUser', $userId);
-        })->sum('totalPrice');
+        return DB::table('cryptocurrencies as c')
+            ->leftJoin('crypto_wallets as cw', 'cw.idCrypto', '=', 'c.id')
+            ->select(
+                'c.name',
+                'c.currentPrice',
+                DB::raw('c.inStock + COALESCE(SUM(cw.quantity), 0) as totalQuantity'),
+                DB::raw('(c.inStock + COALESCE(SUM(cw.quantity), 0)) * c.currentPrice as totalValue')
+            )
+            ->groupBy('c.id', 'c.name', 'c.currentPrice')
+            ->get();
+    }
 
-        $currentValueByCrypto = Cryptocurrency::with(['cryptoWallets' => function ($query) use ($userId) {
-            $query->whereHas('wallet', function ($subQuery) use ($userId) {
-                $subQuery->where('idUser', $userId);
-            });
-        }])->get()
-            ->map(function ($crypto) {
-                $quantity = $crypto->cryptoWallets->sum('quantity');
-                return [
-                    'crypto' => $crypto->name,
-                    'quantity' => $quantity,
-                    'currentValue' => $quantity * $crypto->currentPrice
-                ];
-            });
+    /**
+     * Valeur totale du portefeuille de l'utilisateur
+     */
+    public function getUserPortfolio($userId)
+    {
+        return DB::table('wallets as w')
+            ->join('crypto_wallets as cw', 'cw.idWallet', '=', 'w.id')
+            ->join('cryptocurrencies as c', 'cw.idCrypto', '=', 'c.id')
+            ->where('w.idUser', $userId)
+            ->select(
+                DB::raw('SUM(cw.quantity * c.currentPrice) as totalValue')
+            )
+            ->first();
+    }
 
-        return [
-            'balance' => $balance,
-            'investedAmount' => $investedAmount,
-            'currentValueByCrypto' => $currentValueByCrypto
-        ];
+    /**
+     * Détails par crypto pour l'utilisateur
+     */
+    public function getUserCryptoDetails($userId)
+    {
+        return DB::table('wallets as w')
+            ->join('crypto_wallets as cw', 'cw.idWallet', '=', 'w.id')
+            ->join('cryptocurrencies as c', 'cw.idCrypto', '=', 'c.id')
+            ->where('w.idUser', $userId)
+            ->select(
+                'c.name',
+                'c.currentPrice',
+                'cw.quantity',
+                DB::raw('(cw.quantity * c.currentPrice) as value')
+            )
+            ->get();
+    }
+
+    /**
+     * Top 5 des cryptos les plus échangées (en volume)
+     */
+    public function getTopCryptos()
+    {
+        return DB::table('transactions as t')
+            ->join('cryptocurrencies as c', 't.idCryptoWallet', '=', 'c.id')
+            ->select(
+                'c.name',
+                DB::raw('SUM(t.quantity) as totalVolume')
+            )
+            ->groupBy('c.name')
+            ->orderByDesc('totalVolume')
+            ->get();
     }
 }
