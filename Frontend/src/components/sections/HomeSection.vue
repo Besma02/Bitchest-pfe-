@@ -14,15 +14,18 @@
       <p class="text-xl w-3/4 mx-auto md:mx-0 mb-3">
         Join us and sign up to explore more
       </p>
+
       <CustomInput
-        @inputData="setInputData"
+        v-model="email"
         placeholder="Enter your email"
         class="mr-8 CustomInput"
       />
+
       <CustomButton variant="primary" @click="submitEmail">
         Registration request
       </CustomButton>
 
+      <!-- Modal pour afficher les messages -->
       <div
         v-if="showModal"
         class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center"
@@ -69,11 +72,10 @@ export default {
       modalRedirect: false,
     };
   },
-  setup() {
-    const router = useRouter();
-    return { router };
-  },
   methods: {
+    setInputData(value) {
+      this.email = value;
+    },
     async submitEmail() {
       if (!this.email || !this.validateEmail(this.email)) {
         this.modalMessage = "Please enter a valid email.";
@@ -92,23 +94,23 @@ export default {
       }
 
       this.showModal = true;
-      this.email = "";
+      this.email = ""; // Réinitialisation de l'email après envoi
     },
     handleModalClose() {
       this.showModal = false;
       if (this.modalRedirect) {
-        this.router.push("/login");
+        this.$router.push("/login");
       }
     },
     validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(email);
+      const regEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regEx.test(email);
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
 .CustomInput {
   width: 50%;
 }

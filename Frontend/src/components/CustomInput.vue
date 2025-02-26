@@ -2,7 +2,7 @@
   <input
     type="text"
     :placeholder="placeholder"
-    :value="value"
+    :value="modelValue"
     @input="inputValue"
     class="border border-bitchest-black rounded-2xl p-2 mb-4 w-full md:w-auto"
   />
@@ -16,15 +16,15 @@ export default {
       type: String,
       default: "Your Text Here",
     },
-    value: {
-      // Prop 'value' qui est utilisée par v-model
+    modelValue: {
+      // Utilisation correcte pour v-model dans Vue 3
       type: String,
       default: "",
     },
   },
   methods: {
-    inputValue() {
-      this.$emit("inputData", event.target.value);
+    inputValue(event) {
+      this.$emit("update:modelValue", event.target.value);
     },
   },
 };
