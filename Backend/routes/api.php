@@ -29,8 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
     //Routes Statistiques
-    Route::get('/stats/user-portfolio', [StatsController::class, 'userPortfolio']);
-    Route::get('/stats/user-crypto-details', [StatsController::class, 'userCryptoDetails']);
+    Route::post('/stats/portfolio', [StatsController::class, 'getUserPortfolio']);
+    Route::post('/stats/crypto-details', [StatsController::class, 'getUserCryptoDetails']);
+    Route::post('/stats/investments', [StatsController::class, 'getUserInvestments']);
+    Route::post('/stats/compare-portfolio', [StatsController::class, 'comparePortfolioValue']);
+    Route::post('/stats/crypto-profit-loss', [StatsController::class, 'getCryptoProfitOrLoss']);
+    Route::get('/stats/most-popular-cryptos', [StatsController::class, 'getMostPopularCryptos']);
+    Route::get('/stats/portfolio-evolution', [StatsController::class, 'getPortfolioEvolution']);
 });
 
 Route::middleware('api')->group(function () {
@@ -60,9 +65,15 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::post('admin/registration-requests/{id}/reject', [RegistrationRequestController::class, 'reject']);
 
     //Stats routes for admin
-    Route::get('/stats/platform-total-value', [StatsController::class, 'platformTotalValue']);
-    Route::get('/stats/platform-crypto-details', [StatsController::class, 'platformCryptoDetails']);
-    Route::get('/stats/top-cryptos', [StatsController::class, 'topCryptos']);
+    Route::get('/stats/total-value', [StatsController::class, 'getPlatformTotalValue']);
+    Route::get('/stats/crypto-details', [StatsController::class, 'getPlatformCryptoDetails']);
+    Route::get('/stats/top-cryptos', [StatsController::class, 'getTopCryptos']);
+    Route::get('/stats/top-cryptos-by-revenue', [StatsController::class, 'getTopCryptosByRevenue']);
+    Route::get('/stats/top-buyers', [StatsController::class, 'getTopBuyers']);
+    Route::get('/stats/top-wallets', [StatsController::class, 'getTopWallets']);
+    Route::get('/stats/total-transaction-volume', [StatsController::class, 'getTotalTransactionVolume']);
+    Route::get('/stats/recent-activity', [StatsController::class, 'getRecentActivity']);
+    Route::get('/stats/inactive-users', [StatsController::class, 'getInactiveUsers']);
 });
 // Dans routes/api.php
 Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 'getProfile']);

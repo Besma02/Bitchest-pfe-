@@ -13,6 +13,7 @@ class WalletFactory extends Factory
     {
         return [
             'idUser' => \App\Models\User::factory(),
+            'balance' => $this->faker->randomFloat(3, 0, 1000),
             'publicAdress' => '0x' . $this->faker->sha256(), // Adresse publique aléatoire
             'privateAdress' => '0x' . $this->faker->sha256(), // Adresse privée aléatoire
         ];

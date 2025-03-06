@@ -32,6 +32,7 @@ class CryptocurrencySeeder extends Seeder
                 'name' => $cryptoData['name'],
                 'image' => $cryptoData['image'],
                 'currentPrice' => $initialPrice,
+                'inStock' => round(mt_rand(5000, 20000) / 100, 2), // Stock entre 50.00 et 200.00
             ]);
 
             // Générer l'historique des prix sur 30 jours

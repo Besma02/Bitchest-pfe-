@@ -20,10 +20,11 @@ export default {
     isAuthenticated: !!localStorage.getItem("token"),
   },
   mutations: {
-    SET_USER(state, { user, token }) {
+    SET_USER(state, { user, token, id }) {
       state.user = user;
       state.token = token;
       state.isAuthenticated = !!token;
+      state.id = id;
       localStorage.setItem("token", token);
     },
     LOGOUT(state) {
@@ -51,6 +52,7 @@ export default {
             user: response.data.user,
             token: response.data.token,
           });
+          console.log(this.state.auth.user); // ✅ Affichage correct de l'ID
           return response.data; // ✅ Succès
         } else {
           throw new Error("Réponse de connexion invalide");
@@ -71,9 +73,10 @@ export default {
       try {
         const response = await axios.get(`${API_BASE_URL}/profile`);
         commit("SET_USER", {
-          user: response.data,
+          user: response.data.user,
           token: localStorage.getItem("token"),
         });
+        console.log(response.data.user); // ✅ Affichage correct de l'ID
         return response.data;
       } catch (error) {
         console.error(

@@ -3,6 +3,7 @@ import users from "./modules/users";
 import auth from "./auth";
 import registrationRequests from "./modules/registrationRequests";
 import crypto from "./modules/crypto";
+import stats from "./modules/stats";
 
 const store = createStore({
   modules: {
@@ -10,6 +11,7 @@ const store = createStore({
     auth,
     registrationRequests,
     crypto,
+    stats,
   },
 });
 

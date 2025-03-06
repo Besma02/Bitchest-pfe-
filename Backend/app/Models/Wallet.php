@@ -11,6 +11,7 @@ class Wallet extends Model
     use HasFactory;
     protected $fillable = [
         'idUser',
+        'balance',
         'publicAdress',
         'privateAdress'
     ];

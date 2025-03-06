@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Services\ProfileService;
 
 class ProfileController extends Controller
 {
-    protected $profileService;
+    protected ProfileService $profileService;
 
     public function __construct(ProfileService $profileService)
     {
@@ -16,21 +15,18 @@ class ProfileController extends Controller
     }
 
     /**
-     * Récupérer le profil de l'utilisateur connecté
+     * Récupérer le profil de l'utilisateur connecté.
      */
     public function getProfile(Request $request)
     {
-        $user = $request->user(); // Cela récupère l'utilisateur authentifié
+        $user = $request->user();
         return response()->json([
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-            'photo' => $user->photo
+            'user' => $this->profileService->getProfile($user),
         ]);
     }
 
     /**
-     * Mettre à jour le profil utilisateur
+     * Mettre à jour le profil utilisateur.
      */
     public function updateProfile(Request $request)
     {
@@ -46,7 +42,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Modifier le mot de passe utilisateur
+     * Modifier le mot de passe utilisateur.
      */
     public function changePassword(Request $request)
     {
@@ -59,17 +55,6 @@ class ProfileController extends Controller
 
         $result = $this->profileService->changePassword($user, $validatedData);
 
-        if (!$result['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $result['message'],
-                'errors' => []
-            ], 422);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => $result['message']
-        ]);
+        return response()->json($result, $result['success'] ? 200 : 422);
     }
 }

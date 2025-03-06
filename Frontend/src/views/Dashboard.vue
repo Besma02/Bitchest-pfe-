@@ -1,5 +1,4 @@
 <template>
-  <!-- Loader : s'affiche tant que les données ne sont pas chargées -->
   <div
     v-if="isLoading"
     class="fixed inset-0 flex items-center justify-center h-screen z-50"
@@ -98,9 +97,10 @@
           <img
             src="@/assets/icons/notification.svg"
             alt="Notifications"
-            class="w-9 h-8"
+            class="w-9 h-8 sm:w-8 sm:h-7 xs:w-7 xs:h-6"
           />
         </button>
+
         <img
           v-if="isSmallScreen"
           :src="
@@ -127,7 +127,7 @@
         'md:relative md:translate-x-0',
       ]"
     >
-      <div class="text-center">
+      <div class="text-center text-bitchest-black">
         <img
           :src="
             user.photo
@@ -142,8 +142,66 @@
       </div>
 
       <div class="mt-6">
-        <h4 class="font-bold text-gray-700 mb-4">Statistics</h4>
-        <div class="space-y-4"></div>
+        <div v-if="this.user.role === 'admin'" class="space-y-3">
+          <!-- Valeur totale de la plateforme -->
+          <div class="stat-box bg-bitchest-primary text-bitchest-white">
+            <p class="stat-title">Total Value</p>
+            <p class="stat-value">
+              {{ formatNumber(platformTotalValue?.totalValue) }} €
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <!-- Volume total des achats -->
+            <div class="stat-box bg-bitchest-secondary text-bitchest-white">
+              <p class="stat-title">Total Buy</p>
+              <p class="stat-value">
+                {{ formatNumber(totalTransactionVolume?.total_buy) }} €
+              </p>
+            </div>
+
+            <!-- Volume total des ventes -->
+            <div class="stat-box bg-bitchest-alert text-bitchest-white">
+              <p class="stat-title">Total Sell</p>
+              <p class="stat-value">
+                {{ formatNumber(totalTransactionVolume?.total_sell) }} €
+              </p>
+            </div>
+          </div>
+        </div>
+        <div v-else class="space-y-3">
+          <!-- Valeur totale de la plateforme -->
+          <div class="stat-box bg-bitchest-primary text-bitchest-white">
+            <p class="stat-title">Wallet balance</p>
+            <p class="stat-value">
+              {{ formatNumber(portfolioComparison?.walletBalance) }}€
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <!-- Volume total des achats -->
+            <div class="stat-box bg-bitchest-black text-bitchest-white">
+              <p class="stat-title">Total Investment</p>
+              <p class="stat-value">
+                {{ formatNumber(portfolioComparison?.totalInvestmentValue) }}€
+              </p>
+            </div>
+
+            <!-- Volume total des ventes -->
+            <div
+              class="stat-box text-bitchest-white"
+              :class="
+                portfolioComparison?.totalCurrentValue >=
+                portfolioComparison?.totalInvestmentValue
+                  ? 'bg-green-700'
+                  : 'bg-bitchest-alert'
+              "
+            >
+              <p class="stat-title">Current Value</p>
+              <p class="stat-value">
+                {{ formatNumber(portfolioComparison?.totalCurrentValue) }}€
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   </div>
@@ -178,20 +236,24 @@ export default {
   },
   data() {
     return {
-      isLoading: true, // Afficher Loader au début
+      isLoading: true,
       isSidebarOpen: false,
       isSmallScreen: window.innerWidth <= 768,
 
       currentView: "MyStats",
       menuItems: [],
       profileIcon,
-      logoutIcon, // Utilisation des icônes importées
+      logoutIcon,
     };
   },
   computed: {
-    ...mapState("auth", {
-      user: (state) => state.user,
-    }),
+    ...mapState("auth", ["user"]),
+    ...mapState("stats", [
+      "userPortfolio",
+      "portfolioComparison",
+      "platformTotalValue",
+      "totalTransactionVolume",
+    ]),
 
     filteredMenuItems() {
       console.log(this.user);
@@ -257,12 +319,18 @@ export default {
     },
   },
   async created() {
-    console.log("Before fetchProfile");
     await this.fetchProfile();
-    console.log("After fetchProfile", this.user.photo);
+
+    if (this.user.role === "admin") {
+      await this.fetchPlatformTotalValue();
+      await this.fetchTotalTransactionVolume();
+    } else if (this.user.role === "client") {
+      await this.fetchUserPortfolio(this.user.id);
+      await this.fetchPortfolioComparison(this.user.id);
+    }
     this.isLoading = false;
     this.menuItems = this.filteredMenuItems;
-    console.log("Menu items:", this.menuItems);
+
     window.addEventListener("resize", this.checkScreenSize);
   },
   beforeUnmount() {
@@ -270,6 +338,12 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["fetchProfile"]),
+    ...mapActions("stats", [
+      "fetchUserPortfolio",
+      "fetchPortfolioComparison",
+      "fetchPlatformTotalValue",
+      "fetchTotalTransactionVolume",
+    ]),
     navigateTo(route) {
       this.$router.push(route);
       this.menuItems = this.filteredMenuItems;
@@ -297,6 +371,34 @@ export default {
       this.$router.push({ name: "login" });
       this.closeSidebar(); // Fermer le sidebar après le logout
     },
+    formatNumber(value) {
+      if (!value) return "0";
+      return new Intl.NumberFormat("fr-FR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      })
+        .format(parseFloat(value))
+        .replace(/\s/g, " ");
+    },
   },
 };
 </script>
+<style scoped>
+.stat-box {
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.stat-title {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 18px;
+  margin-top: 4px;
+}
+</style>

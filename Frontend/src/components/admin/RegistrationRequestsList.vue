@@ -105,7 +105,13 @@
             </tr>
           </thead>
           <tbody>
+            <tr v-if="loading">
+              <td colspan="5" class="px-4 py-2 text-center">
+                <Loader />
+              </td>
+            </tr>
             <tr
+              v-else
               v-for="request in requests"
               :key="request.id"
               class="border-b border-gray-200"
@@ -211,10 +217,12 @@ export default {
 
     async handleReject(requestId) {
       try {
+        this.loading = true;
         await this.rejectRequest(requestId);
+        this.loading = false;
         this.toast.error("Request rejected successfully! 🗑️", {
           timeout: 3000,
-          position: "top-right",
+          position: "bottom-right",
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -235,7 +243,9 @@ export default {
     },
     async handleApprove(requestId) {
       try {
+        this.loading = true;
         await this.approveRequest(requestId);
+        this.loading = false;
         this.toast.success("Request approved successfully! ✅", {
           className:
             "bg-green-700 text-white font-bold px-4 py-3 rounded shadow-md",

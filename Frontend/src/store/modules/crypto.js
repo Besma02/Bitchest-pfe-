@@ -9,7 +9,10 @@ const state = {
 
 const mutations = {
   SET_PRICE_HISTORY(state, history) {
-    state.priceHistory = history;
+    state.priceHistory = history.map((entry) => ({
+      ...entry,
+      value: parseFloat(entry.value),
+    }));
   },
   SET_CRYPTO(state, crypto) {
     state.crypto = crypto;

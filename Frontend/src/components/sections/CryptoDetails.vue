@@ -48,11 +48,11 @@
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-center">
       <div class="p-4 bg-gray-100 rounded-lg shadow">
         <p class="text-gray-500 text-sm">Max Price</p>
-        <p class="text-lg font-bold">${{ maxPrice }}</p>
+        <p class="text-lg font-bold">€{{ formatNumber(maxPrice) }}</p>
       </div>
       <div class="p-4 bg-gray-100 rounded-lg shadow">
         <p class="text-gray-500 text-sm">Min Price</p>
-        <p class="text-lg font-bold">${{ minPrice }}</p>
+        <p class="text-lg font-bold">€{{ formatNumber(minPrice) }}</p>
       </div>
       <div class="p-4 bg-gray-100 rounded-lg shadow">
         <p class="text-gray-500 text-sm">Price Change</p>
@@ -60,7 +60,7 @@
           class="text-lg font-bold"
           :class="priceChange >= 0 ? 'text-green-500' : 'text-red-500'"
         >
-          {{ priceChange.toFixed(2) }}%
+          {{ priceChange.toFixed(5) }}%
         </p>
       </div>
     </div>
@@ -74,9 +74,7 @@ import moment from "moment";
 import Loader from "../utils/Loader.vue";
 
 export default {
-  components: {
-    Loader,
-  },
+  components: { Loader },
   props: ["id"],
   data() {
     return {
@@ -107,11 +105,20 @@ export default {
       if (this.priceHistory.length < 2) return 0;
       const start = this.priceHistory[0].value;
       const end = this.priceHistory[this.priceHistory.length - 1].value;
-      return start ? ((end - start) / start) * 100 : 0;
+      return start !== 0 ? ((end - start) / start) * 100 : 0;
     },
   },
   methods: {
     ...mapActions("crypto", ["loadPriceHistory"]),
+
+    formatNumber(value) {
+      if (!value) return "0";
+      return new Intl.NumberFormat("fr-FR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      }).format(parseFloat(value));
+    },
 
     async updateChart() {
       if (!this.id) {
@@ -160,8 +167,8 @@ export default {
           datasets: [
             {
               label: this.crypto
-                ? `${this.crypto.name} Price (USD)`
-                : "Crypto Price (USD)",
+                ? `${this.crypto.name} Price (€)`
+                : "Crypto Price (€)",
               data: this.priceHistory.map((entry) => entry.value),
               borderColor: "#3b82f6",
               backgroundColor: "rgba(59, 130, 246, 0.2)",
@@ -185,7 +192,10 @@ export default {
               grid: { display: false },
             },
             y: {
-              ticks: { color: "#6B7280", callback: (value) => `$${value}` },
+              ticks: {
+                color: "#6B7280",
+                callback: (value) => `€${parseFloat(value.toFixed(2))}`,
+              },
               grid: { color: "#E5E7EB", borderDash: [5, 5] },
             },
           },

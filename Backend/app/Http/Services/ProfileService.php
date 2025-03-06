@@ -11,24 +11,25 @@ class ProfileService
     /**
      * Récupérer les informations du profil utilisateur.
      */
-    public function getProfile(User $user)
+    public function getProfile(User $user): array
     {
         return [
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
-            'photo' => $user->photo ? asset('storage/' . $user->photo) : null, // Assurer un chemin correct
+            'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ];
     }
 
     /**
      * Mettre à jour le profil utilisateur.
      */
-    public function updateProfile(User $user, array $data)
+    public function updateProfile(User $user, array $data): array
     {
         if (isset($data['photo'])) {
             if ($user->photo) {
-                Storage::disk('public')->delete($user->photo); // Supprime l'ancienne photo
+                Storage::disk('public')->delete($user->photo);
             }
 
             $photoPath = $data['photo']->store('photos', 'public');
@@ -38,47 +39,43 @@ class ProfileService
         $user->update($data);
 
         return [
-            'message' => 'Profile updated successfully.',
-            'user' => $this->getProfile($user), // Retourne les infos mises à jour
+            'success' => true,
+            'message' => 'Profil mis à jour avec succès.',
+            'user' => $this->getProfile($user),
         ];
     }
 
     /**
      * Changer le mot de passe utilisateur.
      */
-    public function changePassword(User $user, array $data)
+    public function changePassword(User $user, array $data): array
     {
-        // Vérifier que l'ancien mot de passe est correct
         if (!Hash::check($data['old_password'], $user->password)) {
             return [
                 'success' => false,
-                'message' => 'The current password is incorrect.',
+                'message' => 'Le mot de passe actuel est incorrect.',
             ];
         }
 
-        // Vérifier que le nouveau mot de passe est différent de l'ancien
         if (Hash::check($data['new_password'], $user->password)) {
             return [
                 'success' => false,
-                'message' => 'The new password must be different from the current password.',
+                'message' => 'Le nouveau mot de passe doit être différent de l\'ancien.',
             ];
         }
 
-        // Vérifier la complexité du nouveau mot de passe
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $data['new_password'])) {
             return [
                 'success' => false,
-                'message' => 'The password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.',
+                'message' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
             ];
         }
 
-        // Mettre à jour le mot de passe
-        $user->password = Hash::make($data['new_password']);
-        $user->save();
+        $user->update(['password' => Hash::make($data['new_password'])]);
 
         return [
             'success' => true,
-            'message' => 'Password changed successfully.',
+            'message' => 'Mot de passe changé avec succès.',
         ];
     }
 }

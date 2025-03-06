@@ -11,7 +11,8 @@ const api = axios.create({
 
 // Ajouter le token d'authentification à chaque requête
 api.interceptors.request.use((config) => {
-  const token = store.state.users.token;
+  const token = store.state.auth.token;
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
