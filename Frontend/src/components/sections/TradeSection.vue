@@ -68,9 +68,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import Loader from "../utils/Loader.vue";
-
+import cryptoService from "../../services/cryptoService";
 export default {
   components: {
     Loader,
@@ -99,10 +98,8 @@ export default {
     },
     async fetchCryptos() {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/cryptos/current"
-        );
-        this.cryptos = response.data;
+        this.cryptos = await cryptoService.fetchCryptos();
+    
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
       } finally {

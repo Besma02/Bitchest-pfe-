@@ -22,4 +22,9 @@ class CryptoWallet extends Model
     {
         return $this->belongsTo(Cryptocurrency::class,  'idCrypto');
     }
+    public function transactions()
+{
+    return $this->hasMany(Transaction::class, 'idCryptoWallet');
+}
+
 }

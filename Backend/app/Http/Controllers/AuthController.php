@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Services\AuthService;
+use App\Models\Wallet;
+
 class AuthController extends Controller 
 {
     public function register(Request $request)
@@ -48,32 +50,35 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
-    {
-        // Validate the incoming request
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+    public function login(Request $request) 
+{
+    // Valider la demande
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        // Call the authentication logic in AuthService
-        $user = $this->authService->authenticate($request->email, $request->password);
+    // Appeler la logique d'authentification dans AuthService
+    $user = $this->authService->authenticate($request->email, $request->password);
 
-        // If authentication fails (user is null), return an error message
-        if (!$user) {
-            return response()->json(['message' => 'Please check your email and password'], 401);
-        }
-
-        // Generate a Sanctum token for the authenticated user
-        $token = $user->createToken('authToken')->plainTextToken;
-
-        // Return a success message with the token and user details
-        return response()->json([
-            'message' => 'Login successful.',
-            'token' => $token,
-            'user' => $user,
-        ]);
+    // Si l'authentification échoue (utilisateur est nul), retourner un message d'erreur
+    if (!$user) {
+        return response()->json(['message' => 'Please check your email and password'], 401);
     }
+
+   
+    // Créer un token Sanctum pour l'utilisateur authentifié
+    $token = $user->createToken('authToken')->plainTextToken;
+
+    // Retourner un message de succès avec le token et les informations de l'utilisateur
+    return response()->json([
+        'message' => 'Login successful.',
+        'token' => $token,
+        'user' => $user,
+       
+    ]);
+}
+
     public function logout(Request $request)
     {
         

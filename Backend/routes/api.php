@@ -82,10 +82,30 @@ Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 
 
 use App\Http\Controllers\CryptocurrencyController;
 use App\Http\Controllers\PriceHistoryController;
-
-//use App\Http\Controllers\PriceHistoryController;
+use App\Http\Controllers\WalletController;
 
 //récupérer les dernières cotations
 Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
+//Route::get('/cryptos/{id}/history', [CryptocurrencyController::class, 'getPriceHistory']);
 Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
-//Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
+
+// Route pour créer un wallet (portefeuille)
+Route::middleware('auth:sanctum')->post('/wallet/create', [WalletController::class, 'createWallet']);
+Route::middleware('auth:sanctum')->get('/wallet', [WalletController::class, 'getWalletInfo']);
+
+//achat de crypto
+use App\Http\Controllers\CryptoPurchaseController;
+
+Route::middleware('auth:sanctum')->post('/crypto/buy', [CryptoPurchaseController::class, 'buyCrypto']);
+
+
+Route::middleware('auth:api')->get('/crypto/wallet', [CryptoPurchaseController::class, 'getUserWallet']);
+//cryptoWalletDeatils
+use App\Http\Controllers\CryptoWalletController;
+
+Route::middleware('auth:sanctum')->get('/crypto/wallet/{id}/purchases', [CryptoWalletController::class, 'getCryptoPurchases']);
+
+//transactions
+Route::middleware('auth:sanctum')->get('/transactions', [CryptoPurchaseController::class, 'getUserTransactions']);
+//getTotalPurchases
+Route::middleware('auth:sanctum')->get('/crypto/total-purchases', [CryptoPurchaseController::class, 'getTotalPurchases']);

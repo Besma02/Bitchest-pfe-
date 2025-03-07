@@ -13,7 +13,8 @@ class Wallet extends Model
         'idUser',
         'balance',
         'publicAdress',
-        'privateAdress'
+        'privateAdress',
+        'balance'
     ];
 
     public function user()

@@ -4,13 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTransactionsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('idCryptoWallet')->constrained('cypto_wallets');
+            $table->foreignId('idCryptoWallet')->constrained('crypto_wallets')->onDelete('cascade');
             $table->decimal('quantity', 18, 3);
             $table->decimal('unitPrice', 18, 3);
             $table->decimal('totalPrice', 18, 3);
@@ -20,8 +23,11 @@ class CreateTransactionsTable extends Migration
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('transactions');
     }
-}
+};
