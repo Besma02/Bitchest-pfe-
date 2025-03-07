@@ -1,8 +1,6 @@
 <template>
   <div class="p-6">
-    <h1 class="text-3xl font-bold mb-6 text-center text-bitchest-black">
-      Data Overview
-    </h1>
+    <h1 class="text-3xl font-bold mb-6 text-center">Data Overview</h1>
 
     <div v-if="loading" class="text-center w-full">
       <Loader />
@@ -36,23 +34,28 @@
             :color="portfolioComparison?.profitOrLoss >= 0 ? 'green' : 'red'"
           />
         </div>
+
+        <!-- Tableau des investissements -->
         <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
           <ChartCard title="Profit/Loss per Crypto">
-            <Table
-              v-if="userInvestments.length"
-              :data="userInvestments"
-              tableName="investmentDetails"
-              :headers="[
-                { text: 'Crypto', value: 'name' },
-                { text: 'Quantity', value: 'quantity' },
-                { text: 'Total Coast (€)', value: 'total-coast' },
-                { text: 'Average Coast (€)', value: 'average-coast' },
-                { text: 'Current Price (€)', value: 'current-price' },
-                { text: 'Current Value (€)', value: 'current-value' },
-              ]"
-            />
+            <div class="overflow-x-auto">
+              <Table
+                v-if="userInvestments.length"
+                :data="userInvestments"
+                tableName="investmentDetails"
+                :headers="[
+                  { text: 'Crypto', value: 'name' },
+                  { text: 'Quantity', value: 'quantity' },
+                  { text: 'Total Coast (€)', value: 'total-coast' },
+                  { text: 'Average Coast (€)', value: 'average-coast' },
+                  { text: 'Current Price (€)', value: 'current-price' },
+                  { text: 'Current Value (€)', value: 'current-value' },
+                ]"
+              />
+            </div>
           </ChartCard>
         </div>
+
         <!-- Chart Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <ChartCard title="Investment per Crypto">
@@ -63,23 +66,18 @@
           </ChartCard>
 
           <ChartCard title="Profit/Loss per Crypto">
-            <Table
-              v-if="cryptoProfitLoss.length"
-              :data="cryptoProfitLoss"
-              :headers="[
-                { text: 'Crypto', value: 'name' },
-                { text: 'Value', value: 'value' },
-                { text: 'Percentage', value: 'percentage' },
-              ]"
-            />
+            <div class="overflow-x-auto">
+              <Table
+                v-if="cryptoProfitLoss.length"
+                :data="cryptoProfitLoss"
+                :headers="[
+                  { text: 'Crypto', value: 'name' },
+                  { text: 'Value', value: 'value' },
+                  { text: 'Percentage', value: 'percentage' },
+                ]"
+              />
+            </div>
           </ChartCard>
-
-          <!-- <ChartCard
-            title="Portfolio Evolution"
-            class="col-span-1 md:col-span-2"
-          >
-            <LineChart v-if="evolution.length" :data="evolution" />
-          </ChartCard> -->
         </div>
       </div>
 
@@ -108,9 +106,7 @@
             >
               <div class="flex flex-row w-full p-2">
                 <i class="fas fa-exchange-alt text-2xl"></i>
-                <h3
-                  class="text-lg text-bitchest-black font-semibold text-left pl-5"
-                >
+                <h3 class="text-lg font-semibold text-left pl-5">
                   Total Transaction Volume
                 </h3>
               </div>
@@ -155,14 +151,16 @@
           </ChartCard>
 
           <ChartCard title="Top Cryptos Exchanged by Volume">
-            <Table
-              v-if="topCryptos.length"
-              :data="topCryptos"
-              :headers="[
-                { text: 'Crypto Name', value: 'name' },
-                { text: 'Volume', value: 'volume' },
-              ]"
-            />
+            <div class="overflow-x-auto">
+              <Table
+                v-if="topCryptos.length"
+                :data="topCryptos"
+                :headers="[
+                  { text: 'Crypto Name', value: 'name' },
+                  { text: 'Volume', value: 'volume' },
+                ]"
+              />
+            </div>
           </ChartCard>
 
           <ChartCard
@@ -179,54 +177,64 @@
         <!-- Tables Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <ChartCard title="Top Buyers">
-            <Table
-              v-if="topBuyers.length"
-              :data="topBuyers"
-              :headers="[
-                { text: 'Client Name', value: 'name' },
-                { text: 'Amount', value: 'amount' },
-              ]"
-            />
+            <div class="overflow-x-auto">
+              <Table
+                v-if="topBuyers.length"
+                :data="topBuyers"
+                :headers="[
+                  { text: 'Client Name', value: 'name' },
+                  { text: 'Amount', value: 'amount' },
+                ]"
+              />
+            </div>
           </ChartCard>
 
           <ChartCard title="Top Wallets">
-            <Table
-              v-if="topWallets.length"
-              :data="topWallets"
-              :headers="[
-                { text: 'Client Name', value: 'name' },
-                { text: 'Value (€)', value: 'value' },
-              ]"
-            />
+            <div class="overflow-x-auto">
+              <Table
+                v-if="topWallets.length"
+                :data="topWallets"
+                :headers="[
+                  { text: 'Client Name', value: 'name' },
+                  { text: 'Value (€)', value: 'value' },
+                ]"
+              />
+            </div>
           </ChartCard>
         </div>
 
-        <!-- Recent Activity (Prend toute la ligne) -->
+        <!-- Recent Activity -->
         <ChartCard title="Recent Activity" class="mt-6 lg:col-span-2">
-          <Table
-            v-if="recentActivity.length"
-            :data="recentActivity"
-            :headers="[
-              { text: 'Client Name', value: 'name' },
-              { text: 'Crypto', value: 'crypto' },
-              { text: 'Transaction Type', value: 'transaction-type' },
-              { text: 'Quantity', value: 'quantity' },
-              { text: 'Unit Price (€)', value: 'unit-price' },
-              { text: 'Total Price (€)', value: 'total-price' },
-              { text: 'Date', value: 'date' },
-            ]"
-          />
+          <div class="overflow-x-auto">
+            <Table
+              v-if="recentActivity.length"
+              :data="recentActivity"
+              :headers="[
+                { text: 'Client Name', value: 'name' },
+                { text: 'Crypto', value: 'crypto' },
+                { text: 'Transaction Type', value: 'transaction-type' },
+                { text: 'Quantity', value: 'quantity' },
+                { text: 'Unit Price (€)', value: 'unit-price' },
+                { text: 'Total Price (€)', value: 'total-price' },
+                { text: 'Date', value: 'date' },
+              ]"
+            />
+          </div>
         </ChartCard>
+
+        <!-- Inactive Users -->
         <ChartCard title="Inactive Users" class="mt-6 lg:col-span-2">
-          <Table
-            v-if="inactiveUsers.length"
-            :data="inactiveUsers"
-            :headers="[
-              { text: 'Client Name', value: 'name' },
-              { text: 'Email', value: 'email' },
-              { text: 'Last Transaction', value: 'last-transaction' },
-            ]"
-          />
+          <div class="overflow-x-auto">
+            <Table
+              v-if="inactiveUsers.length"
+              :data="inactiveUsers"
+              :headers="[
+                { text: 'Client Name', value: 'name' },
+                { text: 'Email', value: 'email' },
+                { text: 'Last Transaction', value: 'last-transaction' },
+              ]"
+            />
+          </div>
         </ChartCard>
       </div>
     </div>
@@ -267,7 +275,6 @@ export default {
       "portfolioComparison",
       "cryptoProfitLoss",
       "evolution",
-
       "platformTotalValue",
       "platformCryptoDetails",
       "topCryptos",
@@ -369,21 +376,48 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 /* Responsive Grid Layout */
 @media (max-width: 640px) {
   .grid-cols-1 {
     grid-template-columns: 1fr;
   }
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
 }
+
 @media (min-width: 641px) and (max-width: 1024px) {
   .grid-cols-2 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 @media (min-width: 1025px) {
   .grid-cols-3 {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Scroll horizontal pour les tableaux */
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+/* Ajustement des cartes pour les petits écrans */
+@media (max-width: 640px) {
+  .p-4 {
+    padding: 1rem;
+  }
+  .text-xl {
+    font-size: 1.25rem;
+  }
+  .text-2xl {
+    font-size: 1.5rem;
   }
 }
 </style>

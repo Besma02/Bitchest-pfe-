@@ -201,6 +201,7 @@ export default {
   },
   components: {
     Pagination,
+    Loader,
   },
   mounted() {
     this.fetchCryptos();
