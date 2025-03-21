@@ -5,6 +5,8 @@ import registrationRequests from "./modules/registrationRequests";
 import crypto from "./modules/crypto";
 import transactions from "./modules/transactions";
 import stats from "./modules/stats";
+import alert from "./modules/alert";
+import notification from "./modules/notification";
 
 const store = createStore({
   modules: {
@@ -14,6 +16,8 @@ const store = createStore({
     crypto,
     transactions,
     stats,
+    alert,
+    notification,
   },
 });
 

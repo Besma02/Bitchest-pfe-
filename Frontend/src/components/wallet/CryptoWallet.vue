@@ -16,11 +16,22 @@
     </div>
 
     <!-- Affichage des cryptos dans le portefeuille -->
-    <div v-else-if="paginatedCryptos.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="crypto in paginatedCryptos" :key="crypto.id" class="bg-white p-4 rounded-xl shadow-md border border-gray-200">
+    <div
+      v-else-if="paginatedCryptos.length"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      <div
+        v-for="crypto in paginatedCryptos"
+        :key="crypto.id"
+        class="bg-white p-4 rounded-xl shadow-md border border-gray-200"
+      >
         <!-- Image de la crypto -->
         <div class="flex justify-center mb-4">
-          <img :src="crypto.imageUrl" alt="crypto image" class="w-10 h-10 object-contain" />
+          <img
+            :src="crypto.imageUrl"
+            alt="crypto image"
+            class="w-10 h-10 object-contain"
+          />
         </div>
         <h3 class="text-xl font-bold text-bitchest-success mb-2">
           {{ crypto.name }}
@@ -28,21 +39,27 @@
 
         <!-- Quantité -->
         <h4 class="text-[16px] font-bold">
-          Quantity: <span class="text-gray-600">{{ formatQuantity(crypto.quantity) }} units</span>
+          Quantity:
+          <span class="text-gray-600"
+            >{{ formatQuantity(crypto.quantity) }} units</span
+          >
         </h4>
 
         <!-- Prix total -->
         <h3 class="text-xl font-bold mt-2">
-          Total Price: <span class="text-gray-600">{{ formatCurrency(crypto.totalPrice) }}</span>
+          Total Price:
+          <span class="text-gray-600">{{
+            formatCurrency(crypto.totalPrice)
+          }}</span>
         </h3>
 
         <!-- Bouton pour voir les détails d'achat -->
         <div class="mt-2">
-          <button 
+          <button
             @click="viewPurchaseDetails(crypto.id)"
             class="text-bitchest-primary text-sm underline sm:text-base mt-2 mr-12 px-2 hover:text-bitchest-secondary"
           >
-             Details
+            Details
           </button>
           <!-- Link pour voir la vente-->
           <router-link
@@ -61,9 +78,16 @@
     </div>
 
     <!-- Pagination -->
-    <Pagination :currentPage="currentPage" :totalPages="totalPages" @goToPage="goToPage" />
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @goToPage="goToPage"
+    />
 
-    <router-link to="/dashboard/trading-market" class="flex items-center text-black mt-4">
+    <router-link
+      to="/dashboard/trading-market"
+      class="flex items-center text-black mt-4"
+    >
       <i class="fas fa-arrow-left mr-2"></i> Back
     </router-link>
   </div>
@@ -107,10 +131,11 @@ export default {
 
       // Récupérer les cryptos du portefeuille via le service
       this.cryptos = await walletService.getWalletCryptos(token);
+      console.log(this.cryptos);
       // Ajouter l'URL complète pour l'image et les données nécessaires
       this.cryptos = this.cryptos.map((crypto) => ({
         ...crypto,
-        imageUrl: `http://127.0.0.1:8000${crypto.image}`, // Préfixe l'URL avec la base de ton serveur
+        imageUrl: `http://127.0.0.1:8000/storage/cryptos/${crypto.image}`, // Préfixe l'URL avec la base de ton serveur
       }));
     } catch (err) {
       this.error = err.message || "Failed to load wallet.";
@@ -133,7 +158,10 @@ export default {
         console.error("Error: cryptoId is missing");
         return;
       }
-      this.$router.push({ name: "cryptoPurchaseDetails", params: { id: cryptoId } });
+      this.$router.push({
+        name: "cryptoPurchaseDetails",
+        params: { id: cryptoId },
+      });
     },
     goToPage(page) {
       this.currentPage = page;

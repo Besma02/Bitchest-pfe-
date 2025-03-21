@@ -14,6 +14,9 @@ import MyStats from "@/components/sections/MyStats.vue";
 import CryptoWallet from "@/components/wallet/CryptoWallet.vue";
 import Transactions from "@/components/Transactions.vue";
 import CryptoPurchaseDetails from "@/components/wallet/CryptoPurchaseDetails.vue";
+import AlertSection from "@/components/sections/AlertSection.vue";
+import NotificationsList from "@/components/sections/NotificationsList.vue";
+import CompeteProfile from "@/views/CompeteProfile.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +30,11 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: Login,
+    },
+    {
+      path: "/complete-profile",
+      name: "complete-profile",
+      component: CompeteProfile,
     },
     {
       path: "/dashboard",
@@ -45,12 +53,12 @@ const router = createRouter({
           component: RegistrationRequestsList,
         },
         {
-          path: "manage-users", // Pas de "/" au début
+          path: "manage-users",
           name: "manage-users",
           component: AdminUserList,
         },
         {
-          path: "/admin/users/add", // Pas de "/" au début
+          path: "admin/users/add",
           name: "add-user",
           component: AddUserForm,
         },
@@ -65,42 +73,52 @@ const router = createRouter({
           component: ProfileManager,
         },
         {
-          path: "manage-crypto", // Pas de "/" au début
+          path: "manage-crypto",
           name: "manage-crypto",
           component: CryptoList,
-          props: { isClient: false }, // Passage de props
+          props: { isClient: false },
         },
         {
-          path: "crypto/:id", // Pas de "/" au début
+          path: "crypto/:id",
           name: "crypto-detail",
           component: CryptoDetails,
-          props: true, // Permet de passer les paramètres de route comme props
+          props: true,
         },
         {
-          path: "trading-market", // Pas de "/" au début
+          path: "trading-market",
           name: "trade-market",
           component: CryptoList,
-          props: { isClient: true }, // Passage de props
+          props: { isClient: true },
         },
-      //affiche des achats
+        //affiche des achats
         {
-          path: "wallet", 
+          path: "wallet",
           name: "crypto-wallet",
           component: CryptoWallet,
         },
         //cryptoPurchaseDetails
         {
-          path: '/crypto/:id/purchases',
-          name: 'cryptoPurchaseDetails',
-          component: CryptoPurchaseDetails, // Le composant où vous affichez l'historique des achats
-           props: true
+          path: "/crypto/:id/purchases",
+          name: "cryptoPurchaseDetails",
+          component: CryptoPurchaseDetails,
+          props: true,
         },
         //affiche des transactions
         {
-          path: "transactions", 
+          path: "transactions",
           name: "transactions",
           component: Transactions,
-        }
+        },
+        {
+          path: "alerts",
+          name: "alerts",
+          component: AlertSection,
+        },
+        {
+          path: "notifications",
+          name: "notifications",
+          component: NotificationsList,
+        },
       ],
     },
   ],

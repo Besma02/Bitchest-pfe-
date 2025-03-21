@@ -51,5 +51,7 @@ $app->singleton(
 | from the actual running of the application and sending responses.
 |
 */
+putenv('CURL_CA_BUNDLE=' . env('CURL_CA_BUNDLE'));
+
 
 return $app;

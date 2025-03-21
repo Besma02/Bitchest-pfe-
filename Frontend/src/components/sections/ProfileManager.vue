@@ -1,6 +1,8 @@
 <template>
   <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-semibold mb-8 text-center">Manage Profile</h1>
+    <h1 class="text-3xl text-bitchest-black font-semibold mb-8 text-center">
+      Manage Profile
+    </h1>
     <div v-if="loading" class="text-center w-full">
       <Loader />
     </div>
@@ -35,7 +37,7 @@
             id="email"
             type="email"
             class="w-full px-4 py-2 border rounded-lg"
-            readonly
+            disabled
           />
         </div>
 
@@ -44,7 +46,12 @@
           <label for="photo" class="block text-sm font-semibold text-gray-700"
             >Photo</label
           >
-          <input id="photo" type="file" @change="handlePhoto" class="w-full" />
+          <input
+            id="photo"
+            type="file"
+            @change="handlePhoto"
+            class="cursor-pointer"
+          />
           <p v-if="errors.photo" class="text-red-500 text-sm mt-1">
             {{ errors.photo[0] }}
           </p>
@@ -188,10 +195,14 @@ export default {
       loading: true,
     };
   },
+
   async created() {
     try {
       const user = await this.$store.dispatch("auth/fetchProfile");
-      this.user = { ...this.user, ...user }; // Fusionner les données chargées avec l'objet user initial
+      console.log(user);
+      if (user) {
+        this.user = { ...user.user }; // Remplacer complètement l'objet user
+      }
     } catch (error) {
       console.error("Error fetching profile:", error);
       this.toast.error("Failed to fetch profile data. ❌", {

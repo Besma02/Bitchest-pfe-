@@ -1,5 +1,9 @@
 <template>
+  <div v-if="loading" class="text-center">
+    <Loader />
+  </div>
   <section
+    v-else
     id="home"
     class="container min-h-screen mx-auto flex flex-col-reverse md:flex-row justify-center p-4"
   >
@@ -57,12 +61,14 @@ import { useRouter } from "vue-router";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomInput from "@/components/CustomInput.vue";
 import registrationService from "@/services/registrationService.js";
+import Loader from "@/components/utils/Loader.vue";
 
 export default {
   name: "HomeSection",
   components: {
     CustomButton,
     CustomInput,
+    Loader,
   },
   data() {
     return {
@@ -70,6 +76,7 @@ export default {
       showModal: false,
       modalMessage: "",
       modalRedirect: false,
+      loading: false,
     };
   },
   methods: {
@@ -84,9 +91,11 @@ export default {
       }
 
       try {
+        this.loading = true;
         const response = await registrationService.submitRegistrationRequest(
           this.email
         );
+        this.loading = false;
         this.modalMessage = response.message;
         this.modalRedirect = response.status === "user_exists";
       } catch {

@@ -19,4 +19,8 @@ class Cryptocurrency extends Model
     {
         return $this->hasMany(PriceHistory::class, 'cryptocurrency_id');
     }
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class, 'crypto_id');
+    }
 }

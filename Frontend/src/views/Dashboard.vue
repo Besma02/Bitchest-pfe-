@@ -8,7 +8,7 @@
   <div v-else class="flex flex-col md:flex-row min-h-screen bg-gray-100">
     <!-- Sidebar gauche -->
     <aside
-      class="w-64 text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out z-40 bg-gray-100"
+      class="w-64 text-bitchest-black font-bold flex flex-col justify-between min-h-screen md:relative fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out bg-gray-100"
       :class="{
         '-translate-x-full': isSmallScreen && !isSidebarOpen,
         'bg-sidebar-bg': isSmallScreen,
@@ -41,7 +41,7 @@
               <img
                 :src="item.icon"
                 alt="icon"
-                class="w-5 h-5 mr-2"
+                class="w-6 h-6 mr-2"
                 v-if="item.icon"
               />
               {{ item.label }}
@@ -89,23 +89,50 @@
 
         <h1 class="text-xl font-bold text-gray-700">Dashboard</h1>
 
-        <button class="ml-4 relative" @click="toggleNotifications">
-          <span
-            class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1"
-            >5</span
+        <!-- Bouton Notifications -->
+        <div class="relative">
+          <button class="ml-4 relative" @click="toggleNotifications">
+            <span
+              v-if="unreadNotificationsCount > 0"
+              class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1"
+            >
+              {{ unreadNotificationsCount }}
+            </span>
+            <img
+              src="@/assets/icons/notification.svg"
+              alt="Notifications"
+              class="w-9 h-8 sm:w-8 sm:h-7 xs:w-7 xs:h-6"
+            />
+          </button>
+
+          <!-- Notifications Dropdown -->
+          <div
+            v-if="showNotifications"
+            class="absolute right-0 mt-2 w-64 bg-white shadow-md rounded-lg p-4 z-50 notification-dropdown"
           >
-          <img
-            src="@/assets/icons/notification.svg"
-            alt="Notifications"
-            class="w-9 h-8 sm:w-8 sm:h-7 xs:w-7 xs:h-6"
-          />
-        </button>
+            <ul>
+              <li
+                v-for="(notification, index) in notifications.slice(0, 5)"
+                :key="index"
+                class="py-2 border-b last:border-b-0 notification-item"
+              >
+                {{ notification.message }}
+              </li>
+            </ul>
+            <a
+              href="/dashboard/notifications"
+              class="block text-center text-blue-500 text-sm mt-2"
+            >
+              See All
+            </a>
+          </div>
+        </div>
 
         <img
           v-if="isSmallScreen"
           :src="
             user.photo
-              ? `http://localhost:8000/storage/${user.photo}`
+              ? `http://localhost:8000${user.photo}`
               : '/images/unknown.png'
           "
           alt="User Profile"
@@ -131,14 +158,14 @@
         <img
           :src="
             user.photo
-              ? `http://localhost:8000/storage/${user.photo}`
+              ? `http://localhost:8000${user.photo}`
               : '/images/unknown.png'
           "
           alt="User Profile"
           class="w-16 h-16 rounded-full mx-auto"
         />
         <h2 class="text-lg font-semibold mt-2">{{ user.name }}</h2>
-        <p class="text-sm text-gray-500">{{ user.role }}</p>
+        <p class="text-sm text-bitchest-black">{{ user.role }}</p>
       </div>
 
       <div class="mt-6">
@@ -216,14 +243,16 @@ import AdminUserList from "@/components/admin/AdminUserList.vue";
 import Loader from "@/components/utils/Loader.vue";
 
 import dashboardIcon from "@/assets/icons/dashboard.png";
-import registrationIcon from "@/assets/icons/alerts.png";
+import registrationIcon from "@/assets/icons/request.png";
 import transactionsIcon from "@/assets/icons/transactions.png";
+import alertIcon from "@/assets/icons/alert.png";
 import usersIcon from "@/assets/icons/user.png";
 import cryptoIcon from "@/assets/icons/crypto.png";
 import walletIcon from "@/assets/icons/wallet.png";
 import tradingIcon from "@/assets/icons/trading.png";
 import logoutIcon from "@/assets/icons/logout.png";
 import profileIcon from "@/assets/icons/settings.png";
+import pusher from "@/pusher";
 
 export default {
   name: "Dashboard",
@@ -244,6 +273,7 @@ export default {
       menuItems: [],
       profileIcon,
       logoutIcon,
+      showNotifications: false,
     };
   },
   computed: {
@@ -254,9 +284,9 @@ export default {
       "platformTotalValue",
       "totalTransactionVolume",
     ]),
+    ...mapState("notification", ["notifications"]),
 
     filteredMenuItems() {
-      console.log(this.user);
       return this.user.role === "admin"
         ? [
             {
@@ -315,11 +345,32 @@ export default {
               component: "TradingMarket",
               icon: tradingIcon,
             },
+            {
+              label: "Alerts & Notifications",
+              route: "/dashboard/alerts",
+              component: "AlertSection",
+              icon: alertIcon,
+            },
           ];
+    },
+    unreadNotificationsCount() {
+      return this.notifications.filter((notification) => !notification.is_read)
+        .length;
     },
   },
   async created() {
     await this.fetchProfile();
+    await this.fetchNotifications();
+    console.log(this.user.photo);
+    // S'abonner au canal 'notifications'
+    const channel = pusher.subscribe(`notifications.${this.user.id}`);
+
+    // Écouter l'événement 'new-notification'
+    channel.bind("new-notification", (data) => {
+      data.created_at = data.date;
+      console.log("New notification received:", data);
+      this.$store.commit("notification/ADD_NOTIFICATION", data);
+    });
 
     if (this.user.role === "admin") {
       await this.fetchPlatformTotalValue();
@@ -335,6 +386,10 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
+
+    const channel = pusher.subscribe(`notifications.${this.user.id}`);
+    channel.unbind("new-notification");
+    pusher.unsubscribe(`notifications.${this.user.id}`);
   },
   methods: {
     ...mapActions("auth", ["fetchProfile"]),
@@ -344,6 +399,7 @@ export default {
       "fetchPlatformTotalValue",
       "fetchTotalTransactionVolume",
     ]),
+    ...mapActions("notification", ["fetchNotifications"]),
     navigateTo(route) {
       this.$router.push(route);
       this.menuItems = this.filteredMenuItems;
@@ -381,6 +437,31 @@ export default {
         .format(parseFloat(value))
         .replace(/\s/g, " ");
     },
+    toggleNotifications() {
+      this.showNotifications = !this.showNotifications;
+      if (this.showNotifications) {
+        setTimeout(() => {
+          document.addEventListener("click", this.handleClickOutside);
+        }, 0);
+      } else {
+        document.removeEventListener("click", this.handleClickOutside);
+      }
+    },
+
+    handleClickOutside(event) {
+      const dropdown = this.$el.querySelector(".notification-dropdown");
+      const button = this.$el.querySelector("button");
+
+      if (
+        dropdown &&
+        button &&
+        !dropdown.contains(event.target) &&
+        !button.contains(event.target)
+      ) {
+        this.showNotifications = false;
+        document.removeEventListener("click", this.handleClickOutside);
+      }
+    },
   },
 };
 </script>
@@ -400,5 +481,17 @@ export default {
 .stat-value {
   font-size: 18px;
   margin-top: 4px;
+}
+.notification-dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: #f3f4f6;
 }
 </style>

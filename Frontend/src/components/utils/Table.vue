@@ -1,46 +1,60 @@
 <template>
   <div class="overflow-x-auto shadow-lg rounded-lg">
-    <table class="min-w-full bg-white rounded-lg overflow-hidden">
-      <thead>
-        <tr class="bg-gray-100">
-          <th
-            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b"
+    <div class="min-w-full bg-white rounded-lg overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-100">
+            <th
+              class="sticky top-0 px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b"
+            >
+              #
+            </th>
+            <th
+              v-for="(header, index) in headers"
+              :key="index"
+              class="sticky top-0 px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b"
+            >
+              {{ header.text }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(row, rowIndex) in paginatedData"
+            :key="rowIndex"
+            class="border-b transition duration-300 ease-in-out hover:bg-gray-50"
           >
-            #
-          </th>
-          <th
-            v-for="(header, index) in headers"
-            :key="index"
-            class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b"
-          >
-            {{ header.text }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(row, rowIndex) in formattedData"
-          :key="rowIndex"
-          class="border-b transition duration-300 ease-in-out hover:bg-gray-50"
-        >
-          <td class="px-4 py-3 text-sm font-semibold text-gray-700">
-            {{ rowIndex + 1 }}
-          </td>
-          <td
-            v-for="(cell, cellIndex) in row"
-            :key="cellIndex"
-            class="px-4 py-3 text-sm text-gray-700"
-          >
-            {{ cell }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <td class="px-4 py-3 text-sm font-semibold text-gray-700">
+              {{ rowIndex + 1 + (currentPage - 1) * itemsPerPage }}
+            </td>
+            <td
+              v-for="(cell, cellIndex) in row"
+              :key="cellIndex"
+              class="px-4 py-3 text-sm text-gray-700"
+            >
+              {{ cell }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Component -->
+    <pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @goToPage="goToPage"
+    />
   </div>
 </template>
 
 <script>
+import Pagination from "../Pagination.vue";
+
 export default {
+  components: {
+    Pagination,
+  },
   props: {
     data: {
       type: Array,
@@ -53,8 +67,24 @@ export default {
     tableName: {
       type: String,
     },
+    itemsPerPage: {
+      type: Number,
+      default: 10, // Nombre d'éléments par page
+    },
+  },
+  data() {
+    return {
+      currentPage: 1,
+    };
   },
   computed: {
+    totalPages() {
+      return Math.ceil(this.data.length / this.itemsPerPage);
+    },
+    paginatedData() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.formattedData.slice(start, start + this.itemsPerPage);
+    },
     formattedData() {
       return this.data.map((row) => {
         let newRow = {};
@@ -87,6 +117,11 @@ export default {
       }
       return value;
     },
+    goToPage(page) {
+      if (page !== this.currentPage) {
+        this.currentPage = page;
+      }
+    },
   },
 };
 </script>
@@ -106,6 +141,14 @@ th {
 
 tr:hover {
   background-color: #f1f5f9;
+}
+
+/* En-têtes fixes */
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f8f9fa; /* Couleur de fond pour les en-têtes */
 }
 
 /* Responsive design */

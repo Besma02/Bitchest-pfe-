@@ -133,13 +133,18 @@ export default {
         if (process.env.NODE_ENV !== "production") {
           console.log("Mot de passe changé avec succès:", response.data);
         }
-        return response.data;
+
+        return response.data; // ✅ Retourne bien response.data
       } catch (error) {
         console.error(
           "Erreur lors du changement de mot de passe:",
           error.response?.data?.message || error.message
         );
-        throw new Error("Échec du changement de mot de passe.");
+
+        // ✅ Renvoie l'erreur complète au composant
+        throw error.response
+          ? error.response.data
+          : new Error("Échec du changement de mot de passe.");
       }
     },
 

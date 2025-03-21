@@ -2,23 +2,23 @@
   <div>
     <!-- Heading -->
     <h1
-      class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-gray-800 mb-4 sm:mb-6 lg:mb-8"
+      class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-bitchest-black mb-6 lg:mb-8"
     >
       Crypto Management
     </h1>
 
-    <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
+    <!-- Bouton d'ajout de crypto -->
+    <div class="flex justify-center mb-4" v-if="!isClient">
       <router-link
         to="/admin/crypto/add"
-        class="bg-bitchest-success text-black text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center"
+        class="bg-bitchest-success text-black text-base font-semibold px-6 py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center"
       >
         Add crypto
       </router-link>
     </div>
 
-    <div
-      class="flex flex-col sm:flex-col md:flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5"
-    >
+    <!-- Conteneur principal -->
+    <div class="flex flex-col lg:flex-row p-4 md:p-6 lg:p-8">
       <div v-if="loading" class="text-center w-full">
         <Loader />
       </div>
@@ -26,56 +26,57 @@
         <p>{{ error }}</p>
       </div>
 
+      <!-- Liste des cryptos -->
       <div
-        v-else
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-[3.75rem] lg:p-[1.25rem]"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full"
       >
         <div
           v-for="crypto in paginatedCryptos"
           :key="crypto.id"
-          class="bg-bitchest-white w-full sm:w-[160px] md:w-[200px] lg:w-[240px] h-[190px] sm:h-[200px] md:h-[210px] border border-gray-300 rounded-[2.0625rem] p-4 sm:p-[1.5rem] lg:p-[2.5rem] text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
+          class="bg-bitchest-white w-full h-auto border border-gray-300 rounded-2xl p-6 text-center shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-lg"
         >
           <img
             :src="getImageUrl(crypto.image_url)"
             :alt="crypto.name"
-            class="mx-auto mb-4 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain"
+            class="mx-auto mb-4 w-16 md:w-20 lg:w-24 h-16 md:h-20 lg:h-24 object-contain"
           />
-          <h3
-            class="text-bitchest-success font-bold text-sm sm:text-base lg:text-lg"
-          >
+          <h3 class="text-bitchest-success font-bold text-lg">
             {{ crypto.name }}
           </h3>
-          <h4 class="text-xs sm:text-sm md:text-base lg:text-lg">
+          <h4 class="text-sm md:text-base lg:text-lg">
             {{ crypto.currentPrice }} €
           </h4>
 
-          <router-link
-            :to="`/dashboard/crypto/${crypto.id}`"
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150 lg:mr-2"
-          >
-            View <i class="far fa-eye text-bitchest-secondary mr-2 mt-2"></i>
-          </router-link>
+          <div class="mt-2 space-x-4">
+            <router-link
+              :to="`/dashboard/crypto/${crypto.id}`"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+            >
+              View <i class="far fa-eye text-bitchest-secondary"></i>
+            </router-link>
 
-          <router-link
-            v-if="isClient"
-            to="#"
-            @click.prevent="openBuyModal(crypto)"
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150"
-          >
-            Buy <i class="fas fa-cart-plus text-bitchest-success"></i>
-          </router-link>
+            <router-link
+              v-if="isClient"
+              to="#"
+              @click.prevent="openBuyModal(crypto)"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+            >
+              Buy <i class="fas fa-cart-plus text-bitchest-success"></i>
+            </router-link>
 
-          <router-link
-            v-else
-            :to="`/admin/crypto/${crypto.id}/edit`"
-            class="text-yellow-500 hover:text-yellow-600 transition duration-150"
-          >
-            Edit <i class="fas fa-edit text-bitchest-success"></i>
-          </router-link>
+            <router-link
+              v-else
+              :to="`/admin/crypto/${crypto.id}/edit`"
+              class="text-yellow-500 hover:text-yellow-600 transition duration-150"
+            >
+              Edit <i class="fas fa-edit text-bitchest-success"></i>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Pagination -->
     <Pagination
       :currentPage="currentPage"
       :totalPages="totalPages"
@@ -85,12 +86,22 @@
     <!-- Modale pour l'achat de crypto -->
     <div
       v-if="showBuyModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 class="text-lg font-semibold mb-4">
+      <div
+        class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4 sm:w-96 relative"
+      >
+        <button
+          @click="showBuyModal = false"
+          class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        >
+          ✖
+        </button>
+
+        <h2 class="text-lg font-semibold mb-4 text-center">
           Buy {{ selectedCrypto.name }}
         </h2>
+
         <label class="block text-gray-700 mb-2">Quantity:</label>
         <input
           v-model="quantity"
@@ -99,6 +110,7 @@
           step="0.01"
           class="w-full border rounded p-2 mb-4"
         />
+
         <div class="flex justify-end space-x-2">
           <button
             @click="showBuyModal = false"
@@ -147,6 +159,7 @@ export default {
     async fetchCryptos() {
       try {
         this.cryptos = await cryptoService.fetchCryptos();
+        console.log(this.cryptos);
         this.totalPages = Math.ceil(this.cryptos.length / this.limit);
         this.updatePaginatedCryptos();
       } catch (err) {

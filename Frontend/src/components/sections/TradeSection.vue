@@ -99,7 +99,6 @@ export default {
     async fetchCryptos() {
       try {
         this.cryptos = await cryptoService.fetchCryptos();
-    
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
       } finally {

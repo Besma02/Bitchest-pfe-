@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\UserApprovedMail;
 use App\Mail\UserRejectedMail;
+use App\Models\Notification;
 
 class RegistrationRequestService
 {
@@ -40,7 +41,21 @@ class RegistrationRequestService
 
     public function createRequest(string $email)
     {
-        RegistrationRequest::create(['email' => $email]);
+        // Créer la demande d'inscription
+        $registrationRequest = RegistrationRequest::create(['email' => $email]);
+
+        // Récupérer l'ID de l'administrateur
+        $admin = User::where('role', 'admin')->first();
+
+        // Créer une notification pour l'administrateur
+        Notification::create([
+            'user_id' => $admin->id,
+            'message' => "New registration request received from : $email",
+            'date' => now(),
+            'is_read' => false,
+        ]);
+
+        return $registrationRequest;
     }
 
     public function getAllRequests()

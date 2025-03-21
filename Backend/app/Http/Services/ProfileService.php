@@ -27,6 +27,7 @@ class ProfileService
      */
     public function updateProfile(User $user, array $data): array
     {
+        // Gestion de la photo de profil
         if (isset($data['photo'])) {
             if ($user->photo) {
                 Storage::disk('public')->delete($user->photo);
@@ -36,12 +37,19 @@ class ProfileService
             $data['photo'] = $photoPath;
         }
 
+        // Vérifier si email_verified_at est null et le mettre à jour si nécessaire
+        if ($user->email_verified_at === null) {
+            $data['email_verified_at'] = now(); // Date actuelle
+        }
+
+        // Mettre à jour l'utilisateur
         $user->update($data);
 
         return [
             'success' => true,
             'message' => 'Profil mis à jour avec succès.',
             'user' => $this->getProfile($user),
+            'email_verified_at' => $user->email_verified_at,
         ];
     }
 

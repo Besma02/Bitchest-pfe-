@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\StatsController;
@@ -36,6 +38,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/stats/crypto-profit-loss', [StatsController::class, 'getCryptoProfitOrLoss']);
     Route::get('/stats/most-popular-cryptos', [StatsController::class, 'getMostPopularCryptos']);
     Route::get('/stats/portfolio-evolution', [StatsController::class, 'getPortfolioEvolution']);
+
+
+    //Routes Alertes
+    Route::get('/alerts', [AlertController::class, 'index']); // Lister toutes les alertes
+    Route::post('/alerts', [AlertController::class, 'store']); // Créer une alerte
+    Route::put('/alerts/{id}', [AlertController::class, 'update']); // Modifier une alerte
+    Route::put('/alerts/{id}/toggle-status', [AlertController::class, 'toggle']); // Activer - desactiver une alerte
+    Route::delete('/alerts/{id}', [AlertController::class, 'destroy']); // Supprimer une alerte
+
+    //Routes Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']); // Lister toutes les notifications de l'utilisateur
+    Route::patch('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
 });
 
 Route::middleware('api')->group(function () {

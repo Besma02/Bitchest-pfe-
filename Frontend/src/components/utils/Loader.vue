@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70"
+    class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
   >
     <img src="@/assets/logo.svg" alt="Loading" class="logo-pulse" />
   </div>
