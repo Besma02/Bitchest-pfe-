@@ -1,7 +1,10 @@
 <template>
   <div>
-    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6" v-if="!isClient">
       Crypto Management
+    </h1>
+    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6" v-if="isClient">
+      Trading & Market
     </h1>
 
     <div class="flex justify-center sm:justify-center mb-4" v-if="!isClient">
@@ -21,7 +24,8 @@
         <p>{{ error }}</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-[3.75rem] lg:p-[1.25rem]">
+      <div v-else class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-[3.75rem] lg:p-[1.25rem]">
+
         <div
           v-for="crypto in paginatedCryptos"
           :key="crypto.id"

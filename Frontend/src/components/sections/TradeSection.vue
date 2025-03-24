@@ -7,7 +7,7 @@
       class="flex flex-col lg:flex-row p-4 sm:p-5 md:p-6 lg:p-5 w-full max-w-6xl"
     >
       <!-- Section de texte -->
-      <div class="w-full lg:w-1/3 lg:ml-10 lg:mr-16 mb-8 lg:mb-0">
+      <div class="w-full lg:w-1/3 lg:mr-[8.35rem] lg:mr-16 mb-8 lg:mb-0">
         <h1
           class="text-2xl sm:text-3xl md:text-[2.5rem] lg:text-[3rem] font-bold mt-4 mb-6 lg:mt-7 lg:mb-7"
         >
@@ -20,7 +20,7 @@
           automatically with daily, weekly, or monthly trades.
         </p>
         <custom-button
-          class="text-bitchest-white font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl border-0 rounded-lg lg:rounded-[20px] bg-bitchest-success px-6 py-3 sm:w-[160px] md:w-[180px] lg:w-[200px] mx-auto lg:mx-0 shadow-md flex justify-center hover:bg-gray-200 hover:text-bitchest-black transition-colors duration-300"
+         class="text-bitchest-white font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl border-0 rounded-lg lg:rounded-[20px] bg-bitchest-success px-6 py-3 w-full sm:w-full md:w-full lg:w-[200px] mx-auto lg:mx-0 shadow-md flex justify-center hover:bg-gray-200 hover:text-bitchest-black transition-colors duration-300"
           @click="goToLogin"
         >
           <span style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)"
@@ -30,9 +30,9 @@
       </div>
 
       <!-- Section des cartes -->
-      <div v-if="loading" class="text-center w-full">
-        <Loader />
-      </div>
+       <div v-if="loading" class="text-center w-full">
+       <Loader />
+      </div> 
 
       <div v-else-if="error" class="text-center w-full text-red-500">
         <p>{{ error }}</p>
@@ -46,7 +46,7 @@
         <div
           v-for="crypto in cryptos.slice(0, 6)"
           :key="crypto.crypto_name"
-          class="bg-white w-full max-w-[220px] mx-auto h-[180px] sm:h-[190px] border border-gray-300 rounded-[1.5rem] p-4 sm:p-5 lg:p-6 text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
+          class="bg-bitchest-white lg:w-[200px] h-[190px]  border border-gray-300 rounded-[2.0625rem] p-8 sm:p-10 md:p-12 lg:p-[2.5rem] text-center shadow-md transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg lg:mr-6 text-xl sm:text-2xl md:text-3xl"
         >
           <img
             :src="getImageUrl(crypto.image_url)"
