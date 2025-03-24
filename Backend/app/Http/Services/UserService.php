@@ -28,7 +28,7 @@ class UserService
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
-            'role' => 'client',
+            'role' => $request->role,
             'password' => Hash::make($password),
         ];
 

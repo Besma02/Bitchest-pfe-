@@ -63,8 +63,8 @@ const router = createRouter({
           component: AddUserForm,
         },
         {
-          path: "/admin/users/edit/:id",
-          name: "EditUser",
+          path: "admin/users/edit/:id",
+          name: "edit-user",
           component: EditUser,
         },
         {

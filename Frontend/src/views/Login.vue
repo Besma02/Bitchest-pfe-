@@ -79,23 +79,23 @@ export default {
           password: this.password,
         });
 
-        // ✅ Vérifier si la connexion a réussi
+        // ✅ Check if login was successful
         if (response && response.token) {
           const user = response.user;
 
           if (user.role === "client" && user.email_verified_at === null) {
-            //a modifier
-            this.toast.warning("Veuillez compléter votre profil.");
+            // To be modified
+            this.toast.warning("Please complete your profile.");
             setTimeout(() => this.$router.push("/complete-profile"), 100);
           } else {
-            this.toast.success("Login réussi !");
+            this.toast.success("Login successful!");
             setTimeout(() => this.$router.push("/dashboard"), 100);
           }
         } else {
           throw new Error("Invalid login credentials");
         }
       } catch (error) {
-        this.toast.error("Échec de connexion. Vérifiez vos identifiants.");
+        this.toast.error("Login failed. Please check your credentials.");
       } finally {
         this.loading = false;
       }

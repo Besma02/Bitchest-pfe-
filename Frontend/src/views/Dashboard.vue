@@ -361,7 +361,7 @@ export default {
   async created() {
     await this.fetchProfile();
     await this.fetchNotifications();
-    console.log(this.user.photo);
+
     // S'abonner au canal 'notifications'
     const channel = pusher.subscribe(`notifications.${this.user.id}`);
 

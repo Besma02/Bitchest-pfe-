@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class ProfileService
 {
     /**
-     * Récupérer les informations du profil utilisateur.
+     * Retrieve user profile information.
      */
     public function getProfile(User $user): array
     {
@@ -23,11 +23,11 @@ class ProfileService
     }
 
     /**
-     * Mettre à jour le profil utilisateur.
+     * Update user profile.
      */
     public function updateProfile(User $user, array $data): array
     {
-        // Gestion de la photo de profil
+        // Handle profile photo
         if (isset($data['photo'])) {
             if ($user->photo) {
                 Storage::disk('public')->delete($user->photo);
@@ -37,45 +37,45 @@ class ProfileService
             $data['photo'] = $photoPath;
         }
 
-        // Vérifier si email_verified_at est null et le mettre à jour si nécessaire
+        // Check if email_verified_at is null and update if necessary
         if ($user->email_verified_at === null) {
-            $data['email_verified_at'] = now(); // Date actuelle
+            $data['email_verified_at'] = now(); // Current date
         }
 
-        // Mettre à jour l'utilisateur
+        // Update user
         $user->update($data);
 
         return [
             'success' => true,
-            'message' => 'Profil mis à jour avec succès.',
+            'message' => 'Profile updated successfully.',
             'user' => $this->getProfile($user),
             'email_verified_at' => $user->email_verified_at,
         ];
     }
 
     /**
-     * Changer le mot de passe utilisateur.
+     * Change user password.
      */
     public function changePassword(User $user, array $data): array
     {
         if (!Hash::check($data['old_password'], $user->password)) {
             return [
                 'success' => false,
-                'message' => 'Le mot de passe actuel est incorrect.',
+                'message' => 'The current password is incorrect.',
             ];
         }
 
         if (Hash::check($data['new_password'], $user->password)) {
             return [
                 'success' => false,
-                'message' => 'Le nouveau mot de passe doit être différent de l\'ancien.',
+                'message' => 'The new password must be different from the old one.',
             ];
         }
 
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $data['new_password'])) {
             return [
                 'success' => false,
-                'message' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
+                'message' => 'The password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.',
             ];
         }
 
@@ -83,7 +83,7 @@ class ProfileService
 
         return [
             'success' => true,
-            'message' => 'Mot de passe changé avec succès.',
+            'message' => 'Password changed successfully.',
         ];
     }
 }
