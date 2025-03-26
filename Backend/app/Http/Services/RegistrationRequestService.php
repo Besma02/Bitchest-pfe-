@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Mail\UserApprovedMail;
 use App\Mail\UserRejectedMail;
 use App\Models\Notification;
+use App\Models\Wallet;
 
 class RegistrationRequestService
 {
@@ -77,6 +78,16 @@ class RegistrationRequestService
             'role' => 'client', // Définir un rôle par défaut
         ]);
 
+        // Créer un wallet pour l'utilisateur
+
+        Wallet::create([
+            'idUser' => $user->id,
+            'balance' => 0, // Solde initial
+            'publicAdress' => '0x' . Str::random(64), // Adresse publique aléatoire
+            'privateAdress' => '0x' . hash('sha256', Str::random(64)), // Adresse privée aléatoire (hashée pour plus de sécurité)
+        ]);
+
+
         // Lien d'accès à l'application
         $loginUrl = url('http://localhost:5173/login');
 
@@ -90,6 +101,7 @@ class RegistrationRequestService
 
         return $user;
     }
+
 
     public function rejectRequest($requestId, $rejectionMessage = 'Your registration request has been rejected.')
     {
