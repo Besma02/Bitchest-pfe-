@@ -11,6 +11,11 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\PriceHistoryController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\CryptoWalletController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -50,6 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //Routes Notifications
     Route::get('/notifications', [NotificationController::class, 'index']); // Lister toutes les notifications de l'utilisateur
     Route::patch('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+
+    Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
 });
 
 Route::middleware('api')->group(function () {
@@ -94,14 +101,12 @@ Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 
 
 
 
-use App\Http\Controllers\CryptocurrencyController;
-use App\Http\Controllers\PriceHistoryController;
-use App\Http\Controllers\WalletController;
+
 
 //récupérer les dernières cotations
 Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
-//Route::get('/cryptos/{id}/history', [CryptocurrencyController::class, 'getPriceHistory']);
-Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
+
+
 
 // Route pour créer un wallet (portefeuille)
 Route::middleware('auth:sanctum')->post('/wallet/create', [WalletController::class, 'createWallet']);
@@ -115,7 +120,7 @@ Route::middleware('auth:sanctum')->post('/crypto/buy', [CryptoPurchaseController
 
 Route::middleware('auth:api')->get('/crypto/wallet', [CryptoPurchaseController::class, 'getUserWallet']);
 //cryptoWalletDeatils
-use App\Http\Controllers\CryptoWalletController;
+
 
 Route::middleware('auth:sanctum')->get('/crypto/wallet/{id}/purchases', [CryptoWalletController::class, 'getCryptoPurchases']);
 
