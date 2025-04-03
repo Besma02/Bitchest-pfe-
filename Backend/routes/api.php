@@ -36,6 +36,7 @@ Route::middleware('api')->group(function () {
     // Authentication Routes
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/registration-request', [RegistrationRequestController::class, 'store']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 
     //récupérer les dernières cotations

@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthService
 {
@@ -32,5 +33,15 @@ class AuthService
         // Return the user object if authentication is successful
         return $user;
     }
+    public function resetPassword(User $user)
+    {
+        // Generate a new random password
+        $newPassword = Str::random(10);
 
+        // Update the user's password in the database
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        return $newPassword;
+    }
 }
