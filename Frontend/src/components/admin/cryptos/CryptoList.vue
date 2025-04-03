@@ -10,7 +10,7 @@
     <!-- Bouton d'ajout de crypto -->
     <div class="flex justify-center mb-4" v-if="!isClient">
       <router-link
-        to="/admin/crypto/add"
+        to="/dashboard/admin/crypto/add"
         class="bg-bitchest-success text-black text-base font-semibold px-6 py-3 rounded-md hover:bg-green-300 transition duration-200 shadow-md w-full sm:w-auto text-center"
       >
         Add crypto
@@ -46,6 +46,7 @@
           <h4 class="text-sm md:text-base lg:text-lg">
             {{ crypto.currentPrice }} €
           </h4>
+          <p class="text-sm text-gray-500">In stock: {{ crypto.inStock }}</p>
 
           <div class="mt-2 space-x-4">
             <router-link
@@ -64,13 +65,14 @@
               Buy <i class="fas fa-cart-plus text-bitchest-success"></i>
             </router-link>
 
-            <router-link
+            <a
               v-else
-              :to="`/admin/crypto/${crypto.id}/edit`"
+              href="#"
+              @click.prevent="openEditModal(crypto)"
               class="text-yellow-500 hover:text-yellow-600 transition duration-150"
             >
               Edit <i class="fas fa-edit text-bitchest-success"></i>
-            </router-link>
+            </a>
           </div>
         </div>
       </div>
@@ -127,6 +129,95 @@
         </div>
       </div>
     </div>
+
+    <!-- Modale pour l'édition de crypto -->
+    <div
+      v-if="showEditModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4 sm:w-96 relative"
+      >
+        <button
+          @click="showEditModal = false"
+          class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        >
+          ✖
+        </button>
+
+        <h2 class="text-lg font-semibold mb-4 text-center">
+          Edit {{ editForm.name }}
+        </h2>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-gray-700 mb-2">Name:</label>
+            <input
+              v-model="editForm.name"
+              type="text"
+              class="w-full border rounded p-2 mb-2"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 mb-2">Current Price (€):</label>
+            <input
+              v-model="editForm.currentPrice"
+              type="number"
+              min="0.01"
+              step="0.01"
+              class="w-full border rounded p-2 mb-2"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 mb-2">Stock Quantity:</label>
+            <input
+              v-model="editForm.inStock"
+              type="number"
+              min="0"
+              step="1"
+              class="w-full border rounded p-2 mb-2"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 mb-2">Image:</label>
+            <input
+              type="file"
+              @change="handleEditImage"
+              accept="image/*"
+              class="w-full border rounded p-2 mb-2"
+            />
+            <img
+              v-if="editForm.imagePreview"
+              :src="editForm.imagePreview"
+              class="h-20 mx-auto mt-2"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Current: {{ selectedCrypto.image_url.split("/").pop() }}
+            </p>
+          </div>
+
+          <div class="flex justify-end space-x-2">
+            <button
+              @click="showEditModal = false"
+              class="bg-gray-400 px-4 py-2 rounded text-white"
+            >
+              Cancel
+            </button>
+            <button
+              @click="updateCrypto"
+              :disabled="isUpdating"
+              class="bg-bitchest-success px-4 py-2 rounded text-white disabled:opacity-50"
+            >
+              <span v-if="isUpdating">Saving...</span>
+              <span v-else>Save Changes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -149,9 +240,23 @@ export default {
       limit: 6,
       currentPage: 1,
       totalPages: 0,
+
+      // Buy modal
       showBuyModal: false,
       selectedCrypto: null,
       quantity: 0,
+
+      // Edit modal
+      showEditModal: false,
+      isUpdating: false,
+      editForm: {
+        name: "",
+        currentPrice: 0,
+        inStock: 0,
+        image: null,
+        imagePreview: null,
+      },
+
       toast: useToast(),
     };
   },
@@ -159,11 +264,11 @@ export default {
     async fetchCryptos() {
       try {
         this.cryptos = await cryptoService.fetchCryptos();
-        console.log(this.cryptos);
         this.totalPages = Math.ceil(this.cryptos.length / this.limit);
         this.updatePaginatedCryptos();
       } catch (err) {
         this.error = "Failed to load cryptos.";
+        this.toast.error(this.error);
       } finally {
         this.loading = false;
       }
@@ -178,25 +283,23 @@ export default {
       this.updatePaginatedCryptos();
     },
     getImageUrl(imagePath) {
-      return `http://127.0.0.1:8000${imagePath}`;
+      return imagePath.startsWith("http")
+        ? imagePath
+        : `http://127.0.0.1:8000${imagePath}`;
     },
     openBuyModal(crypto) {
       this.selectedCrypto = crypto;
+      this.quantity = 0;
       this.showBuyModal = true;
     },
     async buyCrypto() {
       if (!this.quantity || this.quantity <= 0) {
-        this.toast.error("Invalid quantity.");
+        this.toast.error("Please enter a valid quantity.");
         return;
       }
 
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          this.toast.error("Token is missing. Please log in.");
-          return;
-        }
-
         await cryptoService.buyCrypto(
           this.selectedCrypto.id,
           this.quantity,
@@ -211,6 +314,68 @@ export default {
         this.toast.error(error.message || "Purchase failed!");
       }
     },
+    openEditModal(crypto) {
+      this.selectedCrypto = { ...crypto };
+      this.editForm = {
+        name: crypto.name,
+        currentPrice: Number(crypto.currentPrice),
+        inStock: Number(crypto.inStock),
+        image: null,
+        imagePreview: this.getImageUrl(crypto.image_url),
+      };
+      this.showEditModal = true;
+    },
+    handleEditImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.editForm.image = file;
+        this.editForm.imagePreview = URL.createObjectURL(file);
+      }
+    },
+
+    async updateCrypto() {
+      this.isUpdating = true;
+
+      try {
+        const formData = new FormData();
+
+        // Ajout explicite des valeurs
+        formData.append("name", this.editForm.name);
+        formData.append("currentPrice", String(this.editForm.currentPrice));
+        formData.append("inStock", String(this.editForm.inStock));
+
+        if (this.editForm.image) {
+          formData.append(
+            "image",
+            this.editForm.image,
+            this.editForm.image.name
+          );
+        }
+
+        const token = localStorage.getItem("token");
+        const response = await cryptoService.editCrypto(
+          this.selectedCrypto.id,
+          formData,
+          token
+        );
+
+        console.log("Réponse du serveur:", response);
+
+        this.toast.success("Cryptocurrency updated successfully!");
+        this.showEditModal = false;
+        await this.fetchCryptos();
+      } catch (error) {
+        console.error("Erreur complète:", {
+          message: error.message,
+          response: error.response?.data,
+        });
+        this.toast.error(
+          error.response?.data?.message || error.message || "Update failed"
+        );
+      } finally {
+        this.isUpdating = false;
+      }
+    },
   },
   components: {
     Pagination,
@@ -221,3 +386,12 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+</style>

@@ -8,8 +8,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\PriceHistoryController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CryptoPurchaseController;
+use App\Http\Controllers\CryptoWalletController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,13 +26,39 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// =========================
+// 📌 ROUTES PUBLIQUES
+// =========================
 
+Route::middleware('api')->group(function () {
+
+    // Authentication Routes
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/registration-request', [RegistrationRequestController::class, 'store']);
+
+
+    //récupérer les dernières cotations
+    Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
+});
+
+
+// =========================
+// 🔐 ROUTES AUTHENTIFIÉES
+// =========================
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/profile', [ProfileController::class, 'getProfile']);
     Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+
+    //achat de crypto
+    Route::post('/crypto/buy', [CryptoPurchaseController::class, 'buyCrypto']);
+
+    //vente de crypto
+    Route::post('/crypto/sell', [CryptoPurchaseController::class, 'sellCrypto']);
+
+    Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
 
     //Routes Statistiques
     Route::post('/stats/portfolio', [StatsController::class, 'getUserPortfolio']);
@@ -50,16 +80,15 @@ Route::middleware('auth:sanctum')->group(function () {
     //Routes Notifications
     Route::get('/notifications', [NotificationController::class, 'index']); // Lister toutes les notifications de l'utilisateur
     Route::patch('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('api')->group(function () {
 
-    // Authentication Routes
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/registration-request', [RegistrationRequestController::class, 'store']);
-    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-});
 
+// =========================
+// 🛡️ ROUTES ADMIN
+// =========================
 
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
@@ -78,6 +107,15 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::post('admin/registration-requests/{id}/approve', [RegistrationRequestController::class, 'approve']);
     Route::post('admin/registration-requests/{id}/reject', [RegistrationRequestController::class, 'reject']);
 
+    //Cryptocurrency routes for admin
+
+    //Ajouter une crypto
+    Route::post('admin/cryptos', [CryptoPurchaseController::class, 'addCrypto']);
+
+    //Modifier une crypto
+    Route::put('/admin/cryptos/{id}', [CryptoPurchaseController::class, 'editCrypto']);
+
+
     //Stats routes for admin
     Route::get('/stats/total-value', [StatsController::class, 'getPlatformTotalValue']);
     Route::get('/stats/crypto-details', [StatsController::class, 'getPlatformCryptoDetails']);
@@ -94,28 +132,21 @@ Route::middleware('auth:sanctum')->get('/user-profile', [UserController::class, 
 
 
 
-use App\Http\Controllers\CryptocurrencyController;
-use App\Http\Controllers\PriceHistoryController;
-use App\Http\Controllers\WalletController;
 
-//récupérer les dernières cotations
-Route::get('/cryptos/current', [CryptocurrencyController::class, 'getCurrentPrices']);
-//Route::get('/cryptos/{id}/history', [CryptocurrencyController::class, 'getPriceHistory']);
-Route::get('/cryptos/{id}/history', [PriceHistoryController::class, 'getPriceHistory']);
+
+
+
 
 // Route pour créer un wallet (portefeuille)
 Route::middleware('auth:sanctum')->post('/wallet/create', [WalletController::class, 'createWallet']);
 Route::middleware('auth:sanctum')->get('/wallet', [WalletController::class, 'getWalletInfo']);
 
-//achat de crypto
-use App\Http\Controllers\CryptoPurchaseController;
 
-Route::middleware('auth:sanctum')->post('/crypto/buy', [CryptoPurchaseController::class, 'buyCrypto']);
 
 
 Route::middleware('auth:api')->get('/crypto/wallet', [CryptoPurchaseController::class, 'getUserWallet']);
 //cryptoWalletDeatils
-use App\Http\Controllers\CryptoWalletController;
+
 
 Route::middleware('auth:sanctum')->get('/crypto/wallet/{id}/purchases', [CryptoWalletController::class, 'getCryptoPurchases']);
 

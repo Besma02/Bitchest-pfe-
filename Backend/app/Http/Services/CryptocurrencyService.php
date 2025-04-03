@@ -21,6 +21,8 @@ class CryptocurrencyService
             'date' => Carbon::now()->format('Y-m-d'),
             'value' => $newPrice,
         ]);
+        $crypto->currentPrice = $newPrice;
+        $crypto->save();
     }
 
     public function getCurrentPrices()
@@ -42,9 +44,10 @@ class CryptocurrencyService
             return [
                 'id' => $crypto->id, // Ajout de l'ID
                 'name' => $crypto->name,
-                'currentPrice' => $crypto->priceHistory()->where('date', Carbon::now()->format('Y-m-d'))->value('value'),
+                'currentPrice' => $crypto->currentPrice,
                 'date' => Carbon::now()->format('Y-m-d'),
                 'image_url' => asset('storage/cryptos/' . strtolower(str_replace(' ', '_', $crypto->name)) . '.png'),
+                'inStock' => $crypto->inStock,
             ];
         });
 

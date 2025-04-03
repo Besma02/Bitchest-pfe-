@@ -17,6 +17,7 @@ import CryptoPurchaseDetails from "@/components/wallet/CryptoPurchaseDetails.vue
 import AlertSection from "@/components/sections/AlertSection.vue";
 import NotificationsList from "@/components/sections/NotificationsList.vue";
 import CompeteProfile from "@/views/CompeteProfile.vue";
+import AddCrypto from "@/components/admin/cryptos/AddCrypto.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,6 +78,12 @@ const router = createRouter({
           name: "manage-crypto",
           component: CryptoList,
           props: { isClient: false },
+        },
+        {
+          path: "admin/crypto/add",
+          name: "add-crypto",
+          component: AddCrypto,
+          props: true,
         },
         {
           path: "crypto/:id",
