@@ -2,21 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\Transaction;
+use App\Models\CryptoWallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class TransactionFactory extends Factory
+class CryptoWalletFactory extends Factory
 {
-    protected $model = Transaction::class;
+    protected $model = CryptoWallet::class;
 
     public function definition()
     {
         return [
-            'idCryptoWallet' => $this->faker->numberBetween(1, 10),
-            'quantity' => $this->faker->randomFloat(3, 20),
-            'unitPrice' => $this->faker->randomFloat(3, 0.1, 10),
-            'totalPrice' => $this->faker->randomFloat(3, 0.1, 10),
-            'date' => $this->faker->dateTimeThisYear(), // Date aléatoire dans l'année en cours
+            'idCrypto' => $this->faker->numberBetween(1, 10),
+            'idWallet' => $this->faker->numberBetween(1, 10),
+            'quantity' => $this->faker->randomFloat(8, 0.001, 10)
         ];
     }
 }

@@ -2,22 +2,22 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Login from "../views/Login.vue";
-import ForgotPassword from "../views/ResetPassword.vue";
 
 import AdminUserList from "../components/admin/AdminUserList.vue";
 import AddUserForm from "../components/admin/AddUserForm.vue";
 import EditUser from "../components/admin/EditUser.vue";
 import RegistrationRequestsList from "@/components/admin/RegistrationRequestsList.vue";
 import ProfileManager from "@/components/sections/ProfileManager.vue";
-import AdmincryptoList from "@/components/admin/cryptos/CryptoList.vue"; 
-import AddCryptoForm from "@/components/admin/cryptos/AddCryptoForm.vue";
-import EditCryptoForm from "@/components/admin/cryptos/EditCryptoForm.vue"; 
 import CryptoList from "@/components/admin/cryptos/CryptoList.vue";
 import CryptoDetails from "@/components/sections/CryptoDetails.vue";
 import MyStats from "@/components/sections/MyStats.vue";
 import CryptoWallet from "@/components/wallet/CryptoWallet.vue";
 import Transactions from "@/components/Transactions.vue";
 import CryptoPurchaseDetails from "@/components/wallet/CryptoPurchaseDetails.vue";
+import AlertSection from "@/components/sections/AlertSection.vue";
+import NotificationsList from "@/components/sections/NotificationsList.vue";
+import CompeteProfile from "@/views/CompeteProfile.vue";
+import AddCrypto from "@/components/admin/cryptos/AddCrypto.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,15 +33,15 @@ const router = createRouter({
       component: Login,
     },
     {
-      path:"/forgot-password",
-      name:"forgot-password",
-      component: ForgotPassword,
+      path: "/complete-profile",
+      name: "complete-profile",
+      component: CompeteProfile,
     },
     {
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
-      meta: { requiresAuth: true }, 
+      meta: { requiresAuth: true }, // Route protégée
       children: [
         {
           path: "",
@@ -49,67 +49,82 @@ const router = createRouter({
           component: MyStats,
         },
         {
-          path: "registration-requests", 
+          path: "registration-requests",
           name: "registration-requests",
           component: RegistrationRequestsList,
         },
         {
-          path: "/manage-users", // Manage users route
+          path: "manage-users",
           name: "manage-users",
-          component: AdminUserList, // Component for listing users
+          component: AdminUserList,
         },
         {
-          path: "/admin/users/add", // Pas de "/" au début
+          path: "admin/users/add",
           name: "add-user",
           component: AddUserForm,
-          path: "/admin/users/add", 
-          name: "add-user", 
-          component: AddUserForm, 
         },
         {
-          path: "/admin/users/edit/:id",
-          name: "EditUser",
-          component: EditUser,
           path: "admin/users/edit/:id",
-          name: "admin-edit-user",
-          component: EditUser, 
-          props: true, 
+          name: "edit-user",
+          component: EditUser,
         },
         {
           path: "profile",
-          name: "profile-manager",
+          name: "profile",
           component: ProfileManager,
         },
         {
-          path: "manage-crypto", 
-          name: "admin-crypto-list",
-          component: AdmincryptoList, 
+          path: "manage-crypto",
+          name: "manage-crypto",
+          component: CryptoList,
+          props: { isClient: false },
         },
         {
-          path: "admin/crypto/add", 
-          name: "admin-add-crypto",   
-          component: AddCryptoForm,
+          path: "admin/crypto/add",
+          name: "add-crypto",
+          component: AddCrypto,
+          props: true,
         },
         {
-          path: "admin/crypto/edit/:id",
-          name: "admin-edit-crypto",
-          component: EditCryptoForm,
-          props: true,  
-        },
-        {
-          path: "crypto/:id", 
+          path: "crypto/:id",
           name: "crypto-detail",
           component: CryptoDetails,
           props: true,
         },
         {
-          path: "trading-market", 
-          name: "client-trade-market",
+          path: "trading-market",
+          name: "trade-market",
           component: CryptoList,
           props: { isClient: true },
-          path: "/admin/crypto/add", 
-          name: "AddCrypto",   
-          component: AddCryptoForm,
+        },
+        //affiche des achats
+        {
+          path: "wallet",
+          name: "crypto-wallet",
+          component: CryptoWallet,
+        },
+        //cryptoPurchaseDetails
+        {
+          path: "/crypto/:id/purchases",
+          name: "cryptoPurchaseDetails",
+          component: CryptoPurchaseDetails,
+          props: true,
+        },
+        //affiche des transactions
+        {
+          path: "transactions",
+          name: "transactions",
+          component: Transactions,
+        },
+        {
+          path: "alerts",
+          name: "alerts",
+          component: AlertSection,
+        },
+        {
+          path: "notifications",
+          name: "notifications",
+          component: NotificationsList,
         },
       ],
     },
@@ -118,11 +133,11 @@ const router = createRouter({
 
 // Garde de navigation pour vérifier l'authentification
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem("token"); 
+  const isAuthenticated = localStorage.getItem("token"); // Vérifiez si l'utilisateur est authentifié
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next("/login"); 
+    next("/login"); // Redirigez vers la page de connexion
   } else {
-    next(); 
+    next(); // Continuez la navigation
   }
 });
 
