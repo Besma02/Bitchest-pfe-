@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CryptoPurchaseController;
 use App\Http\Controllers\CryptoWalletController;
 
-use App\Http\Controllers\CryptocurrencyController;
-use App\Http\Controllers\PriceHistoryController;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\CryptoWalletController;
 
 /*
 |--------------------------------------------------------------------------
