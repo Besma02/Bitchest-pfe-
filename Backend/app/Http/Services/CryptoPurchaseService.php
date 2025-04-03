@@ -1,66 +1,196 @@
 <?php
+
 namespace App\Http\Services;
 
 use App\Models\Wallet;
 use App\Models\CryptoWallet;
 use App\Models\Transaction;
+use App\Models\Cryptocurrency;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CryptoPurchaseService
 {
+    public function addCrypto($cryptoData)
+    {
+
+        DB::beginTransaction();
+        try {
+            // Vérification d'unicité
+            $existingCrypto = Cryptocurrency::where('name', $cryptoData['name'])->first();
+            if ($existingCrypto) {
+                return ['error' => 'This cryptocurrency already exists.'];
+            }
+
+            // Validation des données
+            if (empty($cryptoData['name'])) {
+                return ['error' => 'Name is required.'];
+            }
+
+            if (!isset($cryptoData['currentPrice']) || $cryptoData['currentPrice'] <= 0) {
+                return ['error' => 'Valid current price is required.'];
+            }
+
+            if (!isset($cryptoData['inStock']) || $cryptoData['inStock'] < 0) {
+                return ['error' => 'Valid stock quantity is required.'];
+            }
+
+            // Gestion de l'image
+            $imagePath = 'default_crypto.png';
+            if (isset($cryptoData['image'])) {
+                $imagePath = $this->handleImageUpload($cryptoData['image'], $cryptoData['name']);
+            }
+
+            // Création de la crypto
+            $crypto = Cryptocurrency::create([
+                'name' => trim($cryptoData['name']),
+                'image' => $imagePath,
+                'currentPrice' => $cryptoData['currentPrice'],
+                'inStock' => $cryptoData['inStock']
+            ]);
+
+            DB::commit();
+            return [
+                'message' => 'Cryptocurrency added successfully!',
+                'crypto' => $crypto
+            ];
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['error' => 'Add failed: ' . $e->getMessage()];
+        }
+    }
+
+    private function handleImageUpload($image, $cryptoName)
+    {
+        if (!$image->isValid()) {
+            throw new \Exception('Invalid image file.');
+        }
+
+        // Remplacer les espaces par des underscores
+        $cleanedName = str_replace(' ', '_', $cryptoName);
+
+
+        $filename = preg_replace('/[^a-zA-Z0-9_]/', '', $cleanedName) . '.' . $image->extension();
+        $filename = strtolower($filename);
+
+        // Stockage dans le dossier public
+        $image->storeAs('cryptos', $filename, 'public');
+
+        return $filename;
+    }
+
+    public function editCrypto($cryptoId, $cryptoData)
+    {
+        DB::beginTransaction();
+        try {
+            $crypto = Cryptocurrency::find($cryptoId);
+            if (!$crypto) {
+                return ['error' => 'Cryptocurrency not found.'];
+            }
+
+            // Gestion du nom
+            if (isset($cryptoData['name'])) {
+                $newName = trim($cryptoData['name']);
+                if ($newName !== $crypto->name) {
+                    $existing = Cryptocurrency::where('name', $newName)->first();
+                    if ($existing) {
+                        return ['error' => 'This cryptocurrency name already exists.'];
+                    }
+                    $crypto->name = $newName;
+                }
+            }
+
+            // Gestion du prix
+            if (isset($cryptoData['currentPrice'])) {
+                if ($cryptoData['currentPrice'] <= 0) {
+                    return ['error' => 'Valid current price is required.'];
+                }
+                $crypto->currentPrice = $cryptoData['currentPrice'];
+            }
+
+            // Gestion du stock
+            if (isset($cryptoData['inStock'])) {
+                if ($cryptoData['inStock'] < 0) {
+                    return ['error' => 'Valid stock quantity is required.'];
+                }
+                $crypto->inStock = $cryptoData['inStock'];
+            }
+
+            // Gestion de l'image (toujours nommée crypto_name.png)
+            if (isset($cryptoData['image'])) {
+                // Supprimer l'ancienne image sauf si c'est l'image par défaut
+                if ($crypto->image !== 'default_crypto.png') {
+                    Storage::disk('public')->delete('cryptos/' . $crypto->image);
+                }
+
+                // Utiliser le nom mis à jour si nécessaire
+                $nameForImage = $crypto->name ?? $cryptoData['name'];
+                $crypto->image = $this->handleImageUpload($cryptoData['image'], $nameForImage);
+            }
+
+            $crypto->save();
+            DB::commit();
+
+            return [
+                'message' => 'Cryptocurrency updated successfully!',
+                'crypto' => $crypto
+            ];
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['error' => 'Update failed: ' . $e->getMessage()];
+        }
+    }
+
+
     public function buyCrypto($cryptoId, $quantity, $price)
     {
+        if ($quantity <= 0 || $price <= 0) {
+            return ['error' => 'Invalid quantity or price.'];
+        }
+
         $user = Auth::user();
         $totalPrice = $quantity * $price;
 
         DB::beginTransaction();
         try {
-            // Check if the user has a wallet
-            $wallet = Wallet::where('idUser', $user->id)->first();
+            $wallet = Wallet::where('idUser', $user->id)->lockForUpdate()->first();
             if (!$wallet) {
                 return ['error' => 'Wallet not found.'];
             }
 
-            // Check if the balance is sufficient
             if ($wallet->balance < $totalPrice) {
                 return ['error' => 'Insufficient balance.'];
             }
 
-            // Check if the cryptocurrency exists and if there's sufficient stock
-            $cryptoWallet = CryptoWallet::where('idCrypto', $cryptoId)->first();
-            if (!$cryptoWallet) {
-                return ['error' => 'Cryptocurrency not found.'];
-            }
-
-            // Assuming you have a field `maxQuantity` in the cryptoWallet model that represents the max available stock
-            $availableQuantity = $cryptoWallet->quantity;
-            if ($quantity > $availableQuantity) {
+            $cryptoCurrency = Cryptocurrency::where('id', $cryptoId)->lockForUpdate()->first();
+            if (!$cryptoCurrency || $cryptoCurrency->inStock < $quantity) {
                 return ['error' => 'Insufficient stock for the requested quantity.'];
             }
 
-            // Update or create the CryptoWallet entry
             $userCryptoWallet = CryptoWallet::where('idWallet', $wallet->id)
                 ->where('idCrypto', $cryptoId)
+                ->lockForUpdate()
                 ->first();
 
             if ($userCryptoWallet) {
                 $userCryptoWallet->quantity += $quantity;
-                $userCryptoWallet->save();
             } else {
                 $userCryptoWallet = CryptoWallet::create([
                     'idWallet' => $wallet->id,
                     'idCrypto' => $cryptoId,
                     'quantity' => $quantity,
-                    'status' => 'active',
                 ]);
             }
 
-            // Debit the wallet balance
+            $cryptoCurrency->inStock -= $quantity;
             $wallet->balance -= $totalPrice;
+
+            $cryptoCurrency->save();
+            $userCryptoWallet->save();
             $wallet->save();
 
-            // Register the transaction
             Transaction::create([
                 'idCryptoWallet' => $userCryptoWallet->id,
                 'quantity' => $quantity,
@@ -79,17 +209,76 @@ class CryptoPurchaseService
         }
     }
 
+    public function sellCrypto($cryptoId, $quantity, $price)
+    {
+        if ($quantity <= 0 || $price <= 0) {
+            return ['error' => 'Invalid quantity or price.'];
+        }
+
+        $user = Auth::user();
+        $totalPrice = $quantity * $price;
+
+        DB::beginTransaction();
+        try {
+            $wallet = Wallet::where('idUser', $user->id)->lockForUpdate()->first();
+            if (!$wallet) {
+                return ['error' => 'Wallet not found.'];
+            }
+
+            $userCryptoWallet = CryptoWallet::where('idWallet', $wallet->id)
+                ->where('idCrypto', $cryptoId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$userCryptoWallet || $userCryptoWallet->quantity < $quantity) {
+                return ['error' => 'Insufficient cryptocurrency quantity to sell.'];
+            }
+
+            $cryptoCurrency = Cryptocurrency::where('id', $cryptoId)->lockForUpdate()->first();
+            if (!$cryptoCurrency) {
+                return ['error' => 'Cryptocurrency not found.'];
+            }
+
+            $userCryptoWallet->quantity -= $quantity;
+            if ($userCryptoWallet->quantity == 0) {
+                $userCryptoWallet->delete();
+            } else {
+                $userCryptoWallet->save();
+            }
+
+            $cryptoCurrency->inStock += $quantity;
+            $wallet->balance += $totalPrice;
+
+            $cryptoCurrency->save();
+            $wallet->save();
+
+            Transaction::create([
+                'idCryptoWallet' => $userCryptoWallet->id,
+                'quantity' => $quantity,
+                'unitPrice' => $price,
+                'totalPrice' => $totalPrice,
+                'operationStatus' => 'completed',
+                'date' => now(),
+                'type' => 'sell',
+            ]);
+
+            DB::commit();
+            return ['message' => 'Crypto sale successful!'];
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['error' => 'Sale failed.', 'details' => $e->getMessage()];
+        }
+    }
+
     public function getUserWallet()
     {
         $user = Auth::user();
 
-        // Get the user's wallet
         $wallet = Wallet::where('idUser', $user->id)->first();
         if (!$wallet) {
             return ['error' => 'Wallet not found.'];
         }
 
-        // Get the cryptocurrencies owned by the user
         $cryptoWallets = CryptoWallet::where('idWallet', $wallet->id)
             ->with('cryptocurrency')
             ->get();
@@ -148,29 +337,22 @@ class CryptoPurchaseService
             ];
         });
     }
-// getTotalCryptoPurchases
-public function getTotalCryptoPurchases()
-{
-    $user = Auth::user();
 
-    // Retrieve the wallet for the user
-    $wallet = Wallet::where('idUser', $user->id)->first();
+    public function getTotalCryptoPurchases()
+    {
+        $user = Auth::user();
 
-    // Check if the wallet exists
-    if (!$wallet) {
-        return ['error' => 'Wallet not found.'];
+        $wallet = Wallet::where('idUser', $user->id)->first();
+        if (!$wallet) {
+            return ['error' => 'Wallet not found.'];
+        }
+
+        $totalPurchases = Transaction::whereHas('cryptoWallet', function ($query) use ($wallet) {
+            $query->where('idWallet', $wallet->id);
+        })
+            ->where('type', 'buy')
+            ->sum('totalPrice');
+
+        return ['totalCryptoPurchase' => (float) $totalPurchases];
     }
-
-    // Get the total purchase amount for the user
-    $totalPurchases = Transaction::whereHas('cryptoWallet', function ($query) use ($wallet) {
-        $query->where('idWallet', $wallet->id);
-    })
-    ->where('type', 'buy')
-    ->sum('totalPrice');
-
-    return ['totalCryptoPurchase' => (float) $totalPurchases];
-}
-
-
-
 }
