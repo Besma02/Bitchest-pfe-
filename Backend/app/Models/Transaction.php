@@ -17,9 +17,10 @@ class Transaction extends Model
         'date',
         'type'
     ];
-
+ 
     public function cryptoWallet()
     {
+        return $this->belongsTo(CryptoWallet::class, 'idCryptoWallet');
         return $this->belongsTo(CryptoWallet::class, 'idCryptoWallet');
     }
 }

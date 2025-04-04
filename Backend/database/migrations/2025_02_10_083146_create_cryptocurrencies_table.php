@@ -11,7 +11,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name')->unique();
             $table->string('image')->nullable();
-            $table->float('currentPrice');
+            $table->decimal('currentPrice', 10, 3);
+            $table->decimal('inStock', 10, 3)->nullable();
             $table->timestamps();
         });
     }

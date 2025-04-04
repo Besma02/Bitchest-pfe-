@@ -9,12 +9,15 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\UserApprovedMail;
 use App\Mail\UserRejectedMail;
+use App\Models\Notification;
+use App\Models\Wallet;
 
 class RegistrationRequestService
 {
 
     public function checkExistingRequests(string $email)
     {
+
         if (RegistrationRequest::where('email', $email)->exists()) {
             return [
                 'message' => 'You have already submitted a registration request. Please wait for approval.',
@@ -39,7 +42,21 @@ class RegistrationRequestService
 
     public function createRequest(string $email)
     {
-        RegistrationRequest::create(['email' => $email]);
+        // Créer la demande d'inscription
+        $registrationRequest = RegistrationRequest::create(['email' => $email]);
+
+        // Récupérer l'ID de l'administrateur
+        $admin = User::where('role', 'admin')->first();
+
+        // Créer une notification pour l'administrateur
+        Notification::create([
+            'user_id' => $admin->id,
+            'message' => "New registration request received from : $email",
+            'date' => now(),
+            'is_read' => false,
+        ]);
+
+        return $registrationRequest;
     }
 
     public function getAllRequests()
@@ -61,6 +78,16 @@ class RegistrationRequestService
             'role' => 'client', // Définir un rôle par défaut
         ]);
 
+        // Créer un wallet pour l'utilisateur
+
+        Wallet::create([
+            'idUser' => $user->id,
+            'balance' => 0, // Solde initial
+            'publicAdress' => '0x' . Str::random(64), // Adresse publique aléatoire
+            'privateAdress' => '0x' . hash('sha256', Str::random(64)), // Adresse privée aléatoire (hashée pour plus de sécurité)
+        ]);
+
+
         // Lien d'accès à l'application
         $loginUrl = url('http://localhost:5173/login');
 
@@ -74,6 +101,7 @@ class RegistrationRequestService
 
         return $user;
     }
+
 
     public function rejectRequest($requestId, $rejectionMessage = 'Your registration request has been rejected.')
     {

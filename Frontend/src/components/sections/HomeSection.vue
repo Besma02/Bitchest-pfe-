@@ -1,5 +1,9 @@
 <template>
+  <div v-if="loading" class="text-center">
+    <Loader />
+  </div>
   <section
+    v-else
     id="home"
     class="container min-h-screen mx-auto flex flex-col-reverse md:flex-row justify-center p-4"
   >
@@ -14,15 +18,18 @@
       <p class="text-xl w-3/4 mx-auto md:mx-0 mb-3">
         Join us and sign up to explore more
       </p>
+
       <CustomInput
-        @inputData="setInputData"
-        placeholder="enter your email"
+        v-model="email"
+        placeholder="Enter your email"
         class="mr-8 CustomInput"
       />
+
       <CustomButton variant="primary" @click="submitEmail">
         Registration request
       </CustomButton>
 
+      <!-- Modal pour afficher les messages -->
       <div
         v-if="showModal"
         class="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center"
@@ -50,15 +57,18 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomInput from "@/components/CustomInput.vue";
 import registrationService from "@/services/registrationService.js";
+import Loader from "@/components/utils/Loader.vue";
 
 export default {
   name: "HomeSection",
   components: {
     CustomButton,
     CustomInput,
+    Loader,
   },
   data() {
     return {
@@ -66,6 +76,7 @@ export default {
       showModal: false,
       modalMessage: "",
       modalRedirect: false,
+      loading: false,
     };
   },
   methods: {
@@ -80,32 +91,35 @@ export default {
       }
 
       try {
+        this.loading = true;
         const response = await registrationService.submitRegistrationRequest(
           this.email
         );
+        this.loading = false;
         this.modalMessage = response.message;
         this.modalRedirect = response.status === "user_exists";
       } catch {
         this.modalMessage = "An error occurred. Please try again later.";
       }
+
       this.showModal = true;
-      this.setInputData = "";
+      this.email = ""; // Réinitialisation de l'email après envoi
     },
     handleModalClose() {
       this.showModal = false;
       if (this.modalRedirect) {
-        window.location.href = "/login";
+        this.$router.push("/login");
       }
     },
     validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(email);
+      const regEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regEx.test(email);
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
 .CustomInput {
   width: 50%;
 }

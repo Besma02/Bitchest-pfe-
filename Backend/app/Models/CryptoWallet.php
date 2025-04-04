@@ -12,16 +12,19 @@ class CryptoWallet extends Model
         'idCrypto',
         'idWallet',
         'quantity'
+        
     ];
 
     public function wallet()
     {
         return $this->belongsTo(Wallet::class, foreignKey: 'idWallet');
     }
+    
     public function cryptoCurrency()
     {
         return $this->belongsTo(Cryptocurrency::class, foreignKey: 'idCrypto');
     }
+   
     public function transactions()
 {
     return $this->hasMany(Transaction::class, 'idCryptoWallet');

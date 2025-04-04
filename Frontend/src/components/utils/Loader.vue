@@ -1,25 +1,26 @@
 <template>
-  <div class="fixed inset-0 flex items-center justify-center bg-white z-50">
-    <div class="loader"></div>
+  <div
+    class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
+  >
+    <img src="@/assets/logo.svg" alt="Loading" class="logo-pulse" />
   </div>
 </template>
 
 <style scoped>
-/* Loader Animation */
-.loader {
-  width: 60px;
-  height: 60px;
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #38618c;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+/* Logo Animation */
+.logo-pulse {
+  width: 80px;
+  height: 80px;
+  animation: pulse 0.7s ease-in-out infinite;
 }
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
+
+@keyframes pulse {
+  0%,
   100% {
-    transform: rotate(360deg);
+    transform: scale(3);
+  }
+  50% {
+    transform: scale(3.1);
   }
 }
 </style>

@@ -1,0 +1,31 @@
+[33m82f1885[m[33m ([m[1;36mHEAD -> [m[1;32mbesma[m[33m, [m[1;31morigin/besma[m[33m)[m HEAD@{0}: commit: correction de responsive et style
+[33m0b6172f[m HEAD@{1}: commit: ajout total purchase price pour tout les crypto ,ajout de pagination transactions et cryptowallet
+[33m1d1c03e[m HEAD@{2}: commit: separation de la logique dans service
+[33m7727faa[m HEAD@{3}: commit: sprint 3 achat
+[33m60f904f[m HEAD@{4}: commit: ajout crypto id
+[33m398bd43[m HEAD@{5}: checkout: moving from main to besma
+[33m94c69b1[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{6}: pull origin main: Fast-forward
+[33md940fc1[m HEAD@{7}: checkout: moving from besma to main
+[33m398bd43[m HEAD@{8}: commit: correctifs
+[33m72a672b[m HEAD@{9}: commit: conflit corrigé
+[33m7f00a1c[m HEAD@{10}: pull origin main: Merge made by the 'ort' strategy.
+[33m3d6db1b[m HEAD@{11}: commit (merge): Résolution des conflits et ajout des modifications
+[33me858e20[m HEAD@{12}: commit: Ajout de cryptoService.js
+[33me914e85[m HEAD@{13}: commit: Sauvegarde des modifications locales
+[33m656f207[m HEAD@{14}: commit: separation de la logique Cryptocurrency dans services
+[33mcae4cdb[m HEAD@{15}: commit: ajout de pagination manage users
+[33m73912dc[m HEAD@{16}: commit: ajustement de mise à jour des prix
+[33mbc8b66e[m HEAD@{17}: commit: ajout de pagination au lieu de slice
+[33m2c1a376[m HEAD@{18}: commit (merge): ajout de api get history sur 30j et changement du non de model
+[33mdc5ebf8[m HEAD@{19}: commit: affichage de crypto list dans le dashbord manage crypto et trade & market celon role admin et client
+[33m6d12869[m HEAD@{20}: commit: crypto cotation generate à jour
+[33m32e27ad[m HEAD@{21}: commit (merge): Résolution des conflits et finalisation du merge
+[33m887972a[m HEAD@{22}: reset: moving to HEAD
+[33m887972a[m HEAD@{23}: commit (merge): Résolution du conflit dans routes/api.php
+[33m50a954d[m HEAD@{24}: commit: dynamiser la section trade cryptos de home page
+[33me51133b[m HEAD@{25}: commit: generation cryptoCotation de cour actuel
+[33m118aa67[m HEAD@{26}: commit: changer en login de bilel
+[33m71225d8[m HEAD@{27}: commit: rendre dashboard responsive,implementer le login de bilel,correctif et css en home page
+[33m11fe8ef[m HEAD@{28}: reset: moving to origin/besma
+[33m11fe8ef[m HEAD@{29}: checkout: moving from main to besma
+[33md940fc1[m HEAD@{30}: clone: from https://github.com/Besma02/Bitchest-pfe-.git

@@ -3,7 +3,8 @@ import api from "@/services/api";
 export default {
   async fetchCryptos() {
     try {
-      const response = await api.get('/cryptos/current');
+      const response = await api.get("/cryptos/current");
+      console.log(response.data);
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch cryptos");

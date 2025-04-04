@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div v-if="loading" class="text-center w-full">
+    <Loader />
+  </div>
+  <div v-else>
     <div class="flex items-center justify-center min-h-screen bg-gray-100">
       <div class="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 class="text-2xl font-bold text-center mb-4 text-gray-700">Login</h2>
@@ -48,15 +51,18 @@
 import { mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 import NavBar from "../components/NavBar.vue";
+import Loader from "@/components/utils/Loader.vue";
 
 export default {
   components: {
     NavBar,
+    Loader,
   },
   data() {
     return {
       email: "",
       password: "",
+      loading: false,
     };
   },
   setup() {
@@ -66,6 +72,7 @@ export default {
   methods: {
     ...mapActions("auth", ["login"]),
     async handleLogin() {
+      this.loading = true;
       try {
         const response = await this.login({
           email: this.email,
@@ -74,13 +81,23 @@ export default {
 
         // ✅ Check if login was successful
         if (response && response.token) {
-          this.toast.success(" Login successful! ");
-          setTimeout(() => this.$router.push("/dashboard"), 100);
+          const user = response.user;
+
+          if (user.role === "client" && user.email_verified_at === null) {
+            // To be modified
+            this.toast.warning("Please complete your profile.");
+            setTimeout(() => this.$router.push("/complete-profile"), 100);
+          } else {
+            this.toast.success("Login successful!");
+            setTimeout(() => this.$router.push("/dashboard"), 100);
+          }
         } else {
           throw new Error("Invalid login credentials");
         }
       } catch (error) {
-        this.toast.error(" Login failed. Please check your credentials.");
+        this.toast.error("Login failed. Please check your credentials.");
+      } finally {
+        this.loading = false;
       }
     },
   },

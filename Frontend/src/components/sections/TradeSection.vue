@@ -59,7 +59,7 @@
             {{ crypto.name }}
           </h3>
           <h4 class="text-sm sm:text-base md:text-lg lg:text-xl">
-            {{ crypto.currentPrice }} $
+            {{ formatNumber(crypto.currentPrice) }} $
           </h4>
         </div>
       </div>
@@ -82,13 +82,23 @@ export default {
     };
   },
   methods: {
+    formatNumber(value) {
+      if (!value) return "0";
+      return new Intl.NumberFormat("fr-FR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      })
+        .format(parseFloat(value))
+        .replace(/\s/g, " ");
+    },
+
     goToLogin() {
       this.$router.push({ name: "login" });
     },
     async fetchCryptos() {
       try {
         this.cryptos = await cryptoService.fetchCryptos();
-    
       } catch (err) {
         this.error = "Failed to load cryptos. Please try again later.";
       } finally {

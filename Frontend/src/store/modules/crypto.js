@@ -9,7 +9,10 @@ const state = {
 
 const mutations = {
   SET_PRICE_HISTORY(state, history) {
-    state.priceHistory = history;
+    state.priceHistory = history.map((entry) => ({
+      ...entry,
+      value: parseFloat(entry.value),
+    }));
   },
   SET_CRYPTO(state, crypto) {
     state.crypto = crypto;
@@ -27,6 +30,7 @@ const actions = {
         throw new Error("Données invalides");
 
       const { crypto, history } = response.data.original;
+      console.log(response.data);
       commit("SET_PRICE_HISTORY", history || []);
       commit("SET_CRYPTO", crypto || null);
     } catch (error) {

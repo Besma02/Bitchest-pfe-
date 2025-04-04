@@ -1,19 +1,16 @@
 <template>
-  <div
-    v-if="isLoading"
-    class="fixed inset-0 flex items-center justify-center bg-white z-50"
-  >
-    <Loader />
-  </div>
-  <div v-else class="container mx-auto p-4 sm:p-6">
+  <div class="container mx-auto p-4 sm:p-6">
     <h1
       class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6"
     >
       Registration Requests
     </h1>
+    <div v-if="loading" class="text-center w-full">
+      <Loader />
+    </div>
 
     <div
-      v-if="requests.length === 0"
+      v-else-if="requests.length === 0"
       class="text-center text-gray-500 text-sm sm:text-base"
     >
       <p>No registration requests found.</p>
@@ -108,7 +105,13 @@
             </tr>
           </thead>
           <tbody>
+            <tr v-if="loading">
+              <td colspan="5" class="px-4 py-2 text-center">
+                <Loader />
+              </td>
+            </tr>
             <tr
+              v-else
               v-for="request in requests"
               :key="request.id"
               class="border-b border-gray-200"
@@ -178,7 +181,7 @@ export default {
     return {
       showModal: false,
       requestIdToDelete: null,
-      isLoading: true,
+      loading: true,
     };
   },
   computed: {
@@ -197,7 +200,7 @@ export default {
           "bg-red-700 text-white font-bold px-4 py-3 rounded shadow-md",
       });
     } finally {
-      this.isLoading = false;
+      this.loading = false;
     }
   },
   methods: {
@@ -214,10 +217,12 @@ export default {
 
     async handleReject(requestId) {
       try {
+        this.loading = true;
         await this.rejectRequest(requestId);
+        this.loading = false;
         this.toast.error("Request rejected successfully! 🗑️", {
           timeout: 3000,
-          position: "top-right",
+          position: "bottom-right",
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
@@ -238,7 +243,9 @@ export default {
     },
     async handleApprove(requestId) {
       try {
+        this.loading = true;
         await this.approveRequest(requestId);
+        this.loading = false;
         this.toast.success("Request approved successfully! ✅", {
           className:
             "bg-green-700 text-white font-bold px-4 py-3 rounded shadow-md",

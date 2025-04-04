@@ -20,10 +20,11 @@ export default {
     isAuthenticated: !!localStorage.getItem("token"),
   },
   mutations: {
-    SET_USER(state, { user, token }) {
+    SET_USER(state, { user, token, id }) {
       state.user = user;
       state.token = token;
       state.isAuthenticated = !!token;
+      state.id = id;
       localStorage.setItem("token", token);
     },
     LOGOUT(state) {
@@ -51,6 +52,7 @@ export default {
             user: response.data.user,
             token: response.data.token,
           });
+          console.log(this.state.auth.user); // ✅ Affichage correct de l'ID
           return response.data; // ✅ Succès
         } else {
           throw new Error("Réponse de connexion invalide");
@@ -71,9 +73,10 @@ export default {
       try {
         const response = await axios.get(`${API_BASE_URL}/profile`);
         commit("SET_USER", {
-          user: response.data,
+          user: response.data.user,
           token: localStorage.getItem("token"),
         });
+        console.log(response.data.user); // ✅ Affichage correct de l'ID
         return response.data;
       } catch (error) {
         console.error(
@@ -130,13 +133,18 @@ export default {
         if (process.env.NODE_ENV !== "production") {
           console.log("Mot de passe changé avec succès:", response.data);
         }
-        return response.data;
+
+        return response.data; // ✅ Retourne bien response.data
       } catch (error) {
         console.error(
           "Erreur lors du changement de mot de passe:",
           error.response?.data?.message || error.message
         );
-        throw new Error("Échec du changement de mot de passe.");
+
+        // ✅ Renvoie l'erreur complète au composant
+        throw error.response
+          ? error.response.data
+          : new Error("Échec du changement de mot de passe.");
       }
     },
 

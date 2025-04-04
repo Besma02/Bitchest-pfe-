@@ -9,46 +9,55 @@ use Illuminate\Support\Facades\Storage;
 class ProfileService
 {
     /**
-     * Récupérer les informations du profil utilisateur.
+     * Retrieve user profile information.
      */
-    public function getProfile(User $user)
+    public function getProfile(User $user): array
     {
         return [
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
-            'photo' => $user->photo ? asset('storage/' . $user->photo) : null, // Assurer un chemin correct
+            'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ];
     }
 
     /**
-     * Mettre à jour le profil utilisateur.
+     * Update user profile.
      */
-    public function updateProfile(User $user, array $data)
+    public function updateProfile(User $user, array $data): array
     {
+        // Handle profile photo
         if (isset($data['photo'])) {
             if ($user->photo) {
-                Storage::disk('public')->delete($user->photo); // Supprime l'ancienne photo
+                Storage::disk('public')->delete($user->photo);
             }
 
             $photoPath = $data['photo']->store('photos', 'public');
             $data['photo'] = $photoPath;
         }
 
+        // Check if email_verified_at is null and update if necessary
+        if ($user->email_verified_at === null) {
+            $data['email_verified_at'] = now(); // Current date
+        }
+
+        // Update user
         $user->update($data);
 
         return [
+            'success' => true,
             'message' => 'Profile updated successfully.',
-            'user' => $this->getProfile($user), // Retourne les infos mises à jour
+            'user' => $this->getProfile($user),
+            'email_verified_at' => $user->email_verified_at,
         ];
     }
 
     /**
-     * Changer le mot de passe utilisateur.
+     * Change user password.
      */
-    public function changePassword(User $user, array $data)
+    public function changePassword(User $user, array $data): array
     {
-        // Vérifier que l'ancien mot de passe est correct
         if (!Hash::check($data['old_password'], $user->password)) {
             return [
                 'success' => false,
@@ -56,15 +65,13 @@ class ProfileService
             ];
         }
 
-        // Vérifier que le nouveau mot de passe est différent de l'ancien
         if (Hash::check($data['new_password'], $user->password)) {
             return [
                 'success' => false,
-                'message' => 'The new password must be different from the current password.',
+                'message' => 'The new password must be different from the old one.',
             ];
         }
 
-        // Vérifier la complexité du nouveau mot de passe
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $data['new_password'])) {
             return [
                 'success' => false,
@@ -72,9 +79,7 @@ class ProfileService
             ];
         }
 
-        // Mettre à jour le mot de passe
-        $user->password = Hash::make($data['new_password']);
-        $user->save();
+        $user->update(['password' => Hash::make($data['new_password'])]);
 
         return [
             'success' => true,

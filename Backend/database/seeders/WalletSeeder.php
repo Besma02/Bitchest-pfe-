@@ -5,16 +5,16 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
+use Faker\Factory as Faker;
 
 class WalletSeeder extends Seeder
 {
     public function run()
     {
-        // Récupère tous les utilisateurs
-        $users = User::all();
+        $faker = Faker::create(); // Création d'une instance de Faker
 
-        // Pour chaque utilisateur, crée un wallet
-        $users->each(function ($user) {
+        // Récupère tous les utilisateurs
+        User::all()->each(function ($user) use ($faker) {
             Wallet::create([
                 'idUser' => $user->id,
                 'publicAdress' => '0x' . bin2hex(random_bytes(16)), // Adresse publique aléatoire

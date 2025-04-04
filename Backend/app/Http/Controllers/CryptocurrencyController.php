@@ -36,4 +36,3 @@ class CryptocurrencyController extends Controller
         ]);
     }
 }
-
