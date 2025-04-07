@@ -19,10 +19,16 @@ import NotificationsList from "@/components/sections/NotificationsList.vue";
 import CompeteProfile from "@/views/CompeteProfile.vue";
 import AddCrypto from "@/components/admin/cryptos/AddCrypto.vue";
 import ResetPassword from "@/views/ResetPassword.vue";
+import NotFound from "@/views/NotFound.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/:pathMatch(.*)*",
+      name: "NotFound",
+      component: NotFound,
+    },
     {
       path: "/",
       name: "home",
