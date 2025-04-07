@@ -109,13 +109,6 @@ Nous examinerons avec plaisir vos suggestions ! 🙌
 
 ---
 
-## 📄 Licence
-
-Ce projet est sous licence **MIT**.  
-Vous pouvez l'utiliser, le modifier et le distribuer librement, tant que vous respectez les termes de la licence.
-
----
-
 ## 🖼️ Aperçus visuels
 
 
