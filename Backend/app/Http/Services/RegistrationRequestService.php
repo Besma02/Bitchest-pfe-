@@ -82,7 +82,7 @@ class RegistrationRequestService
 
         Wallet::create([
             'idUser' => $user->id,
-            'balance' => 0, // Solde initial
+            'balance' => 500, // Solde initial
             'publicAdress' => '0x' . Str::random(64), // Adresse publique aléatoire
             'privateAdress' => '0x' . hash('sha256', Str::random(64)), // Adresse privée aléatoire (hashée pour plus de sécurité)
         ]);

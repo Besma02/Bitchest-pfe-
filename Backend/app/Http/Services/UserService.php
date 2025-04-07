@@ -7,53 +7,70 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\SendPasswordMail;
+use App\Models\Wallet;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
-    public function createUser($request)
+
+
+    public function createUser(Request $request)
     {
-        // Validate the data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        DB::beginTransaction();
 
-        // Generate a random password
-        $password = Str::random(10);
-
-        // Create user data
-        $userData = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'password' => Hash::make($password),
-        ];
-
-        // Handle photo upload if present
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('photos', 'public');
-            $userData['photo'] = $path;
-        }
-
-        // Create the user
-        $user = User::create($userData);
-
-        // Send password email
         try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users',
+                'role' => 'required|string',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            $password = Str::random(10);
+
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['role'],
+                'password' => Hash::make($password),
+                'photo' => $request->file('photo')?->store('photos', 'public')
+            ]);
+
+            // Create wallet with initial balance
+            $wallet = Wallet::create([
+                'idUser' => $user->id,
+                'balance' => 500.00,
+                'publicAdress' => '0x' . Str::random(64),
+                'privateAdress' => '0x' . hash('sha256', Str::random(64)),
+            ]);
+
+            // Send email
             Mail::to($user->email)->send(new SendPasswordMail($user->name, $password));
-            Log::debug('Email sent successfully to ' . $user->email);
-        } catch (\Exception $e) {
-            Log::error('Error sending email', ['error' => $e->getMessage()]);
+
+            DB::commit();
+
             return response()->json([
-                'message' => 'User created, but an error occurred while sending the email.',
-                'error' => $e->getMessage(),
+                'user' => $user,
+                'wallet' => $wallet,
+                'password' => $password // Only for debug, remove in production
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('User creation failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'User creation failed',
+                'error' => $e->getMessage()
             ], 500);
         }
-
-        return ['user' => $user, 'password' => $password]; // Return both user and password
     }
 
     public function updateUser($request, $id)

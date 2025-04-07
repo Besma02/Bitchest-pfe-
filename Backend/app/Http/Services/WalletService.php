@@ -18,7 +18,7 @@ class WalletService
             // Si aucun wallet n'est trouvé, créer un nouveau wallet
             $wallet = Wallet::create([
                 'idUser' => $user->id,
-                'balance' => 0, // Solde initial
+                'balance' => 500, // Solde initial
             ]);
         }
 
